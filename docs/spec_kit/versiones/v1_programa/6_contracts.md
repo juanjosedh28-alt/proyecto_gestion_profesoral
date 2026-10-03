@@ -8,7 +8,7 @@ Documento 6 de 8 del spec kit raíz: cómo se hablan las piezas entre sí (puert
 
 | Servicio | Host interno (red compose) | Puerto publicado al PC |
 |---|---|---|
-| api-gestion | `api-gestion:8011` | 8011 (`/swagger`) |
+| api-gestion | `api-gestion:8074` | 8074 (`/swagger`) |
 | sqlserver | `sqlserver:1433` | 11443 |
 
 Regla: entre contenedores siempre el host interno con puerto estándar; desde el PC siempre `localhost` con el puerto publicado.
@@ -21,7 +21,7 @@ Regla: entre contenedores siempre el host interno con puerto estándar; desde el
 
 | Variable | Valor en compose |
 |---|---|
-| `ASPNETCORE_URLS` | `http://+:8011` |
+| `ASPNETCORE_URLS` | `http://+:8074` |
 | `ConnectionStrings__GestionLocal` | `Server=sqlserver,1433;Database=gestion_local;User Id=sa;Password=Paradigmas123!;TrustServerCertificate=True` |
 
 ### Motor

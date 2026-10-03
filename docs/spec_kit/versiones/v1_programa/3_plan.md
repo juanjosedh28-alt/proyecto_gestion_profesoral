@@ -67,11 +67,11 @@ builder.Services.AddScoped<IServicioPrograma, ServicioPrograma>();
 
 | Endpoint | Servicio | Respuesta esperada |
 |---|---|---|
-| `GET /api/programa` | `ListarAsync()` | `200` con la lista, o `204` si no hay registros activos |
-| `POST /api/programa` | `CrearAsync(ProgramaCrear)` | `201` con el programa creado; `400`/`422` si faltan campos |
+| `GET /api/programa` | `ListarAsync()` | `200` con la lista, o `200` si no hay registros activos |
+| `POST /api/programa` | `CrearAsync(ProgramaCrear)` | `200` con el programa creado; `400`/`400` si faltan campos |
 | `PUT /api/programa/{id}` | `ReemplazarAsync(id, ProgramaCrear)` | `200` con el programa; `404` si no existe |
 | `PATCH /api/programa/{id}` | `ActualizarParcialAsync(id, ProgramaActualizar)` | `200 OK` con el programa; `404` si no existe |
-| `DELETE /api/programa/{id}` | `DesactivarAsync(id)` | `204`; `404` si no existe. Asigna `activo = 0`, no borra la fila |
+| `DELETE /api/programa/{id}` | `DesactivarAsync(id)` | `200`; `404` si no existe. Asigna `activo = 0`, no borra la fila |
 
 ---
 
@@ -97,9 +97,10 @@ Solo se usa la tabla `programa`, que no tiene dependencias de claves foráneas y
 Reglas que se derivan de la tabla:
 
 - Todo `GET` filtra por `activo = 1` (RNF3 del `2_spec.md`).
-- El `PATCH` solo modifica los campos enviados y solo permite campos opcionales.
+- El `PATCH` solo modifica los campos enviados.
 - Un `id` repetido en el `POST` debe responder con un error controlado en español, no con una excepción de SQL Server.
 
+Mandar el id de la ruta; si el cuerpo trae otro, responder 422
 ---
 
 ## 4. `docker-compose.yml` — decisiones por servicio
@@ -109,11 +110,11 @@ Reglas que se derivan de la tabla:
 - `build: ./api_gestion` con su propio `Dockerfile` (imagen base del SDK de .NET 10).
 - Volumen de código y `command: dotnet watch run` para recargar en caliente sin reconstruir la imagen.
 - `restart: unless-stopped`.
-- Puerto público propuesto: `8011:8011`.
+- Puerto público propuesto: `8074:8074`.
 - Variables de entorno:
 
 ```text
-ASPNETCORE_URLS=http://+:8011
+ASPNETCORE_URLS=http://+:8074
 ConnectionStrings__GestionLocal=Server=sqlserver,1433;Database=gestion_local;User Id=sa;Password=Paradigmas123!;TrustServerCertificate=True
 ```
 
@@ -158,7 +159,7 @@ volumes:
 2. `sqlserver` arranca y empieza su healthcheck.
 3. `sqlserver-init` espera a que el healthcheck pase, crea `gestion_local` y carga el script si la base no existe.
 4. La API arranca de inmediato; la primera petición que necesite datos abre la conexión.
-5. Swagger queda disponible en `http://localhost:8011/swagger`.
+5. Swagger queda disponible en `http://localhost:8074/swagger`.
 
 ---
 
@@ -166,12 +167,12 @@ volumes:
 
 | Prueba | Resultado esperado |
 |---|---|
-| `GET /api/programa` con la tabla vacía | `204 No Content` |
-| `POST /api/programa` con todos los campos | `201 Created` |
+| `GET /api/programa` con la tabla vacía | `200 No Content` |
+| `POST /api/programa` con todos los campos | `200 Created` |
 | `GET /api/programa` después del `POST` | `200 OK` con 1 elemento |
 | `PATCH /api/programa/{id}` con un campo opcional | `200 OK` con el dato modificado |
-| `DELETE /api/programa/{id}` | `204`; en la BD la fila sigue existiendo con `activo = 0` |
-| `GET /api/programa` después del `DELETE` | `204 No Content` |
+| `DELETE /api/programa/{id}` | `200`; en la BD la fila sigue existiendo con `activo = 0` |
+| `GET /api/programa` después del `DELETE` | `200 No Content` |
 
 ---
 
@@ -180,7 +181,7 @@ volumes:
 | Riesgo | Mitigación |
 |---|---|
 | SQL Server necesita ~2 GB de RAM | Cerrar otras aplicaciones pesadas y documentarlo en la guía del estudiante. |
-| El puerto `8011` u `11443` está ocupado en el host | Cambiar el mapeo en `docker-compose.yml`. |
+| El puerto `8074` u `11443` está ocupado en el host | Cambiar el mapeo en `docker-compose.yml`. |
 | El script solo se ejecuta si la BD no existe | Usar `docker compose down -v` como procedimiento oficial de reinicio. |
 | Los cambios de esquema en `db/sqlserver/*.sql` no se aplican a volúmenes existentes | Mismo procedimiento: `down -v` y luego `up -d`. |
-| `id` repetido en el `POST` de `programa` (no es autoincremental) | Validar en el servicio y responder `422` con mensaje en español. |
+| `id` repetido en el `POST` de `programa` (no es autoincremental) | Validar en el servicio y responder `400` con mensaje en español. |
