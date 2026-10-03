@@ -1,5 +1,6 @@
+using System.Net;
 using System.Net.Http.Json;
-using ApiGestion.Modelos; // o el DTO correspondiente en el front
+using FrontBlazor.Models;
 
 namespace FrontBlazor.Services;
 
@@ -7,15 +8,15 @@ public class ProgramaService
 {
     private readonly HttpClient _http;
 
-    public ProgramaService(HttpClient http)
-    {
-        _http = http;
-    }
+    public ProgramaService(HttpClient http) => _http = http;
 
     public async Task<List<Programa>> ObtenerTodosAsync()
     {
-        var respuesta = await _http.GetFromJsonAsync<RespuestaApi<Programa>>("api/programa");
-        return respuesta?.Datos ?? new List<Programa>();
+        var res = await _http.GetAsync("api/programa");
+        if (res.StatusCode == HttpStatusCode.NoContent) return new List<Programa>(); // la API responde 204 si no hay datos
+        res.EnsureSuccessStatusCode();
+        var cuerpo = await res.Content.ReadFromJsonAsync<RespuestaApi<Programa>>();
+        return cuerpo?.Datos ?? new List<Programa>();
     }
 
     public async Task<bool> CrearAsync(Programa programa)
@@ -33,7 +34,7 @@ public class ProgramaService
 
 public class RespuestaApi<T>
 {
-    public string Recurso { get; set; } = string.Empty;
+    public string Tabla { get; set; } = string.Empty;
     public int Total { get; set; }
     public List<T> Datos { get; set; } = new();
 }

@@ -1,5 +1,4 @@
 services:
-  # --- SQL Server 2022: el motor de base de datos ---
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: gestion-sqlserver
@@ -18,7 +17,6 @@ services:
       retries: 20
       start_period: 30s
 
-  # --- Inicializador: crea la base y corre el script UNA vez ---
   sqlserver-init:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: gestion-sqlserver-init
@@ -32,7 +30,6 @@ services:
         condition: service_healthy
     entrypoint: ["/bin/bash", "/scripts/init.sh"]
 
-  # --- La API: C# / ASP.NET Core ---
   api-gestion:
     build: ./api_gestion
     container_name: gestion-api
@@ -48,11 +45,13 @@ services:
     depends_on:
       sqlserver-init:
         condition: service_completed_successfully
-# --- LA parte del front borrar en dado caso ---
-        front-blazor:
+
+  front-blazor:
     build:
       context: ./front_blazor
       dockerfile: Dockerfile
+    container_name: gestion-front
+    restart: unless-stopped
     ports:
       - "8075:80"
     depends_on:

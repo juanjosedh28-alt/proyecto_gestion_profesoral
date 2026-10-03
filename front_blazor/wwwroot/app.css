@@ -1,0 +1,7 @@
+body { font-family: system-ui, sans-serif; margin: 0; background: #f5f6f8; color: #222; }
+.contenedor { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { padding: .6rem .8rem; border-bottom: 1px solid #e3e5e8; text-align: left; }
+th { background: #eceef1; }
+button.peligro { background: #c62828; color: #fff; border: 0; padding: .3rem .7rem; border-radius: 4px; cursor: pointer; }
+.error { color: #c62828; }
