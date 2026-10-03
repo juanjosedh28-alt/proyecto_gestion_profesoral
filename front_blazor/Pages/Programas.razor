@@ -1,0 +1,63 @@
+@page "/programas"
+@inject ProgramaService ProgramaService
+
+<h3>Gestión de Programas Académicos</h3>
+
+@if (programas == null)
+{
+    <p><em>Cargando programas...</em></p>
+}
+else if (!programas.Any())
+{
+    <p>No hay programas registrados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Nivel</th>
+                <th>Ciudad</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var prog in programas)
+            {
+                <tr>
+                    <td>@prog.Id</td>
+                    <td>@prog.Nombre</td>
+                    <td>@prog.Tipo</td>
+                    <td>@prog.Nivel</td>
+                    <td>@prog.Ciudad</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="() => Eliminar(prog.Id)">Eliminar</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Programa>? programas;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProgramas();
+    }
+
+    private async Task CargarProgramas()
+    {
+        programas = await ProgramaService.ObtenerTodosAsync();
+    }
+
+    private async Task Eliminar(int id)
+    {
+        var exito = await ProgramaService.EliminarAsync(id);
+        if (exito) await CargarProgramas();
+    }
+}
