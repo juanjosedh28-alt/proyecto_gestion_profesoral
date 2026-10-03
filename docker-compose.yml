@@ -48,6 +48,15 @@ services:
     depends_on:
       sqlserver-init:
         condition: service_completed_successfully
+# --- LA parte del front borrar en dado caso ---
+        front-blazor:
+    build:
+      context: ./front_blazor
+      dockerfile: Dockerfile
+    ports:
+      - "8075:80"
+    depends_on:
+      - api-gestion
 
 volumes:
   mssqldata:
