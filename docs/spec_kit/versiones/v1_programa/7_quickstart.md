@@ -10,7 +10,7 @@ Documento 7 de 8 del spec kit raíz. Validación del sistema ya construido (vers
 git clone <url-del-repositorio>
 cd gestion_profesoral
 docker compose up -d --build     # primera vez: varios minutos
-curl http://localhost:8074/api/programa
+ http://localhost:8074/api/programa
 ```
 
 ---
@@ -27,7 +27,7 @@ docker compose ps
 2. Listado vacío (la tabla `programa` arranca sin filas). Esperado: `204 No Content`.
 
 ```bash
-curl -i http://localhost:8074/api/programa
+ -i http://localhost:8074/api/programa
 ```
 
 3. Crear un programa. Esperado: `200 OK`. Con campos faltantes: `422 Unprocessable Entity`.
@@ -35,7 +35,8 @@ curl -i http://localhost:8074/api/programa
 ```bash
 curl -i -X POST http://localhost:8074/api/programa \
   -H "Content-Type: application/json" \
-  -d '{"id":1,"nombre":"Ingeniería de Sistemas","tipo":"Pregrado","nivel":"Profesional","fecha_creacion":"2000-01-15","numero_cohortes":"40","cant_graduados":"1200","fecha_actualizacion":"2025-01-01","ciudad":"Medellín","facultad":1}'
+  -d '{"id":1,"nombre":"Ingeniería de Sistemas","tipo":"Pregrado","nivel":"Profesional","ciudad":"Medellín","facultad":1}'
+  [JsonPropertyName("fecha_creacion")] en los DTOs, o configurar JsonNamingPolicy.SnakeCaseLower en Program.cs.
 ```
 
 4. Consultar por id. Esperado: `200 OK`. Con un id inexistente: `404 Not Found`.
