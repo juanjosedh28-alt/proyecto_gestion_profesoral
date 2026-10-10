@@ -1,0 +1,22 @@
+@model front_razor.Modelos.RedFormulario
+
+<div class="mb-3">
+    <label asp-for="Idr" class="form-label"></label>
+    <input asp-for="Idr" class="form-control" type="number" readonly="@(ViewData["Editando"] is true ? "readonly" : null)" />
+    <span asp-validation-for="Idr" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Nombre" class="form-label"></label>
+    <input asp-for="Nombre" class="form-control" />
+    <span asp-validation-for="Nombre" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Url" class="form-label"></label>
+    <input asp-for="Url" class="form-control" />
+    <span asp-validation-for="Url" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Pais" class="form-label"></label>
+    <input asp-for="Pais" class="form-control" />
+    <span asp-validation-for="Pais" class="text-danger"></span>
+</div>

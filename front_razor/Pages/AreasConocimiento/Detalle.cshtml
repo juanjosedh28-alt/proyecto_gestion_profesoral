@@ -1,0 +1,11 @@
+@page
+@model front_razor.Pages.AreasConocimiento.DetalleModel
+@{ ViewData["Title"] = "Detalle del área"; }
+
+<h1 class="h3 mb-3">Área @Model.Area.Id</h1>
+<dl class="row">
+    <dt class="col-sm-3">Gran área</dt><dd class="col-sm-9">@Model.Area.GranArea</dd>
+    <dt class="col-sm-3">Área</dt><dd class="col-sm-9">@Model.Area.Area</dd>
+    <dt class="col-sm-3">Disciplina</dt><dd class="col-sm-9">@Model.Area.Disciplina</dd>
+</dl>
+<a class="btn btn-secondary" asp-page="Index">Volver</a>

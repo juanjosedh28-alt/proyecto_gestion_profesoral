@@ -1,0 +1,14 @@
+@page
+@model front_razor.Pages.TerminosClave.CrearModel
+@{ ViewData["Title"] = "Nuevo registro"; }
+
+<h1 class="h3 mb-3">Nuevo registro — Términos clave</h1>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <partial name="_Campos" model="Model.Formulario" />
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancelar</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

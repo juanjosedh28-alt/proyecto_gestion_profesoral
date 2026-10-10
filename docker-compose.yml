@@ -46,16 +46,21 @@ services:
       sqlserver-init:
         condition: service_completed_successfully
 
-  front-blazor:
-    build:
-      context: ./front_blazor
-      dockerfile: Dockerfile
-    container_name: gestion-front
+  front-razor:
+    build: ./front_razor
+    container_name: front-razor
     restart: unless-stopped
     ports:
-      - "8075:80"
-    depends_on:
-      - api-gestion
+      - "8010:8010"
+    volumes:
+      - ./front_razor:/app
+      - /app/bin
+      - /app/obj
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8010
+      - ApiGestion__BaseUrl=http://api-gestion:8074
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
 
 volumes:
   mssqldata:

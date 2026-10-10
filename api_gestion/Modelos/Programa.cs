@@ -1,5 +1,6 @@
 namespace ApiGestion.Modelos;
 
+/// <summary>Entidad que representa una fila de la tabla <c>programa</c>. También es el cuerpo de respuesta de la API (no incluye la columna <c>activo</c>).</summary>
 public class Programa
 {
     public int Id { get; set; }
@@ -10,8 +11,7 @@ public class Programa
     public string? FechaCierre { get; set; }
     public string NumeroCohortes { get; set; } = string.Empty;
     public string CantGraduados { get; set; } = string.Empty;
-    public string FechaActualizacion { get; set; } = string.Empty;
     public string Ciudad { get; set; } = string.Empty;
     public int Facultad { get; set; }
-    public bool Activo { get; set; } = true;
+    public string FechaActualizacion { get; set; } = string.Empty;
 }

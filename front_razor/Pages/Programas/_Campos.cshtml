@@ -1,0 +1,52 @@
+@model front_razor.Modelos.ProgramaFormulario
+
+<div class="mb-3">
+    <label asp-for="Id" class="form-label"></label>
+    <input asp-for="Id" class="form-control" type="number" readonly="@(ViewData["Editando"] is true ? "readonly" : null)" />
+    <span asp-validation-for="Id" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Nombre" class="form-label"></label>
+    <input asp-for="Nombre" class="form-control" />
+    <span asp-validation-for="Nombre" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Tipo" class="form-label"></label>
+    <input asp-for="Tipo" class="form-control" />
+    <span asp-validation-for="Tipo" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Nivel" class="form-label"></label>
+    <input asp-for="Nivel" class="form-control" />
+    <span asp-validation-for="Nivel" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="FechaCreacion" class="form-label"></label>
+    <input asp-for="FechaCreacion" class="form-control" type="date" />
+    <span asp-validation-for="FechaCreacion" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="FechaCierre" class="form-label"></label>
+    <input asp-for="FechaCierre" class="form-control" type="date" />
+    <span asp-validation-for="FechaCierre" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="NumeroCohortes" class="form-label"></label>
+    <input asp-for="NumeroCohortes" class="form-control" />
+    <span asp-validation-for="NumeroCohortes" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="CantGraduados" class="form-label"></label>
+    <input asp-for="CantGraduados" class="form-control" />
+    <span asp-validation-for="CantGraduados" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Ciudad" class="form-label"></label>
+    <input asp-for="Ciudad" class="form-control" />
+    <span asp-validation-for="Ciudad" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Facultad" class="form-label"></label>
+    <input asp-for="Facultad" class="form-control" type="number" />
+    <span asp-validation-for="Facultad" class="text-danger"></span>
+</div>

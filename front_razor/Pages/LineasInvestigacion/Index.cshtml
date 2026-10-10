@@ -1,0 +1,40 @@
+@page
+@model front_razor.Pages.LineasInvestigacion.IndexModel
+@{ ViewData["Title"] = "Líneas de investigación"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Líneas de investigación</h1>
+    <a class="btn btn-primary" asp-page="Crear">Nuevo</a>
+</div>
+
+@if (Model.MensajeError != null)
+{
+    <div class="alert alert-danger">@Model.MensajeError</div>
+}
+else if (Model.Items.Count == 0)
+{
+    <p class="text-muted">No hay registros.</p>
+}
+else
+{
+    <div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Id</th><th>Nombre</th><th>Descripción</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var x in Model.Items)
+        {
+            <tr>
+                <td>@x.Id</td><td>@x.Nombre</td><td>@x.Descripcion</td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Editar" asp-route-id="@x.Id">Editar</a>
+                    <form method="post" asp-page-handler="Eliminar" asp-route-id="@x.Id" class="d-inline"
+                          onsubmit="return confirm('¿Eliminar este registro?')">
+                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+}

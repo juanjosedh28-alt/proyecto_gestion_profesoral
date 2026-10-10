@@ -1,38 +1,80 @@
 using ApiGestion.Excepciones;
 using ApiGestion.Modelos;
+using ApiGestion.Peticiones;
 using ApiGestion.Repositorios;
 
 namespace ApiGestion.Servicios;
 
+/// <summary>Contrato de las reglas de negocio de <c>programa</c>.</summary>
+public interface IServicioPrograma
+{
+    Task<List<Programa>> ListarAsync();
+    Task<Programa> ObtenerAsync(int clave);
+    Task<Programa> CrearAsync(ProgramaCrear p);
+    Task<Programa> ActualizarAsync(int id, ProgramaCrear p);
+    Task EliminarAsync(int clave);
+}
+
+/// <summary>Servicio (capa de negocio) de <c>programa</c>: valida reglas, detecta conflictos y lanza excepciones que la API traduce a 404/409/422.</summary>
 public class ServicioPrograma : IServicioPrograma
 {
     private readonly IRepositorioPrograma _repo;
 
-    public ServicioPrograma(IRepositorioPrograma repo)
+    public ServicioPrograma(IRepositorioPrograma repo) => _repo = repo;
+
+    public Task<List<Programa>> ListarAsync() => _repo.ListarAsync();
+
+    public async Task<Programa> ObtenerAsync(int clave) =>
+        await _repo.ObtenerAsync(clave) ?? throw new NoEncontradoExcepcion($"No se encontró el programa con id {clave}.");
+
+    public async Task<Programa> CrearAsync(ProgramaCrear p)
     {
-        _repo = repo;
+        ValidarFechas(p.FechaCreacion, p.FechaCierre);
+        if (await _repo.ExisteAsync(p.Id)) throw new ConflictoExcepcion($"Ya existe un programa con id {p.Id}.");
+        var entidad = Mapear(p);
+        await _repo.CrearAsync(entidad);
+        return entidad;
     }
 
-    public Task<List<Programa>> ObtenerTodosAsync(int limite = 100) => _repo.ObtenerTodosAsync(limite);
-
-    public async Task<Programa> ObtenerPorIdAsync(int id)
+    public async Task<Programa> ActualizarAsync(int id, ProgramaCrear p)
     {
-        var item = await _repo.ObtenerPorIdAsync(id);
-        if (item == null) throw new NoEncontradoExcepcion($"El programa con ID {id} no existe o está inactivo.");
-        return item;
+        ValidarFechas(p.FechaCreacion, p.FechaCierre);
+        if (id != p.Id) throw new ValidacionExcepcion($"El id de la ruta ({id}) no coincide con el id del cuerpo ({p.Id}).");
+        var entidad = Mapear(p);
+        if (!await _repo.ActualizarAsync(entidad)) throw new NoEncontradoExcepcion($"No se encontró el programa con id {id}.");
+        return entidad;
     }
 
-    public Task CrearAsync(Programa entidad) => _repo.CrearAsync(entidad);
-
-    public async Task ActualizarAsync(Programa entidad)
+    public async Task EliminarAsync(int clave)
     {
-        var exito = await _repo.ActualizarAsync(entidad);
-        if (!exito) throw new NoEncontradoExcepcion($"No se pudo actualizar: el programa con ID {entidad.Id} no existe.");
+        if (!await _repo.EliminarLogicoAsync(clave)) throw new NoEncontradoExcepcion($"No se encontró el programa con id {clave}.");
     }
 
-    public async Task EliminarAsync(int id)
+    /// <summary>Valida que las fechas existan de verdad y que el cierre no sea anterior a la creación.</summary>
+    private static void ValidarFechas(string creacion, string? cierre)
     {
-        var exito = await _repo.EliminarLogicoAsync(id);
-        if (!exito) throw new NoEncontradoExcepcion($"El programa con ID {id} no existe o ya fue eliminado.");
+        const string formato = "yyyy-MM-dd";
+        if (!DateTime.TryParseExact(creacion, formato, null, System.Globalization.DateTimeStyles.None, out var fc))
+            throw new ValidacionExcepcion("Datos inválidos.", "fecha_creacion: La fecha de creación no es una fecha válida.");
+        if (string.IsNullOrEmpty(cierre)) return;
+        if (!DateTime.TryParseExact(cierre, formato, null, System.Globalization.DateTimeStyles.None, out var fcierre))
+            throw new ValidacionExcepcion("Datos inválidos.", "fecha_cierre: La fecha de cierre no es una fecha válida.");
+        if (fcierre < fc)
+            throw new ValidacionExcepcion("Datos inválidos.", "fecha_cierre: La fecha de cierre no puede ser anterior a la fecha de creación.");
     }
+
+    private static Programa Mapear(ProgramaCrear p) => new()
+    {
+            Id = p.Id,
+            Nombre = p.Nombre,
+            Tipo = p.Tipo,
+            Nivel = p.Nivel,
+            FechaCreacion = p.FechaCreacion,
+            FechaCierre = p.FechaCierre,
+            NumeroCohortes = p.NumeroCohortes,
+            CantGraduados = p.CantGraduados,
+            Ciudad = p.Ciudad,
+            Facultad = p.Facultad,
+            FechaActualizacion = DateTime.Now.ToString("yyyy-MM-dd"),
+    };
 }
