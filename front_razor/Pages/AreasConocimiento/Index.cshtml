@@ -1,0 +1,37 @@
+@page
+@model front_razor.Pages.AreasConocimiento.IndexModel
+@{ ViewData["Title"] = "Áreas de conocimiento"; }
+
+<h1 class="h3 mb-3">Áreas de conocimiento</h1>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto"><input name="buscar" value="@Model.Buscar" class="form-control" placeholder="Buscar..." /></div>
+    <div class="col-auto"><button class="btn btn-primary">Buscar</button></div>
+</form>
+
+@if (Model.MensajeError != null)
+{
+    <div class="alert alert-danger">@Model.MensajeError</div>
+}
+else if (Model.Items.Count == 0)
+{
+    <p class="text-muted">No hay registros.</p>
+}
+else
+{
+    <p class="text-muted">@Model.Items.Count registro(s).</p>
+    <div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Id</th><th>Gran área</th><th>Área</th><th>Disciplina</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var x in Model.Items)
+        {
+            <tr>
+                <td>@x.Id</td><td>@x.GranArea</td><td>@x.Area</td><td>@x.Disciplina</td>
+                <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-page="Detalle" asp-route-id="@x.Id">Ver</a></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+}

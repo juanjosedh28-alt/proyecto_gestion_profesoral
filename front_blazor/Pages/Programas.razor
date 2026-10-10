@@ -1,0 +1,66 @@
+@page "/"
+@page "/programas"
+@inject ProgramaService Servicio
+
+<h1>Gestión de Programas Académicos</h1>
+
+@if (error is not null)
+{
+    <p class="error">@error</p>
+}
+
+@if (programas is null && error is null)
+{
+    <p><em>Cargando programas...</em></p>
+}
+else if (programas is not null && programas.Count == 0)
+{
+    <p>No hay programas registrados.</p>
+}
+else if (programas is not null)
+{
+    <table>
+        <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Nivel</th><th>Ciudad</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+        @foreach (var p in programas)
+        {
+            <tr>
+                <td>@p.Id</td>
+                <td>@p.Nombre</td>
+                <td>@p.Tipo</td>
+                <td>@p.Nivel</td>
+                <td>@p.Ciudad</td>
+                <td><button class="peligro" @onclick="() => Eliminar(p.Id)">Eliminar</button></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Programa>? programas;
+    private string? error;
+
+    protected override async Task OnInitializedAsync() => await Cargar();
+
+    private async Task Cargar()
+    {
+        try
+        {
+            error = null;
+            programas = await Servicio.ObtenerTodosAsync();
+        }
+        catch (Exception ex)
+        {
+            error = $"No se pudo conectar con la API: {ex.Message}";
+        }
+    }
+
+    private async Task Eliminar(int id)
+    {
+        if (await Servicio.EliminarAsync(id)) await Cargar();
+        else error = "No se pudo eliminar el programa.";
+    }
+}

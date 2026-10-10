@@ -1,0 +1,62 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: gestion-sqlserver
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Aplicacionweb123!
+    ports:
+      - "11472:1433"
+    volumes:
+      - mssqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' -b"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+
+  sqlserver-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: gestion-sqlserver-init
+    restart: "no"
+    environment:
+      - MSSQL_SA_PASSWORD=Aplicacionweb123!
+    volumes:
+      - ./db:/scripts:ro
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/scripts/init.sh"]
+
+  api-gestion:
+    build: ./api_gestion
+    container_name: gestion-api
+    restart: unless-stopped
+    ports:
+      - "8074:8074"
+    environment:
+      - ConnectionStrings__SqlServer=Server=sqlserver,1433;Database=gestion_local;User Id=sa;Password=Aplicacionweb123!;TrustServerCertificate=True;
+    depends_on:
+      sqlserver-init:
+        condition: service_completed_successfully
+
+  front-razor:
+    build: ./front_razor
+    container_name: front-razor
+    restart: unless-stopped
+    ports:
+      - "8010:8010"
+    volumes:
+      - ./front_razor:/app
+      - /app/bin
+      - /app/obj
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8010
+      - ApiGestion__BaseUrl=http://api-gestion:8074
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+
+volumes:
+  mssqldata:

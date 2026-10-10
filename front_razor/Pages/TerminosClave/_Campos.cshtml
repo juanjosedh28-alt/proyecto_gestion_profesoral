@@ -1,0 +1,12 @@
+@model front_razor.Modelos.TerminoClaveFormulario
+
+<div class="mb-3">
+    <label asp-for="Termino" class="form-label"></label>
+    <input asp-for="Termino" class="form-control" readonly="@(ViewData["Editando"] is true ? "readonly" : null)" />
+    <span asp-validation-for="Termino" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="TerminoIngles" class="form-label"></label>
+    <input asp-for="TerminoIngles" class="form-control" />
+    <span asp-validation-for="TerminoIngles" class="text-danger"></span>
+</div>
