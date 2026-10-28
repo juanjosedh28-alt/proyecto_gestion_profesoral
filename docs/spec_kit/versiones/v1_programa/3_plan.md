@@ -362,11 +362,8 @@ Decisiones por servicio:
 
 | Riesgo | Mitigación |
 |---|---|
-| SQL Server necesita ~2 GB de RAM | Cerrar aplicaciones pesadas; documentado en `7_quickstart.md`. |
-| Puertos `8010`, `8074` u `11443` ocupados | Cambiar el mapeo en `docker-compose.yml` (y la URL base si se cambia el de la API interna: no aplica, la interna no cambia). |
-| La primera petición llega antes de que la BD exista | `EnableRetryOnFailure`; esperar a que `sqlserver-init` esté en `Exited (0)` antes de probar (quickstart paso 2). |
-| El script solo corre si la BD no existe | `docker compose down -v` + `up -d` como procedimiento oficial. |
-| Los cambios de `*.sql` no se aplican a volúmenes existentes | Mismo procedimiento. |
-| `dotnet watch` no detecta cambios en Windows/Mac | `DOTNET_USE_POLLING_FILE_WATCHER=true` (ya incluido). |
-| `bin/` y `obj/` generados en el host chocan con los del contenedor | `.gitignore` y, si falla la restauración, borrar `api_gestion/obj` y `front_razor/obj`. |
-| El mismo `id` existe como inactivo y el cliente intenta recrearlo | Se responde `409` (limitación conocida de la v1: no hay reactivación). |
+| SQL Server necesita ~2 GB de RAM | Cerrar otras aplicaciones pesadas y documentarlo en la guía del estudiante. |
+| El puerto `8074` u `11443` está ocupado en el host | Cambiar el mapeo en `docker-compose.yml`. |
+| El script solo se ejecuta si la BD no existe | Usar `docker compose down -v` como procedimiento oficial de reinicio. |
+| Los cambios de esquema en `db/sqlserver/*.sql` no se aplican a volúmenes existentes | Mismo procedimiento: `down -v` y luego `up -d`. |
+| `id` repetido en el `POST` de `programa` (no es autoincremental) | Validar en el servicio y responder `400` con mensaje en español. |
