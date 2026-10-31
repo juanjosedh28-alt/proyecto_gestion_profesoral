@@ -525,3 +525,63 @@ GO
 --   programa                     0 filas (la v1 arranca con la tabla vacía)
 --   todas las demás              0 filas
 -- ============================================================
+
+-- =============================================
+-- PROCEDIMIENTOS ALMACENADOS - V2 (CRUD 100% SP)
+-- =============================================
+
+CREATE OR ALTER PROCEDURE sp_listar_docente
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT * FROM docente WHERE activo = 1 ORDER BY apellidos, nombres;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_crear_docente
+    @cedula INT,
+    @nombres VARCHAR(200),
+    @apellidos VARCHAR(200)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO docente (cedula, nombres, apellidos, activo, total_estudios)
+    VALUES (@cedula, @nombres, @apellidos, 1, 0);
+    
+    SELECT * FROM docente WHERE cedula = @cedula;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_eliminar_docente
+    @cedula INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE docente SET activo = 0 WHERE cedula = @cedula;
+END;
+GO
+
+-- =============================================
+-- DISPARADOR / TRIGGER - V2 (Contador en Maestro)
+-- =============================================
+
+CREATE OR ALTER TRIGGER trg_contar_estudios
+ON estudios_realizados
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE d 
+    SET d.total_estudios = (
+        SELECT COUNT(*) 
+        FROM estudios_realizados e
+        WHERE e.docente = d.cedula AND e.activo = 1
+    )
+    FROM docente d
+    WHERE d.cedula IN (
+        SELECT docente FROM inserted
+        UNION 
+        SELECT docente FROM deleted
+    );
+END;
+GO
