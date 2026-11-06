@@ -25,6 +25,16 @@ public abstract class ClienteApiBase
         return (await respuesta.Content.ReadFromJsonAsync<T>(Opciones))!;
     }
 
+    /// <summary>
+    /// (v2) Igual que GetAsync, pero si la API responde 404 devuelve null en vez de lanzar error.
+    /// Sirve para el detalle 1:1 del estudio: que un estudio no tenga beca es normal, no un error.
+    /// </summary>
+    protected async Task<T?> GetOpcionalAsync<T>(string ruta) where T : class
+    {
+        try { return await GetAsync<T>(ruta); }
+        catch (ErrorApiException ex) when (ex.Codigo == 404) { return null; }
+    }
+
     protected Task PostAsync(string ruta, object cuerpo) => EnviarAsync(HttpMethod.Post, ruta, cuerpo);
 
     protected Task PutAsync(string ruta, object cuerpo) => EnviarAsync(HttpMethod.Put, ruta, cuerpo);
