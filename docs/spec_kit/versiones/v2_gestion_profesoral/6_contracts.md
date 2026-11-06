@@ -7,7 +7,7 @@
 
 ## 1. Puertos, variables y credenciales
 
-Sin cambios: front `8010`, API `8074` (`/swagger`), SQL Server `11443`; `ConnectionStrings__GestionLocal` y `ApiGestion__BaseUrl` igual que en la v1; credenciales `sa` / `Paradigmas123!`. El `docker-compose.yml` no se modifica.
+Front `8010`, API `8074` (Swagger en la raíz `http://localhost:8074/`), SQL Server `11472`. Variables: `ConnectionStrings__SqlServer` (API) y `ApiGestion__BaseUrl` (front). La contraseña de `sa` **no está en el código**: se lee de `.env` (`MSSQL_SA_PASSWORD`); el repositorio trae `.env.example`.
 
 ---
 
@@ -57,10 +57,10 @@ Todos con prefijo `/api`. «Anidado» = ruta desde el maestro (lista y envío m�
 | `experiecia` | `{id:int}` | ídem | `GET`, `POST` (lista) en `/docente/{cedula:int}/experiecia` |
 | `apoyo-profesoral` | `{estudios:int}` | ídem | — (1:1: se consulta por la clave del estudio) |
 | `beca` | `{estudios:int}` | ídem | — (1:1) |
-| `docente-departamento` | `{docente:int}/{departamento:int}` | `GET` · `GET` por clave · `POST` · `PUT` (solo atributos) · `DELETE` | `GET`, `POST` (lista) en `/docente/{cedula:int}/docente-departamento` |
-| `red-docente` | `{red:int}/{docente:int}` | ídem | `GET`, `POST` (lista) en `/docente/{cedula:int}/red-docente` |
-| `intereses-futuros` | `{docente:int}/{termino}` | `GET` · `GET` por clave · `POST` · `DELETE` (**sin `PUT`**) | `GET`, `POST` (lista) en `/docente/{cedula:int}/intereses-futuros` |
-| `estudio-ac` | `{estudio:int}/{area}` | ídem | `GET`, `POST` (lista) en `/estudios-realizados/{id:int}/estudio-ac` |
+| `docente-departamento` | `{docente:int}/{departamento:int}` | `GET` · `GET` por clave · `POST` · `PUT` (solo atributos) · `DELETE` | `GET` en `/docente/{cedula:int}/docente-departamento` |
+| `red-docente` | `{red:int}/{docente:int}` | ídem | `GET` en `/docente/{cedula:int}/red-docente` |
+| `intereses-futuros` | `{docente:int}/{terminoClave}` | `GET` · `GET` por clave · `POST` · `DELETE` (**sin `PUT`**) | `GET` en `/docente/{cedula:int}/intereses-futuros` |
+| `estudio-ac` | `{estudio:int}/{areaConocimiento}` | ídem | `GET` en `/estudios-realizados/{id:int}/estudio-ac` |
 
 Códigos por verbo: `GET` lista `200` · `GET` por clave `200`/`404` · `POST` `201`/`409`/`422` · `PUT` `200`/`404`/`422` · `DELETE` `204`/`404`/`409` (`409` solo en `docente` y `estudios-realizados`).
 
@@ -178,12 +178,12 @@ Igual que la v1: el front consume la API **desde el servidor** (`HttpClient` tip
 | Crear docente | `/Docentes/Crear` |
 | Editar docente | `/Docentes/Editar/{cedula}` |
 | **Detalle del docente** (estudios, evaluaciones, experiencias, reconocimientos, departamentos, intereses, redes) | `/Docentes/Detalle/{cedula}` |
-| Editar un estudio | `/Docentes/{cedula}/Estudios/Editar/{id}` |
-| Editar una evaluación | `/Docentes/{cedula}/Evaluaciones/Editar/{id}` |
-| Editar una experiencia | `/Docentes/{cedula}/Experiencias/Editar/{id}` |
-| Editar un reconocimiento | `/Docentes/{cedula}/Reconocimientos/Editar/{id}` |
-| Editar un departamento | `/Docentes/{cedula}/Departamentos/Editar/{departamento}` |
-| Editar una red | `/Docentes/{cedula}/Redes/Editar/{red}` |
+| Editar un estudio | `/Docentes/EditarEstudio/{cedula}/{id}` |
+| Editar una evaluación | `/Docentes/EditarEvaluacion/{cedula}/{id}` |
+| Editar una experiencia | `/Docentes/EditarExperiencia/{cedula}/{id}` |
+| Editar un reconocimiento | `/Docentes/EditarReconocimiento/{cedula}/{id}` |
+| Editar la vinculación a un programa | `/Docentes/EditarPrograma/{cedula}/{departamento}` |
+| Editar una red | `/Docentes/EditarRed/{cedula}/{red}` |
 | **Detalle del estudio** (apoyo, beca, áreas) | `/EstudiosRealizados/Detalle/{id}` |
 
 Retirar: botón en cada fila con `onsubmit="return confirm('¿Retirar este registro?')"` que envía un `POST` al handler correspondiente. Las puentes puras (`intereses_futuros`, `estudio_ac`) **no tienen** botón de editar.
@@ -202,11 +202,11 @@ Retirar: botón en cada fila con `onsubmit="return confirm('¿Retirar este regis
 
 ## 7. Contrato API ↔ BD
 
-- Base `gestion_local` en SQL Server; cadena desde `ConnectionStrings__GestionLocal`.
+- Base `gestion_local` en SQL Server; cadena desde `ConnectionStrings__SqlServer`.
 - La API llama **únicamente a procedimientos almacenados** (`CommandType.StoredProcedure`) con parámetros tipados; **no hay SQL en los repositorios**.
-- Convención de nombres: `sp_listar_`, `sp_consultar_`, `sp_crear_`, `sp_actualizar_`, `sp_eliminar_<tabla>` y `sp_crear_<tabla>_lote`. Catálogo completo en `5_data_model.md` §3.
+- Convención de nombres: `sp_listar_`, `sp_consultar_`, `sp_crear_`, `sp_actualizar_`, `sp_eliminar_<tabla>` y `sp_crear_<tabla>_lote`. Catálogo completo en `5_data_model.md` §3. Las 16 tablas (también las de la v1) pasan por procedimientos.
 - Los procedimientos devuelven la fila **como quedó guardada**, sin `activo`, con el nombre del padre.
 - Errores de la base: 50001/50002 → `409`, 50003 → `422`, 50004 → `404`; nativos 547/2627/2601 → `409` (red de seguridad). Ver `5_data_model.md` §4.
 - Los disparadores se disparan solos: la API **nunca** envía `total_estudios` ni `fecha_actualizacion`.
 - Borrado lógico (`activo = 0`); todo `sp_listar_` filtra `activo = 1`.
-- Conexión perezosa con `EnableRetryOnFailure` (v1); sin `depends_on` API → BD.
+- La API usa Dapper sobre `Microsoft.Data.SqlClient`: `EjecutorProcedimientos` abre una conexión por llamada y la cierra al terminar.

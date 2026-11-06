@@ -88,3 +88,54 @@ Las opciones salen de los `GET` de la API (que ya filtran `activo = 1`), no de l
 
 ### D56 — La v1 se verifica, no se edita
 Regresión completa de la v1 el día de la entrega. Las únicas líneas añadidas a archivos de la v1 son registros en `Program.cs`, el enlace del `_Layout` y la llamada al script de la v2 en `init.sh`.
+
+---
+
+## Ajustes al construir (D57–D64)
+
+> Al escribir el código aparecieron diferencias entre este documento y el repositorio real. Se decidieron y se
+> escriben aquí; donde contradicen una decisión anterior, **manda la de esta sección**. El plan, el modelo de
+> datos y los contratos ya están corregidos con ellas.
+
+### D57 — Dapper en lugar de EF Core (reemplaza D47 y la parte de D35 sobre EF)
+El código real de la v1 usa **Dapper**, no EF Core: no hay `GestionDbContext`. `EjecutorProcedimientos` abre una
+`SqlConnection` y llama `QueryAsync`/`ExecuteAsync` con `commandType: CommandType.StoredProcedure`; los parámetros
+se pasan como un objeto anónimo (`new { cedula = 1017245 }` → `@cedula`). Dapper mapea cada columna en `snake_case`
+a la propiedad en `PascalCase` (`MatchNamesWithUnderscores`). Se enmienda el Artículo 3 de la constitución.
+
+### D58 — La v1 también pasa a procedimientos (reemplaza la última frase de D31 y D56)
+`VERSION_2.md` §4 y su criterio 3 piden que **los cinco verbos de todas las tablas** pasen por procedimientos y
+que al abrir el repositorio no haya SQL escrito a mano. Las 5 tablas de la v1 tenían SQL en sus repositorios, así
+que en la v2 se agregan sus 22 procedimientos y sus repositorios se reescriben para llamarlos. Las rutas, los
+DTO y las pantallas de la v1 **no cambian**, por eso su regresión sigue valiendo.
+
+### D59 — Una vista por tabla de la v2
+Para que listar, consultar, crear y actualizar devuelvan **exactamente las mismas columnas** (D32) sin repetir el
+`SELECT` en cuatro procedimientos, cada tabla de la v2 tiene una vista `vw_<tabla>` con las fechas ya formateadas
+y el nombre del padre. Los procedimientos hacen `SELECT * FROM vw_<tabla> WHERE …`. La vista lleva `activo` solo
+para filtrar; los modelos de C# no la tienen, así que la API no la devuelve.
+
+### D60 — Las fechas viajan como texto `aaaa-mm-dd` (reemplaza D44)
+Dapper no lee `DATE` hacia `DateOnly` sin un manejador adicional. Para no agregar piezas, la vista entrega cada
+fecha con `CONVERT(CHAR(10), fecha, 23)` y la API las maneja como `string`, igual que la v1 con `programa`. El DTO
+revisa la forma con una expresión regular y el servicio (`Validaciones.cs`) revisa que la fecha exista y que el
+fin no sea anterior al inicio. En la base las columnas siguen siendo `DATE`.
+
+### D61 — Envío múltiple solo en el detalle directo del docente (ajusta D36 y RF11)
+Hay `sp_crear_<tabla>_lote` para `estudios_realizados`, `evaluacion_docente`, `reconocimiento` y `experiecia`
+(4, no 8): son los que la pantalla del docente llena «varios renglones de una». En las puentes se asigna una
+pareja a la vez desde un desplegable; repetir una pareja ya da `409`.
+
+### D62 — `ManejadorErroresSql` es un middleware registrado DESPUÉS (precisa D49)
+El manejador de la v1 es un **middleware** (`Middleware/ManejadorErrores.cs`), no un `IExceptionHandler`. Con
+middlewares la excepción sube desde el controlador hacia afuera, así que el nuevo se registra **después** del de
+la v1 (queda más cerca del controlador y la ve primero). Si no reconoce el error, lo vuelve a lanzar y el de la
+v1 responde `500`. Además de 547/2627/2601 traduce 2628/8152 (texto más largo que la columna) a `422`.
+
+### D63 — Sin `TRY/CATCH` en cada procedimiento (simplifica D35)
+`THROW` detiene el procedimiento y `SET XACT_ABORT ON` deshace la transacción ante cualquier error. Por eso solo
+los procedimientos de lote abren transacción y ninguno necesita `TRY/CATCH`: menos código que explicar, mismo efecto.
+
+### D64 — La URL de `red` se limita a 45 caracteres
+La columna `red.url` es `VARCHAR(45)` y la API de la v1 aceptaba 200: un texto largo terminaba en `500`. Se ajusta
+la validación (API y front) a 45. Es un ajuste de la v1 hecho en la v2 (Artículo 17).

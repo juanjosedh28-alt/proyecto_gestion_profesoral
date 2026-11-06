@@ -1,7 +1,7 @@
 # Modelo de datos — gestion_local (v2)
 
 > Documento 5 de 8 del spec kit de la v2.
-> Las 11 tablas con clave foránea ya existen en `db/sqlserver/gestion_profesoral.sql` (v1, no se toca). La v2 solo agrega **una columna**, **procedimientos** y **disparadores** en `db/sqlserver/v2_procedimientos.sql`.
+> Las 11 tablas con clave foránea ya existen en `db/gestion_profesoral.sql` (v1, no se toca). La v2 solo agrega **una columna**, **vistas**, **procedimientos** y **disparadores** en `db/v2_procedimientos.sql`.
 > Todas las columnas son `NOT NULL` salvo las marcadas `NULL`. Todas las tablas tienen `activo BIT NOT NULL DEFAULT 1`.
 
 ---
@@ -67,14 +67,16 @@ La clave primaria **es** la clave foránea: un estudio tiene a lo sumo un apoyo 
 
 ## 2. Cambios a la base de datos en la v2
 
-Un solo archivo nuevo: `db/sqlserver/v2_procedimientos.sql` (idempotente). Contenido:
+Un solo archivo nuevo: `db/v2_procedimientos.sql` (idempotente). Contenido:
 
 1. `ALTER TABLE docente ADD total_estudios INT NOT NULL DEFAULT 0` (protegido con `COL_LENGTH`).
-2. **53 procedimientos** de los cinco verbos (11 tablas × 5, menos 2 `sp_actualizar_` de las puentes puras).
-3. **8 procedimientos de lote** `sp_crear_<tabla>_lote`.
-4. **2 disparadores**: `trg_contar_estudios`, `trg_sello_docente`.
+2. **22 procedimientos de la v1** (regla R9): `area_conocimiento` listar y consultar; los cinco verbos de `termino_clave`, `linea_investigacion`, `programa` y `red`.
+3. **11 vistas** `vw_<tabla>`, una por tabla de la v2 (D59).
+4. **53 procedimientos** de los cinco verbos de la v2 (11 tablas × 5, menos 2 `sp_actualizar_` de las puentes puras).
+5. **4 procedimientos de lote** `sp_crear_<tabla>_lote`: estudios, evaluaciones, reconocimientos y experiencias (D61).
+6. **2 disparadores**: `trg_contar_estudios`, `trg_sello_docente`.
 
-El script de la v1 queda **intacto**.
+En total **79 procedimientos**. El script de la v1 queda **intacto**.
 
 ---
 
@@ -91,10 +93,10 @@ Convención de parámetros: una columna de la tabla = un parámetro con el mismo
 | `experiecia` | los 5 + `…_lote` | `listar` con `@docente = NULL`; `fecha_fin < fecha_inicio` → 50003 |
 | `apoyo_profesoral` | los 5 | PK = FK: `crear` reactiva si existe retirado (R3); activo → 50002 |
 | `beca` | los 5 | Ídem |
-| `docente_departamento` | los 5 + `…_lote` | `crear`: docente o programa inexistente → 50001; pareja activa → 50002; retirada → reactiva. `actualizar`: solo atributos |
-| `red_docente` | los 5 + `…_lote` | Ídem con `red` y `docente` |
-| `intereses_futuros` | `listar`, `consultar`, `crear`, `eliminar` + `…_lote` | Sin `actualizar` (R6). Pareja activa → 50002; retirada → reactiva |
-| `estudio_ac` | `listar`, `consultar`, `crear`, `eliminar` + `…_lote` | Sin `actualizar` (R6). `listar` acepta `@estudio = NULL` |
+| `docente_departamento` | los 5 | `crear`: docente o programa inexistente → 50001; pareja activa → 50002; retirada → reactiva. `actualizar`: solo atributos |
+| `red_docente` | los 5 | Ídem con `red` y `docente` |
+| `intereses_futuros` | `listar`, `consultar`, `crear`, `eliminar` | Sin `actualizar` (R6). Pareja activa → 50002; retirada → reactiva |
+| `estudio_ac` | `listar`, `consultar`, `crear`, `eliminar` | Sin `actualizar` (R6). `listar` acepta `@estudio = NULL` |
 
 **Columnas que devuelven** `sp_listar_`, `sp_consultar_`, `sp_crear_` y `sp_actualizar_` (siempre las mismas por tabla): todas las columnas **menos `activo`**, más los nombres del padre para mostrar:
 
@@ -138,7 +140,7 @@ Código y razones en `3_plan.md` §6 y `4_research.md` D37–D39.
 
 ## 6. Reglas de validación por campo (API y front)
 
-Se aplican con anotaciones en `Peticiones/` (API) y en `Modelos/` (front). Los textos obligatorios rechazan vacío y solo espacios. Las claves `int` no anulables usan `[Range(1, int.MaxValue)]`. Las fechas usan `DateOnly` (`yyyy-MM-dd`; una fecha inválida como `2024-13-45` da `422`). Los topes de `VARCHAR(MAX)` se fijan en **4000** caracteres.
+Se aplican con anotaciones en `Peticiones/` (API) y en `Modelos/` (front). Los textos obligatorios rechazan vacío y solo espacios. Las claves `int` no anulables usan `[Range(1, int.MaxValue)]`. Las fechas viajan como texto `aaaa-mm-dd` (D60): el DTO revisa la forma y el servicio que la fecha exista (`2024-13-45` da `422`). Los topes de `VARCHAR(MAX)` se fijan en **4000** caracteres.
 
 | Tabla | Campo | Regla |
 |---|---|---|
@@ -217,7 +219,7 @@ Sin entidades EF: el repositorio mapea cada fila directamente a un DTO de respue
 | `intereses_futuros` | `InteresesFuturosCrear` | `InteresesFuturosRespuesta` |
 | `estudio_ac` | `EstudioAcCrear` | `EstudioAcRespuesta` |
 
-Propiedades en `PascalCase` (`LineaInvestigacionPrincipal`, `TotalEstudios`, `ActDestacadas`); JSON en `snake_case`. Tipos: `VARCHAR` → `string`, `INT` → `int`, `TINYINT` → `byte`, `REAL` → `float`, `DATE` → `DateOnly`, columnas `NULL` → tipo anulable (`int?`, `DateOnly?`, `string?`).
+Propiedades en `PascalCase` (`LineaInvestigacionPrincipal`, `TotalEstudios`, `ActDestacadas`); JSON en `snake_case`. Tipos: `VARCHAR` → `string`, `INT` → `int`, `TINYINT` → `int` (la vista hace `CAST … AS INT`), `REAL` → `decimal` (la vista hace `CAST … AS DECIMAL(4,2)`), `DATE` → `string` `aaaa-mm-dd` (D60), columnas `NULL` → tipo anulable (`int?`, `string?`).
 
 ---
 

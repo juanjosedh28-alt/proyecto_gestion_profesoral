@@ -16,7 +16,7 @@ Operar desde el front **las 11 tablas con clave foránea** del módulo Gestión 
 - **maestro-detalle**: el detalle se ve y se agrega desde su maestro,
 - errores previsibles de la base de datos traducidos a **409/422**, nunca `500`.
 
-La v1 (5 tablas sin claves foráneas) queda intacta y **se vuelve a verificar completa**.
+La v1 (5 tablas sin claves foráneas) conserva sus rutas, DTO y pantallas y **se vuelve a verificar completa**. Su único cambio es por dentro: sus repositorios pasan a llamar procedimientos almacenados (regla R9), porque la v2 exige que **las 16 tablas** pasen por procedimientos.
 
 ---
 
@@ -57,10 +57,10 @@ Rutas completas en `6_contracts.md`. (✔ existe · — no existe)
 | `experiecia` | `id` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
 | `apoyo_profesoral` | `estudios` | ✔ | ✔ | ✔ | ✔ | ✔ | — (1:1) |
 | `beca` | `estudios` | ✔ | ✔ | ✔ | ✔ | ✔ | — (1:1) |
-| `docente_departamento` | `docente` + `departamento` | ✔ | ✔ | ✔ | ✔ (solo atributos) | ✔ | ✔ |
-| `red_docente` | `red` + `docente` | ✔ | ✔ | ✔ | ✔ (solo atributos) | ✔ | ✔ |
-| `intereses_futuros` | `docente` + `termino_clave` | ✔ | ✔ | ✔ | — | ✔ | ✔ |
-| `estudio_ac` | `estudio` + `area_conocimiento` | ✔ | ✔ | ✔ | — | ✔ | ✔ |
+| `docente_departamento` | `docente` + `departamento` | ✔ | ✔ | ✔ | ✔ (solo atributos) | ✔ | — |
+| `red_docente` | `red` + `docente` | ✔ | ✔ | ✔ | ✔ (solo atributos) | ✔ | — |
+| `intereses_futuros` | `docente` + `termino_clave` | ✔ | ✔ | ✔ | — | ✔ | — |
+| `estudio_ac` | `estudio` + `area_conocimiento` | ✔ | ✔ | ✔ | — | ✔ | — |
 
 Semántica común (códigos y cuerpos en `6_contracts.md`):
 
@@ -104,7 +104,7 @@ CRUD según la matriz.
 
 ### RF11 — Envío múltiple (maestro-detalle)
 
-`POST` anidado con una **lista** de renglones (máximo **100**): `POST /api/docente/{cedula}/estudios-realizados`, y análogos.
+`POST` anidado con una **lista** de renglones (máximo **100**) para el detalle directo del docente: `POST /api/docente/{cedula}/estudios-realizados`, `/evaluacion-docente`, `/reconocimiento` y `/experiecia`. Las tablas puente se asignan de a una pareja (decisión D61).
 
 - Se guardan **todos o ninguno** (una transacción dentro del procedimiento `sp_crear_<tabla>_lote`).
 - Lista vacía o con más de 100 renglones → `422`.
@@ -163,6 +163,8 @@ Estas reglas no las impone la base de datos: las decide el equipo y viven en el 
 | **R6** | Los puentes puros no tienen `sp_actualizar_` (una pareja existe o no existe). |
 | **R7** | Retirar en la v1 un registro que la v2 usa (un `programa`, `red`, `termino_clave`, `linea_investigacion` o `area_conocimiento`) **no se bloquea**, porque la v1 está cerrada. Las filas de la v2 siguen mostrando su nombre; los desplegables dejan de ofrecerlo. Limitación documentada. |
 | **R8** | `docente.cedula` y `estudios_realizados.id` los envía el cliente (como `programa.id` en la v1). |
+| **R9** | Las 5 tablas de la v1 también pasan por procedimientos almacenados (22 procedimientos nuevos). No cambian ni sus rutas, ni sus DTO, ni sus pantallas (D58). |
+| **R10** | La URL de `red` admite hasta 45 caracteres, el tamaño real de la columna (D64). |
 
 ---
 
@@ -184,7 +186,7 @@ Estas reglas no las impone la base de datos: las decide el equipo y viven en el 
 |---|---|
 | CA-V2-01 | Las tablas de la v1 tienen CRUD completo y su interfaz (regresión de CA-01 a CA-11 de la v1). |
 | CA-V2-02 | Las 11 tablas de la v2 tienen CRUD completo e interfaz: crear, editar, retirar. |
-| CA-V2-03 | Los cinco verbos de las 11 tablas pasan por procedimientos almacenados: **no hay SQL escrito a mano en el repositorio** (`grep` de `SELECT`/`INSERT`/`UPDATE`/`DELETE` sin resultados en los repositorios de la v2). |
+| CA-V2-03 | Los cinco verbos de **las 16 tablas** pasan por procedimientos almacenados: **no hay SQL escrito a mano en el repositorio** (`grep -riw "select\|insert\|update\|delete" api_gestion/Repositorios` sin resultados). |
 | CA-V2-04 | Al menos un disparador funciona: se crean estudios por la interfaz y `total_estudios` del docente cambia **sin que la API lo envíe**; también al retirar. |
 | CA-V2-05 | Cada clave foránea se elige de un desplegable **lleno** que muestra nombres, no códigos. |
 | CA-V2-06 | La clave foránea opcional acepta «(ninguna)» y manda `null`: se crea un docente sin línea principal. |
@@ -196,4 +198,22 @@ Estas reglas no las impone la base de datos: las decide el equipo y viven en el 
 | CA-V2-12 | La regresión de la v1 pasa **completa** (`7_quickstart.md` §3). |
 | CA-V2-13 | Un envío de tres renglones es **una petición**; si el tercero es inválido, no se guarda ninguno. |
 | CA-V2-14 | Retirar un docente con detalle activo responde `409` (regla R2). |
-| CA-V2-15 | Los prompts y las correcciones a la IA están entregados (`prompts_v2.md`) y el tag `v2` apunta al commit que pasa los criterios anteriores. |
+| CA-V2-15 | Los prompts y las correcciones a la IA están entregados (`GUIA_IA2.md` y un `prompts_<integrante>.md` por persona) y el tag `v2` apunta al commit que pasa los criterios anteriores. |
+
+---
+
+## 9. Clarificaciones (compuerta 1)
+
+Preguntas que dos personas del equipo podían leer distinto, y la respuesta que quedó. **No queda ningún
+`[NECESITA ACLARACIÓN]` pendiente.**
+
+| # | Pregunta | Respuesta |
+|---|---|---|
+| C1 | ¿Las tablas de la v1 también tienen que ir por procedimientos? | **Sí.** `VERSION_2.md` §4 dice «los cinco, de todas las tablas» y su criterio 3 revisa que no haya SQL a mano en el repositorio (R9). |
+| C2 | ¿Qué disparador se entrega? | Los dos: **A** `trg_contar_estudios` (el que se demuestra por la interfaz) y **B** `trg_sello_docente`. |
+| C3 | Con borrado lógico, ¿se puede retirar un maestro con detalle activo? | **No**: `409` con el número de registros (R2). Primero se retira el detalle. |
+| C4 | Si se vuelve a asignar una pareja retirada, ¿`409` o se reactiva? | Se **reactiva** en puentes y 1:1; en tablas con clave enviada por el cliente sigue siendo `409` (R3). |
+| C5 | ¿En qué tablas hay envío múltiple? | En el detalle directo del docente: estudios, evaluaciones, reconocimientos y experiencias (D61). |
+| C6 | ¿La lista de la API va en un sobre `{tabla, total, datos}`? | **No**: lista plana `[]`, como la v1 (D51). |
+| C7 | ¿Cómo viajan las fechas? | Texto `aaaa-mm-dd` en el JSON; `DATE` en la base (D60). |
+| C8 | ¿Qué front? | **Razor Pages** (`front_razor`), el de la v1. La carpeta `front_blazor` es un intento anterior que no forma parte de la entrega. |
