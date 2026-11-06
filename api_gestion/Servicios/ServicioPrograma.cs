@@ -1,30 +1,10 @@
-<<<<<<< HEAD
-using ApiGestion.Modelos;
-=======
 using ApiGestion.Excepciones;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
->>>>>>> 05bd3051e7b6c901b480ffddfc5120e1ee1c0d10
 using ApiGestion.Repositorios;
 
 namespace ApiGestion.Servicios;
 
-<<<<<<< HEAD
-public class ServicioPrograma : IServicioPrograma
-{
-    private readonly IRepositorioPrograma _repositorio;
-
-    public ServicioPrograma(IRepositorioPrograma repositorio)
-    {
-        _repositorio = repositorio;
-    }
-
-    public Task<IEnumerable<Programa>> ListarAsync() => _repositorio.ListarAsync();
-    public Task<Programa?> ObtenerAsync(int id) => _repositorio.ObtenerAsync(id);
-    public Task<int> CrearAsync(Programa programa) => _repositorio.CrearAsync(programa);
-    public Task<bool> ActualizarAsync(Programa programa) => _repositorio.ActualizarAsync(programa);
-    public Task<bool> EliminarAsync(int id) => _repositorio.EliminarAsync(id);
-=======
 /// <summary>Contrato de las reglas de negocio de <c>programa</c>.</summary>
 public interface IServicioPrograma
 {
@@ -97,5 +77,4 @@ public class ServicioPrograma : IServicioPrograma
             Facultad = p.Facultad,
             FechaActualizacion = DateTime.Now.ToString("yyyy-MM-dd"),
     };
->>>>>>> 05bd3051e7b6c901b480ffddfc5120e1ee1c0d10
 }

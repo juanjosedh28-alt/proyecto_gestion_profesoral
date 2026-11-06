@@ -2,14 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiGestion.Peticiones;
 
-<<<<<<< HEAD
-public class ProgramaCrear
-{
-    [Required(ErrorMessage = "El nombre es obligatorio.")]
-    public string Nombre { get; set; } = string.Empty;
-
-    public string Codigo { get; set; } = string.Empty;
-=======
 /// <summary>Cuerpo de las peticiones POST y PUT de <c>programa</c>. Las anotaciones producen el 422 con mensajes en español.</summary>
 public class ProgramaCrear
 {
@@ -44,5 +36,4 @@ public class ProgramaCrear
     public string Ciudad { get; set; } = string.Empty;
     [Range(1, int.MaxValue, ErrorMessage = "La facultad debe ser mayor que 0.")]
     public int Facultad { get; set; }
->>>>>>> 05bd3051e7b6c901b480ffddfc5120e1ee1c0d10
 }
