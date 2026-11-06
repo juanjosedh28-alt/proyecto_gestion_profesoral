@@ -1,0 +1,14 @@
+@page "{cedula:int}"
+@model front_razor.Pages.Docentes.EditarModel
+@{ ViewData["Title"] = "Editar docente"; ViewData["Lineas"] = Model.Lineas; ViewData["Editando"] = true; }
+
+<h1 class="h3 mb-3">Editar docente</h1>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <partial name="_Campos" model="Model.Formulario" view-data="ViewData" />
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Detalle" asp-route-cedula="@Model.Cedula">Cancelar</a>
+</form>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
