@@ -1,0 +1,2174 @@
+{
+  "info": {
+    "name": "Gestión Profesoral — v2",
+    "description": "Colección de pruebas de la versión 2: CRUD por procedimientos almacenados, disparador, envío múltiple, tablas puente y las peticiones que DEBEN fallar (404, 409, 422). Ejecútela en orden con el Runner de Postman.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8074"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Preparar datos (padres de la v1)",
+      "description": "Crea los padres que necesitan los desplegables de la v2. Las claves son aleatorias para poder correr la colección varias veces.",
+      "item": [
+        {
+          "name": "Generar claves aleatorias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const n = Math.floor(Math.random() * 800000) + 100000;",
+                  "pm.collectionVariables.set('cedula', n);",
+                  "pm.collectionVariables.set('cedulaSinLinea', n + 1);",
+                  "pm.collectionVariables.set('programaId', n);",
+                  "pm.collectionVariables.set('redId', n);",
+                  "pm.collectionVariables.set('estudio1', n * 10 + 1);",
+                  "pm.collectionVariables.set('estudio2', n * 10 + 2);",
+                  "pm.collectionVariables.set('estudio3', n * 10 + 3);",
+                  "pm.collectionVariables.set('termino', 'IA ' + n);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa"
+              ]
+            },
+            "description": "Solo prepara variables; además comprueba que la API responde."
+          }
+        },
+        {
+          "name": "Crear línea de investigación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('lineaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/linea-investigacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "linea-investigacion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ingeniería de software\",\n  \"descripcion\": \"Línea de prueba de la colección v2.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear programa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{programaId}},\n  \"nombre\": \"Ingeniería de Sistemas\",\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2000-01-15\",\n  \"fecha_cierre\": null,\n  \"numero_cohortes\": \"40\",\n  \"cant_graduados\": \"1200\",\n  \"ciudad\": \"Medellín\",\n  \"facultad\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear red",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idr\": {{redId}},\n  \"nombre\": \"Red de prueba\",\n  \"url\": \"https://red.example.org\",\n  \"pais\": \"Colombia\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear término clave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/termino-clave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "termino-clave"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"termino\": \"{{termino}}\",\n  \"termino_ingles\": \"AI\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Docente (maestro)",
+      "description": "CRUD de docente, la clave foránea opcional y los errores que deben dar 409/404.",
+      "item": [
+        {
+          "name": "Crear docente con línea principal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"total_estudios empieza en 0 (no lo envía el cliente)\", () => pm.expect(pm.response.json().total_estudios).to.eql(0));",
+                  "pm.test(\"Trae el nombre de la línea\", () => pm.expect(pm.response.json().linea_investigacion_principal_nombre).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedula}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": {{lineaId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear docente SIN línea (opcional = null) — CA-V2-06",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"La línea quedó en null\", () => pm.expect(pm.response.json().linea_investigacion_principal).to.eql(null));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: cédula repetida → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedula}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: línea de investigación inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}}9,\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": 999999\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: correo con formato malo → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}}8,\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"esto-no-es-correo\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar docentes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Es una lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Consultar docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: docente inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Actualizar docente (el sello de fecha lo pone el disparador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedula}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora asociada\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": {{lineaId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: cédula de la ruta distinta a la del cuerpo → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Estudios: envío múltiple y disparador",
+      "description": "Tres renglones en UNA petición; el contador total_estudios lo mantiene trg_contar_estudios.",
+      "item": [
+        {
+          "name": "Agregar 3 estudios en un solo envío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Devuelve las 3 filas guardadas\", () => pm.expect(pm.response.json().length).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": {{estudio1}},\n    \"titulo\": \"Ingeniería de Sistemas\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2008-06-20\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio2}},\n    \"titulo\": \"Maestría en Ingeniería\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2012-12-15\",\n    \"tipo\": \"Maestría\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio3}},\n    \"titulo\": \"Doctorado en Informática\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2018-09-30\",\n    \"tipo\": \"Doctorado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "El disparador contó 3 estudios — CA-V2-04",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"total_estudios = 3 sin que la API lo enviara\", () => pm.expect(pm.response.json().total_estudios).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: id repetido DENTRO del envío → 409 y no se guarda nada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"El mensaje dice el renglón\", () => pm.expect(pm.response.json().mensaje).to.include(\"renglón 2\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": {{estudio1}}7,\n    \"titulo\": \"A\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2001-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio1}}7,\n    \"titulo\": \"B\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2002-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: el renglón 3 tiene una fecha que no existe → 422 (todo o nada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": {{estudio1}}4,\n    \"titulo\": \"A\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2001-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio1}}5,\n    \"titulo\": \"B\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2002-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio1}}6,\n    \"titulo\": \"C\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2024-13-45\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "Ninguno de esos renglones se guardó",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Sigue en 3\", () => pm.expect(pm.response.json().total_estudios).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: lista vacía → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: estudio para un docente inexistente → 409 — CA-V2-07",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{estudio1}}9,\n  \"titulo\": \"Huérfano\",\n  \"universidad\": \"Universidad de Antioquia\",\n  \"fecha\": \"2010-01-01\",\n  \"tipo\": \"Pregrado\",\n  \"ciudad\": \"Medellín\",\n  \"ins_acreditada\": 1,\n  \"metodologia\": \"Presencial\",\n  \"perfil_egresado\": \"Profesional en sistemas.\",\n  \"pais\": \"Colombia\",\n  \"docente\": 99\n}"
+            }
+          }
+        },
+        {
+          "name": "Retirar el estudio 3 (es un UPDATE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio3}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio3}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "El disparador también oyó el retiro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"total_estudios bajó a 2\", () => pm.expect(pm.response.json().total_estudios).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "El listado ya no muestra el retirado — CA-V2-10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Quedan 2\", () => pm.expect(pm.response.json().length).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: consultar el estudio retirado → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio3}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio3}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: retirar un docente con detalle activo → 409 (regla R2) — CA-V2-14",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Evaluaciones, experiencias y reconocimientos",
+      "description": "El resto del detalle directo del docente.",
+      "item": [
+        {
+          "name": "Agregar 2 evaluaciones en un envío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "evaluacion-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"calificacion\": 4.5,\n    \"semestre\": \"2025-2\"\n  },\n  {\n    \"calificacion\": 4.8,\n    \"semestre\": \"2026-1\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: calificación 7 → 422 (regla R4)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evaluacion-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calificacion\": 7,\n  \"semestre\": \"2026-1\",\n  \"docente\": {{cedula}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Agregar experiencia (fecha de fin opcional)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/experiecia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "experiecia"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"nombre_cargo\": \"Docente de cátedra\",\n    \"institucion\": \"ITM\",\n    \"tipo\": \"Docencia\",\n    \"fecha_inicio\": \"2015-02-01\",\n    \"fecha_fin\": null\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: fin anterior al inicio → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/experiecia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "experiecia"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"nombre_cargo\": \"Coordinador\",\n    \"institucion\": \"ITM\",\n    \"tipo\": \"Gestión\",\n    \"fecha_inicio\": \"2020-01-01\",\n    \"fecha_fin\": \"2019-01-01\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "Agregar reconocimiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/reconocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "reconocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"tipo\": \"Premio\",\n    \"fecha\": \"2022-11-10\",\n    \"institucion\": \"Minciencias\",\n    \"nombre\": \"Investigadora del año\",\n    \"ambito\": \"Nacional\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "Listar evaluaciones del docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "evaluacion-docente"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Tablas puente",
+      "description": "Se asignan y se retiran con sus DOS claves; repetir la pareja da 409 — CA-V2-08.",
+      "item": [
+        {
+          "name": "Asignar programa al docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Trae el nombre del programa\", () => pm.expect(pm.response.json().departamento_nombre).to.eql(\"Ingeniería de Sistemas\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Tiempo completo\",\n  \"modalidad\": \"Presencial\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: repetir la misma pareja → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Tiempo completo\",\n  \"modalidad\": \"Presencial\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: programa inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": 1,\n  \"dedicacion\": \"Cátedra\",\n  \"modalidad\": \"Virtual\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Editar solo los atributos de la pareja",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento/{{cedula}}/{{programaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento",
+                "{{cedula}}",
+                "{{programaId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Medio tiempo\",\n  \"modalidad\": \"Presencial\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Retirar la pareja (con sus dos claves)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento/{{cedula}}/{{programaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento",
+                "{{cedula}}",
+                "{{programaId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Volver a asignarla la reactiva (regla R3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Cátedra\",\n  \"modalidad\": \"Virtual\",\n  \"fecha_ingreso\": \"2016-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Asignar red al docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"red\": {{redId}},\n  \"docente\": {{cedula}},\n  \"fecha_inicio\": \"2018-03-10\",\n  \"fecha_fin\": null,\n  \"act_destacadas\": \"Coordinación de eventos.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: repetir la red → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"red\": {{redId}},\n  \"docente\": {{cedula}},\n  \"fecha_inicio\": \"2018-03-10\",\n  \"fecha_fin\": null,\n  \"act_destacadas\": \"Otra vez.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Agregar interés (puente puro)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"termino_clave\": \"{{termino}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: repetir el interés → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"termino_clave\": \"{{termino}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: término inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"termino_clave\": \"no existe zz\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar intereses del docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Tiene 1\", () => pm.expect(pm.response.json().length).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "intereses-futuros"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Detalle del estudio: apoyo, beca y áreas",
+      "description": "apoyo_profesoral y beca son 1:1 con el estudio; estudio_ac es puente puro.",
+      "item": [
+        {
+          "name": "Registrar apoyo profesoral",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/apoyo-profesoral",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apoyo-profesoral"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"con_apoyo\": 1,\n  \"institucion\": \"Colciencias\",\n  \"tipo\": \"Parcial\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: segundo apoyo para el mismo estudio → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/apoyo-profesoral",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apoyo-profesoral"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"con_apoyo\": 1,\n  \"institucion\": \"Otra\",\n  \"tipo\": \"Total\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: beca con fin anterior al inicio → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/beca",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beca"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"tipo\": \"Posgrado\",\n  \"institucion\": \"Fulbright\",\n  \"fecha_inicio\": \"2011-01-01\",\n  \"fecha_fin\": \"2010-01-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar beca",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/beca",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beca"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"tipo\": \"Posgrado\",\n  \"institucion\": \"Fulbright\",\n  \"fecha_inicio\": \"2010-08-01\",\n  \"fecha_fin\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Asignar área de conocimiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudio-ac"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudio\": {{estudio2}},\n  \"area_conocimiento\": \"1B01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: área inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudio-ac"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudio\": {{estudio2}},\n  \"area_conocimiento\": \"ZZ99\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar áreas del estudio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio2}}/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio2}}",
+                "estudio-ac"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: retirar un estudio que tiene apoyo, beca o áreas → 409 (R2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio2}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Errores generales",
+      "description": "Ningún error previsible responde 500.",
+      "item": [
+        {
+          "name": "FALLA: JSON mal escrito → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"cedula\": 1, \"nombres\": "
+            }
+          }
+        },
+        {
+          "name": "FALLA: ruta de un docente inexistente para el detalle → lista vacía",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Lista vacía\", () => pm.expect(pm.response.json()).to.eql([]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/1/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "1",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    }
+  ]
+}
