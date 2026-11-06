@@ -11,7 +11,7 @@ public class RedCrear
     [StringLength(45, ErrorMessage = "El nombre no puede superar 45 caracteres.")]
     public string Nombre { get; set; } = string.Empty;
     [Required(ErrorMessage = "La URL es obligatoria.")]
-    [StringLength(200, ErrorMessage = "La URL no puede superar 200 caracteres.")]
+    [StringLength(45, ErrorMessage = "La URL no puede superar 45 caracteres.")]
     [RegularExpression(@"^https?://\S+$", ErrorMessage = "La URL debe comenzar por http:// o https://.")]
     public string Url { get; set; } = string.Empty;
     [Required(ErrorMessage = "El país es obligatorio.")]

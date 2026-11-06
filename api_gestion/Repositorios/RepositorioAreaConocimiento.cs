@@ -1,6 +1,3 @@
-using System.Data;
-using Dapper;
-using Microsoft.Data.SqlClient;
 using ApiGestion.Modelos;
 
 namespace ApiGestion.Repositorios;
@@ -12,24 +9,20 @@ public interface IRepositorioAreaConocimiento
     Task<AreaConocimiento?> ObtenerAsync(string clave);
 }
 
-/// <summary>Repositorio (capa de datos) de <c>area_conocimiento</c>. Solo habla SQL; todas las lecturas filtran <c>activo = 1</c>.</summary>
+/// <summary>
+/// Repositorio (capa de datos) de <c>area_conocimiento</c>, catálogo de solo lectura.
+/// Desde la v2 no tiene SQL: llama a los procedimientos de db/v2_procedimientos.sql
+/// (que filtran <c>activo = 1</c>).
+/// </summary>
 public class RepositorioAreaConocimiento : IRepositorioAreaConocimiento
 {
-    private readonly string _conexion;
+    private readonly IEjecutorProcedimientos _bd;
 
-    public RepositorioAreaConocimiento(IConfiguration config) => _conexion = config.GetConnectionString("SqlServer")!;
+    public RepositorioAreaConocimiento(IEjecutorProcedimientos bd) => _bd = bd;
 
-    private IDbConnection CrearConexion() => new SqlConnection(_conexion);
+    public Task<List<AreaConocimiento>> ListarAsync() =>
+        _bd.ListarAsync<AreaConocimiento>("sp_listar_area_conocimiento");
 
-    public async Task<List<AreaConocimiento>> ListarAsync()
-    {
-        using var db = CrearConexion();
-        return (await db.QueryAsync<AreaConocimiento>("SELECT id, gran_area, area, disciplina FROM area_conocimiento WHERE activo = 1 ORDER BY id")).ToList();
-    }
-
-    public async Task<AreaConocimiento?> ObtenerAsync(string clave)
-    {
-        using var db = CrearConexion();
-        return await db.QueryFirstOrDefaultAsync<AreaConocimiento>("SELECT id, gran_area, area, disciplina FROM area_conocimiento WHERE id = @clave AND activo = 1", new { clave });
-    }
+    public Task<AreaConocimiento?> ObtenerAsync(string clave) =>
+        _bd.PrimeroAsync<AreaConocimiento>("sp_consultar_area_conocimiento", new { id = clave });
 }

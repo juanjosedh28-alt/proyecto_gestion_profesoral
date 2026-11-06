@@ -1,6 +1,3 @@
-using System.Data;
-using Dapper;
-using Microsoft.Data.SqlClient;
 using ApiGestion.Modelos;
 
 namespace ApiGestion.Repositorios;
@@ -10,59 +7,37 @@ public interface IRepositorioLineaInvestigacion
 {
     Task<List<LineaInvestigacion>> ListarAsync();
     Task<LineaInvestigacion?> ObtenerAsync(int clave);
-    Task<bool> ExisteAsync(int clave);
-    Task<int> CrearAsync(LineaInvestigacion entidad);
-    Task<bool> ActualizarAsync(LineaInvestigacion entidad);
-    Task<bool> EliminarLogicoAsync(int clave);
+    Task<LineaInvestigacion> CrearAsync(LineaInvestigacion entidad);
+    Task<LineaInvestigacion> ActualizarAsync(LineaInvestigacion entidad);
+    Task EliminarLogicoAsync(int clave);
 }
 
-/// <summary>Repositorio (capa de datos) de <c>linea_investigacion</c>. Solo habla SQL; todas las lecturas filtran <c>activo = 1</c>.</summary>
+/// <summary>
+/// Repositorio (capa de datos) de <c>linea_investigacion</c>.
+/// Desde la v2 no tiene SQL: cada método llama a un procedimiento almacenado.
+/// El id lo genera la base (IDENTITY) y el procedimiento devuelve la fila creada.
+/// </summary>
 public class RepositorioLineaInvestigacion : IRepositorioLineaInvestigacion
 {
-    private readonly string _conexion;
+    private readonly IEjecutorProcedimientos _bd;
 
-    public RepositorioLineaInvestigacion(IConfiguration config) => _conexion = config.GetConnectionString("SqlServer")!;
+    public RepositorioLineaInvestigacion(IEjecutorProcedimientos bd) => _bd = bd;
 
-    private IDbConnection CrearConexion() => new SqlConnection(_conexion);
+    public Task<List<LineaInvestigacion>> ListarAsync() =>
+        _bd.ListarAsync<LineaInvestigacion>("sp_listar_linea_investigacion");
 
-    public async Task<List<LineaInvestigacion>> ListarAsync()
-    {
-        using var db = CrearConexion();
-        return (await db.QueryAsync<LineaInvestigacion>("SELECT id, nombre, descripcion FROM linea_investigacion WHERE activo = 1 ORDER BY id")).ToList();
-    }
+    public Task<LineaInvestigacion?> ObtenerAsync(int clave) =>
+        _bd.PrimeroAsync<LineaInvestigacion>("sp_consultar_linea_investigacion", new { id = clave });
 
-    public async Task<LineaInvestigacion?> ObtenerAsync(int clave)
-    {
-        using var db = CrearConexion();
-        return await db.QueryFirstOrDefaultAsync<LineaInvestigacion>("SELECT id, nombre, descripcion FROM linea_investigacion WHERE id = @clave AND activo = 1", new { clave });
-    }
-    public async Task<bool> ExisteAsync(int clave)
-    {
-        // Incluye registros inactivos: la clave no se puede reutilizar (409).
-        using var db = CrearConexion();
-        return await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM linea_investigacion WHERE id = @clave", new { clave }) > 0;
-    }
+    public async Task<LineaInvestigacion> CrearAsync(LineaInvestigacion entidad) =>
+        (await _bd.PrimeroAsync<LineaInvestigacion>("sp_crear_linea_investigacion",
+            new { nombre = entidad.Nombre, descripcion = entidad.Descripcion }))!;
 
-    public async Task<int> CrearAsync(LineaInvestigacion entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"INSERT INTO linea_investigacion (nombre, descripcion, activo)
-                    OUTPUT INSERTED.id
-                    VALUES (@Nombre, @Descripcion, 1)";
-        return await db.QuerySingleAsync<int>(sql, entidad);
-    }
+    public async Task<LineaInvestigacion> ActualizarAsync(LineaInvestigacion entidad) =>
+        (await _bd.PrimeroAsync<LineaInvestigacion>("sp_actualizar_linea_investigacion",
+            new { id = entidad.Id, nombre = entidad.Nombre, descripcion = entidad.Descripcion }))!;
 
-    public async Task<bool> ActualizarAsync(LineaInvestigacion entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"UPDATE linea_investigacion SET nombre = @Nombre, descripcion = @Descripcion
-                    WHERE id = @Id AND activo = 1";
-        return await db.ExecuteAsync(sql, entidad) > 0;
-    }
-
-    public async Task<bool> EliminarLogicoAsync(int clave)
-    {
-        using var db = CrearConexion();
-        return await db.ExecuteAsync("UPDATE linea_investigacion SET activo = 0 WHERE id = @clave AND activo = 1", new { clave }) > 0;
-    }
+    // Borrado LÓGICO (activo = 0).
+    public Task EliminarLogicoAsync(int clave) =>
+        _bd.EjecutarAsync("sp_eliminar_linea_investigacion", new { id = clave });
 }

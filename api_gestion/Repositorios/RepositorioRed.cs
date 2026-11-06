@@ -1,6 +1,3 @@
-using System.Data;
-using Dapper;
-using Microsoft.Data.SqlClient;
 using ApiGestion.Modelos;
 
 namespace ApiGestion.Repositorios;
@@ -10,58 +7,36 @@ public interface IRepositorioRed
 {
     Task<List<Red>> ListarAsync();
     Task<Red?> ObtenerAsync(int clave);
-    Task<bool> ExisteAsync(int clave);
-    Task CrearAsync(Red entidad);
-    Task<bool> ActualizarAsync(Red entidad);
-    Task<bool> EliminarLogicoAsync(int clave);
+    Task<Red> CrearAsync(Red entidad);
+    Task<Red> ActualizarAsync(Red entidad);
+    Task EliminarLogicoAsync(int clave);
 }
 
-/// <summary>Repositorio (capa de datos) de <c>red</c>. Solo habla SQL; todas las lecturas filtran <c>activo = 1</c>.</summary>
+/// <summary>
+/// Repositorio (capa de datos) de <c>red</c>.
+/// Desde la v2 no tiene SQL: cada método llama a un procedimiento almacenado.
+/// </summary>
 public class RepositorioRed : IRepositorioRed
 {
-    private readonly string _conexion;
+    private readonly IEjecutorProcedimientos _bd;
 
-    public RepositorioRed(IConfiguration config) => _conexion = config.GetConnectionString("SqlServer")!;
+    public RepositorioRed(IEjecutorProcedimientos bd) => _bd = bd;
 
-    private IDbConnection CrearConexion() => new SqlConnection(_conexion);
+    public Task<List<Red>> ListarAsync() =>
+        _bd.ListarAsync<Red>("sp_listar_red");
 
-    public async Task<List<Red>> ListarAsync()
-    {
-        using var db = CrearConexion();
-        return (await db.QueryAsync<Red>("SELECT idr, nombre, url, pais FROM red WHERE activo = 1 ORDER BY idr")).ToList();
-    }
+    public Task<Red?> ObtenerAsync(int clave) =>
+        _bd.PrimeroAsync<Red>("sp_consultar_red", new { idr = clave });
 
-    public async Task<Red?> ObtenerAsync(int clave)
-    {
-        using var db = CrearConexion();
-        return await db.QueryFirstOrDefaultAsync<Red>("SELECT idr, nombre, url, pais FROM red WHERE idr = @clave AND activo = 1", new { clave });
-    }
-    public async Task<bool> ExisteAsync(int clave)
-    {
-        // Incluye registros inactivos: la clave no se puede reutilizar (409).
-        using var db = CrearConexion();
-        return await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM red WHERE idr = @clave", new { clave }) > 0;
-    }
+    public async Task<Red> CrearAsync(Red entidad) =>
+        (await _bd.PrimeroAsync<Red>("sp_crear_red",
+            new { idr = entidad.Idr, nombre = entidad.Nombre, url = entidad.Url, pais = entidad.Pais }))!;
 
-    public async Task CrearAsync(Red entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"INSERT INTO red (idr, nombre, url, pais, activo)
-                    VALUES (@Idr, @Nombre, @Url, @Pais, 1)";
-        await db.ExecuteAsync(sql, entidad);
-    }
+    public async Task<Red> ActualizarAsync(Red entidad) =>
+        (await _bd.PrimeroAsync<Red>("sp_actualizar_red",
+            new { idr = entidad.Idr, nombre = entidad.Nombre, url = entidad.Url, pais = entidad.Pais }))!;
 
-    public async Task<bool> ActualizarAsync(Red entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"UPDATE red SET nombre = @Nombre, url = @Url, pais = @Pais
-                    WHERE idr = @Idr AND activo = 1";
-        return await db.ExecuteAsync(sql, entidad) > 0;
-    }
-
-    public async Task<bool> EliminarLogicoAsync(int clave)
-    {
-        using var db = CrearConexion();
-        return await db.ExecuteAsync("UPDATE red SET activo = 0 WHERE idr = @clave AND activo = 1", new { clave }) > 0;
-    }
+    // Borrado LÓGICO (activo = 0).
+    public Task EliminarLogicoAsync(int clave) =>
+        _bd.EjecutarAsync("sp_eliminar_red", new { idr = clave });
 }

@@ -1,6 +1,3 @@
-using System.Data;
-using Dapper;
-using Microsoft.Data.SqlClient;
 using ApiGestion.Modelos;
 
 namespace ApiGestion.Repositorios;
@@ -10,58 +7,37 @@ public interface IRepositorioTerminoClave
 {
     Task<List<TerminoClave>> ListarAsync();
     Task<TerminoClave?> ObtenerAsync(string clave);
-    Task<bool> ExisteAsync(string clave);
-    Task CrearAsync(TerminoClave entidad);
-    Task<bool> ActualizarAsync(TerminoClave entidad);
-    Task<bool> EliminarLogicoAsync(string clave);
+    Task<TerminoClave> CrearAsync(TerminoClave entidad);
+    Task<TerminoClave> ActualizarAsync(TerminoClave entidad);
+    Task EliminarLogicoAsync(string clave);
 }
 
-/// <summary>Repositorio (capa de datos) de <c>termino_clave</c>. Solo habla SQL; todas las lecturas filtran <c>activo = 1</c>.</summary>
+/// <summary>
+/// Repositorio (capa de datos) de <c>termino_clave</c>.
+/// Desde la v2 no tiene SQL: cada método llama a un procedimiento almacenado.
+/// El procedimiento revisa si el término ya existe (409) o no se encuentra (404).
+/// </summary>
 public class RepositorioTerminoClave : IRepositorioTerminoClave
 {
-    private readonly string _conexion;
+    private readonly IEjecutorProcedimientos _bd;
 
-    public RepositorioTerminoClave(IConfiguration config) => _conexion = config.GetConnectionString("SqlServer")!;
+    public RepositorioTerminoClave(IEjecutorProcedimientos bd) => _bd = bd;
 
-    private IDbConnection CrearConexion() => new SqlConnection(_conexion);
+    public Task<List<TerminoClave>> ListarAsync() =>
+        _bd.ListarAsync<TerminoClave>("sp_listar_termino_clave");
 
-    public async Task<List<TerminoClave>> ListarAsync()
-    {
-        using var db = CrearConexion();
-        return (await db.QueryAsync<TerminoClave>("SELECT termino, termino_ingles FROM termino_clave WHERE activo = 1 ORDER BY termino")).ToList();
-    }
+    public Task<TerminoClave?> ObtenerAsync(string clave) =>
+        _bd.PrimeroAsync<TerminoClave>("sp_consultar_termino_clave", new { termino = clave });
 
-    public async Task<TerminoClave?> ObtenerAsync(string clave)
-    {
-        using var db = CrearConexion();
-        return await db.QueryFirstOrDefaultAsync<TerminoClave>("SELECT termino, termino_ingles FROM termino_clave WHERE termino = @clave AND activo = 1", new { clave });
-    }
-    public async Task<bool> ExisteAsync(string clave)
-    {
-        // Incluye registros inactivos: la clave no se puede reutilizar (409).
-        using var db = CrearConexion();
-        return await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM termino_clave WHERE termino = @clave", new { clave }) > 0;
-    }
+    public async Task<TerminoClave> CrearAsync(TerminoClave entidad) =>
+        (await _bd.PrimeroAsync<TerminoClave>("sp_crear_termino_clave",
+            new { termino = entidad.Termino, termino_ingles = entidad.TerminoIngles }))!;
 
-    public async Task CrearAsync(TerminoClave entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"INSERT INTO termino_clave (termino, termino_ingles, activo)
-                    VALUES (@Termino, @TerminoIngles, 1)";
-        await db.ExecuteAsync(sql, entidad);
-    }
+    public async Task<TerminoClave> ActualizarAsync(TerminoClave entidad) =>
+        (await _bd.PrimeroAsync<TerminoClave>("sp_actualizar_termino_clave",
+            new { termino = entidad.Termino, termino_ingles = entidad.TerminoIngles }))!;
 
-    public async Task<bool> ActualizarAsync(TerminoClave entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"UPDATE termino_clave SET termino_ingles = @TerminoIngles
-                    WHERE termino = @Termino AND activo = 1";
-        return await db.ExecuteAsync(sql, entidad) > 0;
-    }
-
-    public async Task<bool> EliminarLogicoAsync(string clave)
-    {
-        using var db = CrearConexion();
-        return await db.ExecuteAsync("UPDATE termino_clave SET activo = 0 WHERE termino = @clave AND activo = 1", new { clave }) > 0;
-    }
+    // Borrado LÓGICO (activo = 0).
+    public Task EliminarLogicoAsync(string clave) =>
+        _bd.EjecutarAsync("sp_eliminar_termino_clave", new { termino = clave });
 }
