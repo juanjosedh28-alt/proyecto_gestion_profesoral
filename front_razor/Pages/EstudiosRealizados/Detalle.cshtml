@@ -1,0 +1,119 @@
+@page "{id:int}"
+@model front_razor.Pages.EstudiosRealizados.DetalleModel
+@{
+    ViewData["Title"] = Model.Estudio.Titulo;
+    var e = Model.Estudio;
+    var a = Model.FormApoyo;
+    var b = Model.FormBeca;
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 mb-1">@e.Titulo</h1>
+        <div class="text-muted">@e.Tipo · @e.Universidad (@e.Ciudad, @e.Pais) · @e.Fecha · Docente: @e.DocenteNombre</div>
+    </div>
+    <a class="btn btn-secondary" asp-page="/Docentes/Detalle" asp-route-cedula="@e.Docente" asp-fragment="estudios">Volver al docente</a>
+</div>
+
+@* ---------------- APOYO PROFESORAL (1:1) ---------------- *@
+<section id="apoyo" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Apoyo profesoral</h2></div>
+    <div class="card-body">
+        @if (Model.Apoyo == null) { <p class="text-muted">Este estudio todavía no tiene apoyo registrado.</p> }
+        @foreach (var m in Model.ErroresDe("apoyo")) { <div class="alert alert-danger py-1 mb-1">@m</div> }
+        <form method="post" asp-page-handler="GuardarApoyo" asp-route-id="@e.Id" class="row g-2 align-items-end">
+            <input type="hidden" name="existe" value="@(Model.Apoyo != null ? "true" : "false")" />
+            <div class="col-md-2">
+                <label class="form-label small">¿Tuvo apoyo?</label>
+                <select class="form-select form-select-sm" name="apoyo.ConApoyo">
+                    <option value="1" selected="@(a.ConApoyo == 1)">Sí</option>
+                    <option value="0" selected="@(a.ConApoyo == 0)">No</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label small">Institución</label>
+                <input class="form-control form-control-sm" name="apoyo.Institucion" value="@a.Institucion" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Tipo</label>
+                <input class="form-control form-control-sm" name="apoyo.Tipo" value="@a.Tipo" placeholder="Parcial" />
+            </div>
+            <div class="col-md-2"><button class="btn btn-sm btn-primary w-100">@(Model.Apoyo == null ? "Registrar" : "Guardar cambios")</button></div>
+        </form>
+        @if (Model.Apoyo != null)
+        {
+            <form method="post" asp-page-handler="RetirarApoyo" asp-route-id="@e.Id" class="mt-2" onsubmit="return confirm('¿Retirar el apoyo de este estudio?')">
+                <button class="btn btn-sm btn-outline-danger">Retirar apoyo</button>
+            </form>
+        }
+    </div>
+</section>
+
+@* ---------------- BECA (1:1) ---------------- *@
+<section id="beca" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Beca</h2></div>
+    <div class="card-body">
+        @if (Model.Beca == null) { <p class="text-muted">Este estudio todavía no tiene beca registrada.</p> }
+        @foreach (var m in Model.ErroresDe("beca")) { <div class="alert alert-danger py-1 mb-1">@m</div> }
+        <form method="post" asp-page-handler="GuardarBeca" asp-route-id="@e.Id" class="row g-2 align-items-end">
+            <input type="hidden" name="existe" value="@(Model.Beca != null ? "true" : "false")" />
+            <div class="col-md-3">
+                <label class="form-label small">Tipo</label>
+                <input class="form-control form-control-sm" name="beca.Tipo" value="@b.Tipo" placeholder="Posgrado" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small">Institución</label>
+                <input class="form-control form-control-sm" name="beca.Institucion" value="@b.Institucion" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Desde</label>
+                <input class="form-control form-control-sm" type="date" name="beca.FechaInicio" value="@b.FechaInicio" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small">Hasta (opcional)</label>
+                <input class="form-control form-control-sm" type="date" name="beca.FechaFin" value="@b.FechaFin" />
+            </div>
+            <div class="col-md-2"><button class="btn btn-sm btn-primary w-100">@(Model.Beca == null ? "Registrar" : "Guardar cambios")</button></div>
+        </form>
+        @if (Model.Beca != null)
+        {
+            <form method="post" asp-page-handler="RetirarBeca" asp-route-id="@e.Id" class="mt-2" onsubmit="return confirm('¿Retirar la beca de este estudio?')">
+                <button class="btn btn-sm btn-outline-danger">Retirar beca</button>
+            </form>
+        }
+    </div>
+</section>
+
+@* ---------------- ÁREAS DE CONOCIMIENTO (puente puro) ---------------- *@
+<section id="areas" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Áreas de conocimiento del estudio</h2></div>
+    <div class="card-body">
+        @if (Model.Areas.Count == 0) { <p class="text-muted">Sin áreas asignadas.</p> }
+        else
+        {
+            <ul class="list-group mb-3">
+            @foreach (var x in Model.Areas)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><strong>@x.AreaConocimiento</strong> — @x.AreaConocimientoDisciplina</span>
+                    <form method="post" asp-page-handler="RetirarArea" asp-route-id="@e.Id" asp-route-area="@x.AreaConocimiento" class="d-inline" onsubmit="return confirm('¿Retirar esta área?')">
+                        <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                    </form>
+                </li>
+            }
+            </ul>
+        }
+        @foreach (var m in Model.ErroresDe("areas")) { <div class="alert alert-danger py-1 mb-1">@m</div> }
+        <form method="post" asp-page-handler="AsignarArea" asp-route-id="@e.Id" class="d-flex gap-2">
+            @* Desplegable: se VE el código y la disciplina; se MANDA el código *@
+            <select class="form-select form-select-sm" name="area.AreaConocimiento">
+                <option value="">— seleccione un área —</option>
+                @foreach (var o in Model.OpcionesAreas)
+                {
+                    <option value="@o.Id">@o.Id — @o.Disciplina</option>
+                }
+            </select>
+            <button class="btn btn-sm btn-primary text-nowrap">Asignar área</button>
+        </form>
+    </div>
+</section>

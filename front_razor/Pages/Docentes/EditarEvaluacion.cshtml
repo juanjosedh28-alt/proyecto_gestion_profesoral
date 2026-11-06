@@ -1,0 +1,24 @@
+@page "{cedula:int}/{id:int}"
+@model front_razor.Pages.Docentes.EditarEvaluacionModel
+@{ ViewData["Title"] = "Editar evaluación"; }
+
+<h1 class="h3 mb-3">Editar evaluación</h1>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Semestre" class="form-label">Semestre</label>
+        <input asp-for="Formulario.Semestre" class="form-control" />
+        <span asp-validation-for="Formulario.Semestre" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Calificacion" class="form-label">Calificación (0 a 5)</label>
+        <input asp-for="Formulario.Calificacion" class="form-control" type="number" step="0.1" min="0" max="5" />
+        <span asp-validation-for="Formulario.Calificacion" class="text-danger"></span>
+    </div>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Detalle" asp-route-cedula="@Model.Cedula" asp-fragment="evaluaciones">Cancelar</a>
+</form>

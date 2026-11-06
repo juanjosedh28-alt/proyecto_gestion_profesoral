@@ -1,0 +1,39 @@
+@page "{cedula:int}/{id:int}"
+@model front_razor.Pages.Docentes.EditarExperienciaModel
+@{ ViewData["Title"] = "Editar experiencia"; }
+
+<h1 class="h3 mb-3">Editar experiencia</h1>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.NombreCargo" class="form-label">Cargo</label>
+        <input asp-for="Formulario.NombreCargo" class="form-control" />
+        <span asp-validation-for="Formulario.NombreCargo" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Institucion" class="form-label">Institución</label>
+        <input asp-for="Formulario.Institucion" class="form-control" />
+        <span asp-validation-for="Formulario.Institucion" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Tipo" class="form-label">Tipo</label>
+        <input asp-for="Formulario.Tipo" class="form-control" />
+        <span asp-validation-for="Formulario.Tipo" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.FechaInicio" class="form-label">Desde</label>
+        <input asp-for="Formulario.FechaInicio" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.FechaInicio" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.FechaFin" class="form-label">Hasta (vacío si sigue en el cargo)</label>
+        <input asp-for="Formulario.FechaFin" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.FechaFin" class="text-danger"></span>
+    </div>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Detalle" asp-route-cedula="@Model.Cedula" asp-fragment="experiencias">Cancelar</a>
+</form>

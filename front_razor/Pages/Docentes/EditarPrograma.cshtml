@@ -1,0 +1,39 @@
+@page "{cedula:int}/{departamento:int}"
+@model front_razor.Pages.Docentes.EditarProgramaModel
+@{ ViewData["Title"] = "Editar vinculación a programa"; }
+
+<h1 class="h3 mb-3">Editar vinculación a programa</h1>
+<p class="text-muted">Programa: <strong>@Model.Clave</strong></p>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Formulario.Departamento" />
+    <div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Dedicacion" class="form-label">Dedicación</label>
+        <select asp-for="Formulario.Dedicacion" class="form-select">
+            <option>Tiempo completo</option>
+            <option>Medio tiempo</option>
+            <option>Cátedra</option>
+        </select>
+        <span asp-validation-for="Formulario.Dedicacion" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Modalidad" class="form-label">Modalidad</label>
+        <input asp-for="Formulario.Modalidad" class="form-control" />
+        <span asp-validation-for="Formulario.Modalidad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.FechaIngreso" class="form-label">Ingreso</label>
+        <input asp-for="Formulario.FechaIngreso" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.FechaIngreso" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.FechaSalida" class="form-label">Salida (opcional)</label>
+        <input asp-for="Formulario.FechaSalida" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.FechaSalida" class="text-danger"></span>
+    </div>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Detalle" asp-route-cedula="@Model.Cedula" asp-fragment="programas">Cancelar</a>
+</form>

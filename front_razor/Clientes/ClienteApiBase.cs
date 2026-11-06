@@ -59,6 +59,6 @@ public abstract class ClienteApiBase
 
         RespuestaError? error = null;
         try { error = await respuesta.Content.ReadFromJsonAsync<RespuestaError>(Opciones); } catch { /* cuerpo no JSON */ }
-        throw new ErrorApiException((int)respuesta.StatusCode, error?.Mensaje is { Length: > 0 } m ? m : $"Error inesperado ({(int)respuesta.StatusCode}).", error?.Detalle);
+        throw new ErrorApiException((int)respuesta.StatusCode, error?.Mensaje is { Length: > 0 } m ? m : "Ocurrió un error inesperado. Intente de nuevo.", error?.Detalle);
     }
 }
