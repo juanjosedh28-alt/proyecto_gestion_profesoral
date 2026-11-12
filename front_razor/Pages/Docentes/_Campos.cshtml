@@ -1,0 +1,99 @@
+@model front_razor.Modelos.DocenteFormulario
+@{
+    // Las líneas de investigación llegan de la API (GET /api/linea-investigacion), solo las activas.
+    var lineas = ViewData["Lineas"] as List<LineaInvestigacionVista> ?? new();
+}
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="Cedula" class="form-label"></label>
+        <input asp-for="Cedula" class="form-control" type="number" readonly="@(ViewData["Editando"] is true ? "readonly" : null)" />
+        <span asp-validation-for="Cedula" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Nombres" class="form-label"></label>
+        <input asp-for="Nombres" class="form-control" />
+        <span asp-validation-for="Nombres" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Apellidos" class="form-label"></label>
+        <input asp-for="Apellidos" class="form-control" />
+        <span asp-validation-for="Apellidos" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Genero" class="form-label"></label>
+        <select asp-for="Genero" class="form-select">
+            <option value="">— seleccione —</option>
+            <option>Femenino</option>
+            <option>Masculino</option>
+            <option>Otro</option>
+        </select>
+        <span asp-validation-for="Genero" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Cargo" class="form-label"></label>
+        <input asp-for="Cargo" class="form-control" />
+        <span asp-validation-for="Cargo" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="FechaNacimiento" class="form-label"></label>
+        <input asp-for="FechaNacimiento" class="form-control" type="date" />
+        <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Correo" class="form-label"></label>
+        <input asp-for="Correo" class="form-control" type="email" />
+        <span asp-validation-for="Correo" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Telefono" class="form-label"></label>
+        <input asp-for="Telefono" class="form-control" />
+        <span asp-validation-for="Telefono" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="UrlCvlac" class="form-label"></label>
+        <input asp-for="UrlCvlac" class="form-control" placeholder="https://..." />
+        <span asp-validation-for="UrlCvlac" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Escalafon" class="form-label"></label>
+        <input asp-for="Escalafon" class="form-control" />
+        <span asp-validation-for="Escalafon" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="CatMinciencia" class="form-label"></label>
+        <input asp-for="CatMinciencia" class="form-control" />
+        <span asp-validation-for="CatMinciencia" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="ConvMinciencia" class="form-label"></label>
+        <input asp-for="ConvMinciencia" class="form-control" />
+        <span asp-validation-for="ConvMinciencia" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Nacionalidaad" class="form-label"></label>
+        <input asp-for="Nacionalidaad" class="form-control" />
+        <span asp-validation-for="Nacionalidaad" class="text-danger"></span>
+    </div>
+    <div class="col-md-8 mb-3">
+        <label asp-for="LineaInvestigacionPrincipal" class="form-label"></label>
+        @* Clave foránea OPCIONAL: desplegable que MUESTRA el nombre y MANDA el id.
+           «(ninguna)» tiene value vacío, que llega como null (no como texto vacío). *@
+        <select asp-for="LineaInvestigacionPrincipal" class="form-select">
+            <option value="">(ninguna)</option>
+            @foreach (var l in lineas)
+            {
+                <option value="@l.Id">@l.Nombre</option>
+            }
+        </select>
+        @if (lineas.Count == 0)
+        {
+            <div class="form-text">Aún no hay líneas de investigación. Puede crearlas en <a href="/LineasInvestigacion/Crear">Líneas de investigación</a>.</div>
+        }
+    </div>
+    <div class="col-12 mb-3">
+        <label asp-for="Perfil" class="form-label"></label>
+        <textarea asp-for="Perfil" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Perfil" class="text-danger"></span>
+    </div>
+</div>

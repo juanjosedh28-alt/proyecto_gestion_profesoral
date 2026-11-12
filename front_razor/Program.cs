@@ -12,6 +12,19 @@ builder.Services.AddHttpClient<ClienteLineaInvestigacion>(c => c.BaseAddress = n
 builder.Services.AddHttpClient<ClientePrograma>(c => c.BaseAddress = new Uri(urlApi));
 builder.Services.AddHttpClient<ClienteRed>(c => c.BaseAddress = new Uri(urlApi));
 
+// v2: las 11 tablas con clave foránea
+builder.Services.AddHttpClient<ClienteDocente>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteEstudio>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteEvaluacion>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteExperiencia>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteReconocimiento>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteDocenteDepartamento>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteRedDocente>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteInteresFuturo>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteEstudioAc>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteApoyoProfesoral>(c => c.BaseAddress = new Uri(urlApi));
+builder.Services.AddHttpClient<ClienteBeca>(c => c.BaseAddress = new Uri(urlApi));
+
 var app = builder.Build();
 
 app.UseStaticFiles();

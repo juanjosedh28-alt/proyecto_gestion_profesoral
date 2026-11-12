@@ -25,27 +25,22 @@ public class ServicioLineaInvestigacion : IServicioLineaInvestigacion
     public Task<List<LineaInvestigacion>> ListarAsync() => _repo.ListarAsync();
 
     public async Task<LineaInvestigacion> ObtenerAsync(int clave) =>
-        await _repo.ObtenerAsync(clave) ?? throw new NoEncontradoExcepcion($"No se encontró el línea de investigación con id {clave}.");
+        await _repo.ObtenerAsync(clave) ?? throw new NoEncontradoExcepcion($"No se encontró la línea de investigación con id {clave}.");
 
     public async Task<LineaInvestigacion> CrearAsync(LineaInvestigacionCrear p)
     {
-        var entidad = Mapear(p);
-        entidad.Id = await _repo.CrearAsync(entidad);
-        return entidad;
+        // El id lo genera la base; el procedimiento devuelve la fila ya creada.
+        return await _repo.CrearAsync(Mapear(p));
     }
 
     public async Task<LineaInvestigacion> ActualizarAsync(int id, LineaInvestigacionCrear p)
     {
         var entidad = Mapear(p);
         entidad.Id = id;
-        if (!await _repo.ActualizarAsync(entidad)) throw new NoEncontradoExcepcion($"No se encontró el línea de investigación con id {id}.");
-        return entidad;
+        return await _repo.ActualizarAsync(entidad);   // 404 lo responde el procedimiento
     }
 
-    public async Task EliminarAsync(int clave)
-    {
-        if (!await _repo.EliminarLogicoAsync(clave)) throw new NoEncontradoExcepcion($"No se encontró el línea de investigación con id {clave}.");
-    }
+    public Task EliminarAsync(int clave) => _repo.EliminarLogicoAsync(clave);
 
     private static LineaInvestigacion Mapear(LineaInvestigacionCrear p) => new()
     {

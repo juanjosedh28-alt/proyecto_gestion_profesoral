@@ -1,30 +1,10 @@
-<<<<<<< HEAD
-using ApiGestion.Modelos;
-=======
 using ApiGestion.Excepciones;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
->>>>>>> 05bd3051e7b6c901b480ffddfc5120e1ee1c0d10
 using ApiGestion.Repositorios;
 
 namespace ApiGestion.Servicios;
 
-<<<<<<< HEAD
-public class ServicioPrograma : IServicioPrograma
-{
-    private readonly IRepositorioPrograma _repositorio;
-
-    public ServicioPrograma(IRepositorioPrograma repositorio)
-    {
-        _repositorio = repositorio;
-    }
-
-    public Task<IEnumerable<Programa>> ListarAsync() => _repositorio.ListarAsync();
-    public Task<Programa?> ObtenerAsync(int id) => _repositorio.ObtenerAsync(id);
-    public Task<int> CrearAsync(Programa programa) => _repositorio.CrearAsync(programa);
-    public Task<bool> ActualizarAsync(Programa programa) => _repositorio.ActualizarAsync(programa);
-    public Task<bool> EliminarAsync(int id) => _repositorio.EliminarAsync(id);
-=======
 /// <summary>Contrato de las reglas de negocio de <c>programa</c>.</summary>
 public interface IServicioPrograma
 {
@@ -50,25 +30,18 @@ public class ServicioPrograma : IServicioPrograma
     public async Task<Programa> CrearAsync(ProgramaCrear p)
     {
         ValidarFechas(p.FechaCreacion, p.FechaCierre);
-        if (await _repo.ExisteAsync(p.Id)) throw new ConflictoExcepcion($"Ya existe un programa con id {p.Id}.");
-        var entidad = Mapear(p);
-        await _repo.CrearAsync(entidad);
-        return entidad;
+        // Si el id ya existe, el procedimiento sp_crear_programa responde 409.
+        return await _repo.CrearAsync(Mapear(p));
     }
 
     public async Task<Programa> ActualizarAsync(int id, ProgramaCrear p)
     {
         ValidarFechas(p.FechaCreacion, p.FechaCierre);
         if (id != p.Id) throw new ValidacionExcepcion($"El id de la ruta ({id}) no coincide con el id del cuerpo ({p.Id}).");
-        var entidad = Mapear(p);
-        if (!await _repo.ActualizarAsync(entidad)) throw new NoEncontradoExcepcion($"No se encontró el programa con id {id}.");
-        return entidad;
+        return await _repo.ActualizarAsync(Mapear(p));   // 404 lo responde el procedimiento
     }
 
-    public async Task EliminarAsync(int clave)
-    {
-        if (!await _repo.EliminarLogicoAsync(clave)) throw new NoEncontradoExcepcion($"No se encontró el programa con id {clave}.");
-    }
+    public Task EliminarAsync(int clave) => _repo.EliminarLogicoAsync(clave);
 
     /// <summary>Valida que las fechas existan de verdad y que el cierre no sea anterior a la creación.</summary>
     private static void ValidarFechas(string creacion, string? cierre)
@@ -95,7 +68,5 @@ public class ServicioPrograma : IServicioPrograma
             CantGraduados = p.CantGraduados,
             Ciudad = p.Ciudad,
             Facultad = p.Facultad,
-            FechaActualizacion = DateTime.Now.ToString("yyyy-MM-dd"),
     };
->>>>>>> 05bd3051e7b6c901b480ffddfc5120e1ee1c0d10
 }

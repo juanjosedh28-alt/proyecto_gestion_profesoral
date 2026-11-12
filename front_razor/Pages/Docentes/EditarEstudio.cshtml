@@ -1,0 +1,69 @@
+@page "{cedula:int}/{id:int}"
+@model front_razor.Pages.Docentes.EditarEstudioModel
+@{ ViewData["Title"] = "Editar estudio"; }
+
+<h1 class="h3 mb-3">Editar estudio</h1>
+<p class="text-muted">Estudio con id <strong>@Model.Clave</strong></p>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Formulario.Id" />
+    <div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Titulo" class="form-label">Título</label>
+        <input asp-for="Formulario.Titulo" class="form-control" />
+        <span asp-validation-for="Formulario.Titulo" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Tipo" class="form-label">Tipo</label>
+        <select asp-for="Formulario.Tipo" class="form-select">
+            <option>Pregrado</option>
+            <option>Especialización</option>
+            <option>Maestría</option>
+            <option>Doctorado</option>
+            <option>Posdoctorado</option>
+        </select>
+        <span asp-validation-for="Formulario.Tipo" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Universidad" class="form-label">Universidad</label>
+        <input asp-for="Formulario.Universidad" class="form-control" />
+        <span asp-validation-for="Formulario.Universidad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Fecha" class="form-label">Fecha</label>
+        <input asp-for="Formulario.Fecha" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.Fecha" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Ciudad" class="form-label">Ciudad</label>
+        <input asp-for="Formulario.Ciudad" class="form-control" />
+        <span asp-validation-for="Formulario.Ciudad" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Pais" class="form-label">País</label>
+        <input asp-for="Formulario.Pais" class="form-control" />
+        <span asp-validation-for="Formulario.Pais" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Metodologia" class="form-label">Metodología</label>
+        <input asp-for="Formulario.Metodologia" class="form-control" />
+        <span asp-validation-for="Formulario.Metodologia" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.InsAcreditada" class="form-label">Institución acreditada</label>
+        <select asp-for="Formulario.InsAcreditada" class="form-select">
+            <option value="1">Sí</option>
+            <option value="0">No</option>
+        </select>
+        <span asp-validation-for="Formulario.InsAcreditada" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.PerfilEgresado" class="form-label">Perfil del egresado</label>
+        <textarea asp-for="Formulario.PerfilEgresado" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Formulario.PerfilEgresado" class="text-danger"></span>
+    </div>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Detalle" asp-route-cedula="@Model.Cedula" asp-fragment="estudios">Cancelar</a>
+</form>

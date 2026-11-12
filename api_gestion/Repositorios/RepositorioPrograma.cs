@@ -1,6 +1,3 @@
-using System.Data;
-using Dapper;
-using Microsoft.Data.SqlClient;
 using ApiGestion.Modelos;
 
 namespace ApiGestion.Repositorios;
@@ -10,58 +7,50 @@ public interface IRepositorioPrograma
 {
     Task<List<Programa>> ListarAsync();
     Task<Programa?> ObtenerAsync(int clave);
-    Task<bool> ExisteAsync(int clave);
-    Task CrearAsync(Programa entidad);
-    Task<bool> ActualizarAsync(Programa entidad);
-    Task<bool> EliminarLogicoAsync(int clave);
+    Task<Programa> CrearAsync(Programa entidad);
+    Task<Programa> ActualizarAsync(Programa entidad);
+    Task EliminarLogicoAsync(int clave);
 }
 
-/// <summary>Repositorio (capa de datos) de <c>programa</c>. Solo habla SQL; todas las lecturas filtran <c>activo = 1</c>.</summary>
+/// <summary>
+/// Repositorio (capa de datos) de <c>programa</c>.
+/// Desde la v2 no tiene SQL: cada método llama a un procedimiento almacenado.
+/// La fecha de actualización la pone el procedimiento con la fecha de hoy.
+/// </summary>
 public class RepositorioPrograma : IRepositorioPrograma
 {
-    private readonly string _conexion;
+    private readonly IEjecutorProcedimientos _bd;
 
-    public RepositorioPrograma(IConfiguration config) => _conexion = config.GetConnectionString("SqlServer")!;
+    public RepositorioPrograma(IEjecutorProcedimientos bd) => _bd = bd;
 
-    private IDbConnection CrearConexion() => new SqlConnection(_conexion);
+    public Task<List<Programa>> ListarAsync() =>
+        _bd.ListarAsync<Programa>("sp_listar_programa");
 
-    public async Task<List<Programa>> ListarAsync()
+    public Task<Programa?> ObtenerAsync(int clave) =>
+        _bd.PrimeroAsync<Programa>("sp_consultar_programa", new { id = clave });
+
+    public async Task<Programa> CrearAsync(Programa entidad) =>
+        (await _bd.PrimeroAsync<Programa>("sp_crear_programa", Parametros(entidad)))!;
+
+    public async Task<Programa> ActualizarAsync(Programa entidad) =>
+        (await _bd.PrimeroAsync<Programa>("sp_actualizar_programa", Parametros(entidad)))!;
+
+    // Borrado LÓGICO (activo = 0).
+    public Task EliminarLogicoAsync(int clave) =>
+        _bd.EjecutarAsync("sp_eliminar_programa", new { id = clave });
+
+    // Crear y actualizar reciben los mismos parámetros: se arman en un solo sitio.
+    private static object Parametros(Programa e) => new
     {
-        using var db = CrearConexion();
-        return (await db.QueryAsync<Programa>("SELECT id, nombre, tipo, nivel, fecha_creacion, fecha_cierre, numero_cohortes, cant_graduados, ciudad, facultad, fecha_actualizacion FROM programa WHERE activo = 1 ORDER BY id")).ToList();
-    }
-
-    public async Task<Programa?> ObtenerAsync(int clave)
-    {
-        using var db = CrearConexion();
-        return await db.QueryFirstOrDefaultAsync<Programa>("SELECT id, nombre, tipo, nivel, fecha_creacion, fecha_cierre, numero_cohortes, cant_graduados, ciudad, facultad, fecha_actualizacion FROM programa WHERE id = @clave AND activo = 1", new { clave });
-    }
-    public async Task<bool> ExisteAsync(int clave)
-    {
-        // Incluye registros inactivos: la clave no se puede reutilizar (409).
-        using var db = CrearConexion();
-        return await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM programa WHERE id = @clave", new { clave }) > 0;
-    }
-
-    public async Task CrearAsync(Programa entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"INSERT INTO programa (id, nombre, tipo, nivel, fecha_creacion, fecha_cierre, numero_cohortes, cant_graduados, ciudad, facultad, fecha_actualizacion, activo)
-                    VALUES (@Id, @Nombre, @Tipo, @Nivel, @FechaCreacion, @FechaCierre, @NumeroCohortes, @CantGraduados, @Ciudad, @Facultad, @FechaActualizacion, 1)";
-        await db.ExecuteAsync(sql, entidad);
-    }
-
-    public async Task<bool> ActualizarAsync(Programa entidad)
-    {
-        using var db = CrearConexion();
-        var sql = @"UPDATE programa SET nombre = @Nombre, tipo = @Tipo, nivel = @Nivel, fecha_creacion = @FechaCreacion, fecha_cierre = @FechaCierre, numero_cohortes = @NumeroCohortes, cant_graduados = @CantGraduados, ciudad = @Ciudad, facultad = @Facultad, fecha_actualizacion = @FechaActualizacion
-                    WHERE id = @Id AND activo = 1";
-        return await db.ExecuteAsync(sql, entidad) > 0;
-    }
-
-    public async Task<bool> EliminarLogicoAsync(int clave)
-    {
-        using var db = CrearConexion();
-        return await db.ExecuteAsync("UPDATE programa SET activo = 0 WHERE id = @clave AND activo = 1", new { clave }) > 0;
-    }
+        id = e.Id,
+        nombre = e.Nombre,
+        tipo = e.Tipo,
+        nivel = e.Nivel,
+        fecha_creacion = e.FechaCreacion,
+        fecha_cierre = e.FechaCierre,
+        numero_cohortes = e.NumeroCohortes,
+        cant_graduados = e.CantGraduados,
+        ciudad = e.Ciudad,
+        facultad = e.Facultad
+    };
 }

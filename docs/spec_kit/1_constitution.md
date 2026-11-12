@@ -146,3 +146,73 @@ Los errores siempre tienen **un solo formato**:
 - **Definición de terminado** de una tarea/fase: (1) compila sin errores ni advertencias nuevas, (2) la verificación de la fase pasa, (3) comentarios XML en español en cada archivo nuevo, (4) los documentos del kit siguen coherentes con el código, (5) commit hecho y checkbox marcado.
 - La **"prueba de capas"** es un proyecto xUnit que ejercita Servicio → Repositorio sobre EF Core InMemory, sin HTTP.
 - Si durante la construcción se cambia un contrato, se actualiza primero el documento correspondiente y luego el código.
+
+---
+
+# Enmiendas de la versión 2
+
+> La constitución es una sola para todas las versiones. Lo que sigue **no la reemplaza**: la corrige donde el
+> código real de la v1 y las exigencias de la v2 (ver `ProyectosDeAula/docs/VERSION_2.md` del curso) la
+> contradicen. Es la salida que da la **compuerta 2**: "o se corrige el plan, o se enmienda la constitución".
+> Fecha: noviembre de 2026.
+
+## Enmienda al Artículo 3 — Acceso a datos con Dapper y procedimientos almacenados
+
+- El código de la v1 se construyó con **Dapper** (`Dapper` + `Microsoft.Data.SqlClient`), no con EF Core. La
+  constitución se ajusta a lo que existe: no hay `GestionDbContext` ni pruebas InMemory.
+- Desde la v2, **todo** el acceso a datos de las 16 tablas pasa por **procedimientos almacenados** de
+  `db/v2_procedimientos.sql`. El único punto de la API que abre conexiones es `Repositorios/EjecutorProcedimientos.cs`,
+  que ejecuta un procedimiento por su nombre (`CommandType.StoredProcedure`) con parámetros.
+- Las pruebas de la v2 son la colección de Postman (`postman/`), con las peticiones que deben pasar y las que deben fallar.
+
+## Enmienda al Artículo 2 — Flujo dentro de la API
+
+`Controller → Servicio → Repositorio → EjecutorProcedimientos → procedimiento almacenado → SQL Server`.
+
+## Enmienda al Artículo 6 — Puerto y credenciales
+
+- El puerto de SQL Server hacia el equipo es **`11472`** (es el que usa `docker-compose.yml`).
+- La contraseña de `sa` **ya no es pública**: se lee del archivo `.env` (que está en `.gitignore`); el repositorio
+  trae `.env.example` con un valor de ejemplo. Lo exige la metodología del curso (§5): el proyecto se publica en la v4.
+- La variable de la cadena de conexión es `ConnectionStrings__SqlServer`.
+
+## Enmienda al Artículo 5 — El script inicial corre una sola vez
+
+`db/init.sh` crea las tablas **solo si `docente` no existe** (antes el script de la v1 las borraba en cada
+arranque). El script de la v2 es idempotente y se aplica en **cada** arranque.
+
+## Enmienda al Artículo 8 — SQL solo en la base
+
+- En C# no se escribe SQL: ni `SELECT`, ni `INSERT`, ni `UPDATE`, ni `DELETE`. Un `grep` sobre `api_gestion/Repositorios`
+  no debe encontrar ninguna de esas palabras.
+- Los valores viajan **siempre** como parámetros del procedimiento, nunca pegados en un texto.
+
+## Artículo 12 — El SQL vive en la base
+
+Los cinco verbos de cada tabla (`sp_listar_`, `sp_consultar_`, `sp_crear_`, `sp_actualizar_`, `sp_eliminar_<tabla>`)
+están en `db/v2_procedimientos.sql`. `sp_crear_` y `sp_actualizar_` devuelven la fila **como quedó guardada**.
+
+## Artículo 13 — Disparadores por conjuntos
+
+Un disparador trabaja con todas las filas de `inserted` y `deleted` a la vez (nunca fila por fila) y escucha
+`INSERT`, `UPDATE` **y** `DELETE` cuando el borrado es lógico.
+
+## Artículo 14 — Un error previsible nunca es 500
+
+Padre inexistente, pareja repetida, clave repetida y retiro bloqueado → `409`; dato inválido → `422`;
+no encontrado → `404`. Siempre con mensaje en castellano y el formato `{ mensaje, detalle }` del Artículo 9.
+
+## Artículo 15 — Las claves foráneas no se digitan
+
+Cada clave foránea se elige de un desplegable **cargado desde la API** que muestra el nombre y manda la clave.
+Una clave opcional ofrece «(ninguna)», que manda `null`. El detalle se ve y se agrega **desde su maestro**.
+
+## Artículo 16 — Interpretabilidad y autoría
+
+Cada archivo nuevo lleva un comentario en español que dice **qué hace y por qué**. Cada integrante hace los
+commits de lo que entrega y registra sus prompts, con lo que tuvo que corregirle a la IA, en la carpeta de la versión.
+
+## Artículo 17 — Regresión
+
+Al cerrar la v2 se vuelven a correr los criterios de la v1. Los ajustes a código de la v1 que la v2 necesite
+(por ejemplo, pasar sus repositorios a procedimientos) se hacen en la v2 y quedan escritos en su spec.

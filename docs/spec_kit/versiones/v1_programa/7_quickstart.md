@@ -11,10 +11,6 @@
 git clone <url-del-repositorio>
 cd gestion_profesoral
 docker compose up -d --build     # primera vez: varios minutos
-<<<<<<< HEAD
-curl http://localhost:8074/api/programa
-=======
->>>>>>> 2eca3e1 (Modificacion y mejoras en el spec kit)
 ```
 
 Direcciones:
@@ -41,13 +37,9 @@ docker compose ps -a
 ### Paso 2 — Base de datos (Fase 0)
 
 ```bash
-<<<<<<< HEAD
-curl -i http://localhost:8074/api/programa
-=======
 docker compose exec sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P 'Paradigmas123!' -d gestion_local \
   -Q "SELECT (SELECT COUNT(*) FROM area_conocimiento) AS areas, (SELECT COUNT(*) FROM programa) AS programas"
 # Esperado: areas = 218, programas = 0
->>>>>>> 2eca3e1 (Modificacion y mejoras en el spec kit)
 ```
 
 ### Paso 3 — Áreas de conocimiento (CA-02)

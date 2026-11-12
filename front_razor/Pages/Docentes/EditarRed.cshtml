@@ -1,0 +1,30 @@
+@page "{cedula:int}/{red:int}"
+@model front_razor.Pages.Docentes.EditarRedModel
+@{ ViewData["Title"] = "Editar participación en red"; }
+
+<h1 class="h3 mb-3">Editar participación en red</h1>
+<p class="text-muted">Red: <strong>@Model.Clave</strong></p>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Formulario.Red" />
+    <div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.FechaInicio" class="form-label">Desde</label>
+        <input asp-for="Formulario.FechaInicio" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.FechaInicio" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.FechaFin" class="form-label">Hasta (opcional)</label>
+        <input asp-for="Formulario.FechaFin" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.FechaFin" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.ActDestacadas" class="form-label">Actividades destacadas</label>
+        <textarea asp-for="Formulario.ActDestacadas" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Formulario.ActDestacadas" class="text-danger"></span>
+    </div>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Detalle" asp-route-cedula="@Model.Cedula" asp-fragment="redes">Cancelar</a>
+</form>

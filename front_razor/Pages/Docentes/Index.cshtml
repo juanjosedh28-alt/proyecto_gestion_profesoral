@@ -1,0 +1,48 @@
+@page
+@model front_razor.Pages.Docentes.IndexModel
+@{ ViewData["Title"] = "Docentes"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Docentes</h1>
+    <a class="btn btn-primary" asp-page="Crear">Nuevo docente</a>
+</div>
+
+@if (Model.MensajeError != null)
+{
+    <div class="alert alert-danger">@Model.MensajeError</div>
+}
+else if (Model.Items.Count == 0)
+{
+    <p class="text-muted">Aún no hay docentes registrados.</p>
+}
+else
+{
+    <div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr><th>Cédula</th><th>Nombre</th><th>Cargo</th><th>Línea de investigación</th><th class="text-center">Estudios</th><th></th></tr>
+        </thead>
+        <tbody>
+        @foreach (var x in Model.Items)
+        {
+            <tr>
+                <td>@x.Cedula</td>
+                <td>@x.NombreCompleto</td>
+                <td>@x.Cargo</td>
+                <td>@(x.LineaInvestigacionPrincipalNombre ?? "(ninguna)")</td>
+                @* total_estudios lo calcula el disparador trg_contar_estudios en la base de datos *@
+                <td class="text-center"><span class="badge text-bg-secondary">@x.TotalEstudios</span></td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-primary" asp-page="Detalle" asp-route-cedula="@x.Cedula">Ver detalle</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Editar" asp-route-cedula="@x.Cedula">Editar</a>
+                    <form method="post" asp-page-handler="Retirar" asp-route-cedula="@x.Cedula" class="d-inline"
+                          onsubmit="return confirm('¿Retirar este docente?')">
+                        <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+}

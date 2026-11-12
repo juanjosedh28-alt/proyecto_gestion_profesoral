@@ -24,7 +24,7 @@ public class RedFormulario
     public string Nombre { get; set; } = string.Empty;
     [Display(Name = "URL")]
     [Required(ErrorMessage = "La URL es obligatoria.")]
-    [StringLength(200, ErrorMessage = "La URL no puede superar 200 caracteres.")]
+    [StringLength(45, ErrorMessage = "La URL no puede superar 45 caracteres.")]
     [RegularExpression(@"^https?://\S+$", ErrorMessage = "La URL debe comenzar por http:// o https://.")]
     public string Url { get; set; } = string.Empty;
     [Display(Name = "País")]

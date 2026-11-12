@@ -1,0 +1,44 @@
+@page "{cedula:int}/{id:int}"
+@model front_razor.Pages.Docentes.EditarReconocimientoModel
+@{ ViewData["Title"] = "Editar reconocimiento"; }
+
+<h1 class="h3 mb-3">Editar reconocimiento</h1>
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Nombre" class="form-label">Nombre</label>
+        <input asp-for="Formulario.Nombre" class="form-control" />
+        <span asp-validation-for="Formulario.Nombre" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Tipo" class="form-label">Tipo</label>
+        <input asp-for="Formulario.Tipo" class="form-control" />
+        <span asp-validation-for="Formulario.Tipo" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Institucion" class="form-label">Institución</label>
+        <input asp-for="Formulario.Institucion" class="form-control" />
+        <span asp-validation-for="Formulario.Institucion" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Ambito" class="form-label">Ámbito</label>
+        <select asp-for="Formulario.Ambito" class="form-select">
+            <option>Local</option>
+            <option>Regional</option>
+            <option>Nacional</option>
+            <option>Internacional</option>
+        </select>
+        <span asp-validation-for="Formulario.Ambito" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Formulario.Fecha" class="form-label">Fecha</label>
+        <input asp-for="Formulario.Fecha" class="form-control" type="date" />
+        <span asp-validation-for="Formulario.Fecha" class="text-danger"></span>
+    </div>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Detalle" asp-route-cedula="@Model.Cedula" asp-fragment="reconocimientos">Cancelar</a>
+</form>

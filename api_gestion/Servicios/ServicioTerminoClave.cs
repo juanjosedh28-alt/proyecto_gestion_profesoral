@@ -30,10 +30,8 @@ public class ServicioTerminoClave : IServicioTerminoClave
     public async Task<TerminoClave> CrearAsync(TerminoClaveCrear p)
     {
         if (string.IsNullOrWhiteSpace(p.Termino)) throw new ValidacionExcepcion("Datos inválidos.", "termino: El término es obligatorio.");
-        if (await _repo.ExisteAsync(p.Termino)) throw new ConflictoExcepcion($"Ya existe un término clave con término {p.Termino}.");
-        var entidad = Mapear(p);
-        await _repo.CrearAsync(entidad);
-        return entidad;
+        // Si el término ya existe, el procedimiento sp_crear_termino_clave responde 409.
+        return await _repo.CrearAsync(Mapear(p));
     }
 
     public async Task<TerminoClave> ActualizarAsync(string clave, TerminoClaveCrear p)
@@ -41,14 +39,10 @@ public class ServicioTerminoClave : IServicioTerminoClave
         if (!string.IsNullOrEmpty(p.Termino) && p.Termino != clave) throw new ValidacionExcepcion($"El término de la ruta ({clave}) no coincide con el término del cuerpo ({p.Termino}).");
         var entidad = Mapear(p);
         entidad.Termino = clave;
-        if (!await _repo.ActualizarAsync(entidad)) throw new NoEncontradoExcepcion($"No se encontró el término clave con término {clave}.");
-        return entidad;
+        return await _repo.ActualizarAsync(entidad);   // 404 lo responde el procedimiento
     }
 
-    public async Task EliminarAsync(string clave)
-    {
-        if (!await _repo.EliminarLogicoAsync(clave)) throw new NoEncontradoExcepcion($"No se encontró el término clave con término {clave}.");
-    }
+    public Task EliminarAsync(string clave) => _repo.EliminarLogicoAsync(clave);
 
     private static TerminoClave Mapear(TerminoClaveCrear p) => new()
     {

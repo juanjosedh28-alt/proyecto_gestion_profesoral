@@ -1,0 +1,509 @@
+@page "{cedula:int}"
+@model front_razor.Pages.Docentes.DetalleModel
+@{
+    ViewData["Title"] = Model.Docente.NombreCompleto;
+    var d = Model.Docente;
+}
+@*
+    MAESTRO-DETALLE: arriba el docente (maestro); debajo, sus siete secciones (detalle).
+    Ninguna clave foránea se escribe a mano: el docente viene de la ruta y los demás
+    (programa, red, término) se eligen de desplegables cargados desde la API.
+*@
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h1 class="h3 mb-1">@d.NombreCompleto</h1>
+        <div class="text-muted">Cédula @d.Cedula · @d.Cargo · @d.Escalafon</div>
+    </div>
+    <div class="text-nowrap">
+        <a class="btn btn-outline-primary" asp-page="Editar" asp-route-cedula="@d.Cedula">Editar docente</a>
+        <a class="btn btn-secondary" asp-page="Index">Volver</a>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row small">
+            <div class="col-md-4"><strong>Correo:</strong> @d.Correo</div>
+            <div class="col-md-4"><strong>Teléfono:</strong> @d.Telefono</div>
+            <div class="col-md-4"><strong>Nacimiento:</strong> @d.FechaNacimiento</div>
+            <div class="col-md-4"><strong>Nacionalidad:</strong> @d.Nacionalidaad</div>
+            <div class="col-md-4"><strong>Línea principal:</strong> @(d.LineaInvestigacionPrincipalNombre ?? "(ninguna)")</div>
+            <div class="col-md-4"><strong>CvLAC:</strong> <a href="@d.UrlCvlac" target="_blank" rel="noopener">abrir</a></div>
+            <div class="col-md-4"><strong>Categoría Minciencias:</strong> @(d.CatMinciencia ?? "—")</div>
+            <div class="col-md-4"><strong>Convocatoria:</strong> @d.ConvMinciencia</div>
+            <div class="col-md-4"><strong>Última actualización:</strong> @d.FechaActualizacion</div>
+            <div class="col-12 mt-2"><strong>Perfil:</strong> @d.Perfil</div>
+        </div>
+        @* Este número NO lo envía el front ni la API: lo mantiene el disparador trg_contar_estudios. *@
+        <div class="mt-3"><span class="badge text-bg-primary fs-6">Estudios activos: @d.TotalEstudios</span></div>
+    </div>
+</div>
+
+@* ======================================================================= *@
+@* ESTUDIOS REALIZADOS                                                     *@
+@* ======================================================================= *@
+<section id="estudios" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Estudios realizados</h2></div>
+    <div class="card-body">
+        @if (Model.Estudios.Count == 0) { <p class="text-muted">Sin estudios registrados.</p> }
+        else
+        {
+            <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Id</th><th>Título</th><th>Tipo</th><th>Universidad</th><th>Fecha</th><th>País</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var x in Model.Estudios)
+                {
+                    <tr>
+                        <td>@x.Id</td><td>@x.Titulo</td><td>@x.Tipo</td><td>@x.Universidad</td><td>@x.Fecha</td><td>@x.Pais</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary" asp-page="/EstudiosRealizados/Detalle" asp-route-id="@x.Id">Apoyo, beca y áreas</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-page="EditarEstudio" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id">Editar</a>
+                            <form method="post" asp-page-handler="RetirarEstudio" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id" class="d-inline" onsubmit="return confirm('¿Retirar este estudio?')">
+                                <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            </div>
+        }
+
+        <h3 class="h6 mt-3">Agregar estudios</h3>
+        @foreach (var e in Model.ErroresDe("estudios")) { <div class="alert alert-danger py-1 mb-1">@e</div> }
+        <form method="post" asp-page-handler="AgregarEstudios" asp-route-cedula="@d.Cedula">
+            <div class="table-responsive">
+            <table class="table table-sm">
+                <thead><tr><th>Id</th><th>Título</th><th>Tipo</th><th>Universidad</th><th>Fecha</th><th>Ciudad</th><th>País</th><th>Metodología</th><th>Acreditada</th><th>Perfil del egresado</th><th></th></tr></thead>
+                <tbody data-renglones>
+                @{ var filasEst = Model.NuevosEstudios.Count > 0 ? Model.NuevosEstudios : new List<EstudioFormulario> { new() }; }
+                @for (var i = 0; i < filasEst.Count; i++)
+                {
+                    var r = filasEst[i];
+                    <tr class="renglon">
+                        <td><input class="form-control form-control-sm" type="number" name="estudios[@i].Id" value="@r.Id" style="width:6em" /></td>
+                        <td><input class="form-control form-control-sm" name="estudios[@i].Titulo" value="@r.Titulo" /></td>
+                        <td>
+                            <select class="form-select form-select-sm" name="estudios[@i].Tipo">
+                                @foreach (var t in new[] { "Pregrado", "Especialización", "Maestría", "Doctorado", "Posdoctorado" })
+                                {
+                                    <option selected="@(r.Tipo == t)">@t</option>
+                                }
+                            </select>
+                        </td>
+                        <td><input class="form-control form-control-sm" name="estudios[@i].Universidad" value="@r.Universidad" /></td>
+                        <td><input class="form-control form-control-sm" type="date" name="estudios[@i].Fecha" value="@r.Fecha" /></td>
+                        <td><input class="form-control form-control-sm" name="estudios[@i].Ciudad" value="@r.Ciudad" /></td>
+                        <td><input class="form-control form-control-sm" name="estudios[@i].Pais" value="@r.Pais" /></td>
+                        <td><input class="form-control form-control-sm" name="estudios[@i].Metodologia" value="@r.Metodologia" placeholder="Presencial" /></td>
+                        <td>
+                            <select class="form-select form-select-sm" name="estudios[@i].InsAcreditada">
+                                <option value="1" selected="@(r.InsAcreditada == 1)">Sí</option>
+                                <option value="0" selected="@(r.InsAcreditada == 0)">No</option>
+                            </select>
+                        </td>
+                        <td><input class="form-control form-control-sm" name="estudios[@i].PerfilEgresado" value="@r.PerfilEgresado" /></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-secondary" data-quitar title="Quitar renglón">✕</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-agregar>+ Otro renglón</button>
+            <button class="btn btn-sm btn-primary">Guardar estudios</button>
+        </form>
+    </div>
+</section>
+
+@* ======================================================================= *@
+@* EVALUACIONES                                                            *@
+@* ======================================================================= *@
+<section id="evaluaciones" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Evaluaciones docentes</h2></div>
+    <div class="card-body">
+        @if (Model.Evaluaciones.Count == 0) { <p class="text-muted">Sin evaluaciones registradas.</p> }
+        else
+        {
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Semestre</th><th>Calificación</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var x in Model.Evaluaciones)
+                {
+                    <tr>
+                        <td>@x.Semestre</td><td>@x.Calificacion.ToString("0.0#")</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="EditarEvaluacion" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id">Editar</a>
+                            <form method="post" asp-page-handler="RetirarEvaluacion" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id" class="d-inline" onsubmit="return confirm('¿Retirar esta evaluación?')">
+                                <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <h3 class="h6 mt-3">Agregar evaluaciones</h3>
+        @foreach (var e in Model.ErroresDe("evaluaciones")) { <div class="alert alert-danger py-1 mb-1">@e</div> }
+        <form method="post" asp-page-handler="AgregarEvaluaciones" asp-route-cedula="@d.Cedula">
+            <table class="table table-sm" style="max-width:40em">
+                <thead><tr><th>Semestre</th><th>Calificación (0 a 5)</th><th></th></tr></thead>
+                <tbody data-renglones>
+                @{ var filasEva = Model.NuevasEvaluaciones.Count > 0 ? Model.NuevasEvaluaciones : new List<EvaluacionFormulario> { new() }; }
+                @for (var i = 0; i < filasEva.Count; i++)
+                {
+                    var r = filasEva[i];
+                    <tr class="renglon">
+                        <td><input class="form-control form-control-sm" name="evaluaciones[@i].Semestre" value="@r.Semestre" placeholder="2026-1" /></td>
+                        <td><input class="form-control form-control-sm" type="number" step="0.1" min="0" max="5" name="evaluaciones[@i].Calificacion" value="@(r.Calificacion?.ToString(System.Globalization.CultureInfo.InvariantCulture))" /></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-secondary" data-quitar title="Quitar renglón">✕</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-agregar>+ Otro renglón</button>
+            <button class="btn btn-sm btn-primary">Guardar evaluaciones</button>
+        </form>
+    </div>
+</section>
+
+@* ======================================================================= *@
+@* EXPERIENCIA                                                             *@
+@* ======================================================================= *@
+<section id="experiencias" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Experiencia laboral</h2></div>
+    <div class="card-body">
+        @if (Model.Experiencias.Count == 0) { <p class="text-muted">Sin experiencia registrada.</p> }
+        else
+        {
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Cargo</th><th>Institución</th><th>Tipo</th><th>Desde</th><th>Hasta</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var x in Model.Experiencias)
+                {
+                    <tr>
+                        <td>@x.NombreCargo</td><td>@x.Institucion</td><td>@x.Tipo</td><td>@x.FechaInicio</td><td>@(x.FechaFin ?? "actual")</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="EditarExperiencia" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id">Editar</a>
+                            <form method="post" asp-page-handler="RetirarExperiencia" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id" class="d-inline" onsubmit="return confirm('¿Retirar esta experiencia?')">
+                                <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <h3 class="h6 mt-3">Agregar experiencias</h3>
+        @foreach (var e in Model.ErroresDe("experiencias")) { <div class="alert alert-danger py-1 mb-1">@e</div> }
+        <form method="post" asp-page-handler="AgregarExperiencias" asp-route-cedula="@d.Cedula">
+            <div class="table-responsive">
+            <table class="table table-sm">
+                <thead><tr><th>Cargo</th><th>Institución</th><th>Tipo</th><th>Desde</th><th>Hasta (opcional)</th><th></th></tr></thead>
+                <tbody data-renglones>
+                @{ var filasExp = Model.NuevasExperiencias.Count > 0 ? Model.NuevasExperiencias : new List<ExperienciaFormulario> { new() }; }
+                @for (var i = 0; i < filasExp.Count; i++)
+                {
+                    var r = filasExp[i];
+                    <tr class="renglon">
+                        <td><input class="form-control form-control-sm" name="experiencias[@i].NombreCargo" value="@r.NombreCargo" /></td>
+                        <td><input class="form-control form-control-sm" name="experiencias[@i].Institucion" value="@r.Institucion" /></td>
+                        <td><input class="form-control form-control-sm" name="experiencias[@i].Tipo" value="@r.Tipo" placeholder="Docencia" /></td>
+                        <td><input class="form-control form-control-sm" type="date" name="experiencias[@i].FechaInicio" value="@r.FechaInicio" /></td>
+                        <td><input class="form-control form-control-sm" type="date" name="experiencias[@i].FechaFin" value="@r.FechaFin" /></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-secondary" data-quitar title="Quitar renglón">✕</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-agregar>+ Otro renglón</button>
+            <button class="btn btn-sm btn-primary">Guardar experiencias</button>
+        </form>
+    </div>
+</section>
+
+@* ======================================================================= *@
+@* RECONOCIMIENTOS                                                         *@
+@* ======================================================================= *@
+<section id="reconocimientos" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Reconocimientos</h2></div>
+    <div class="card-body">
+        @if (Model.Reconocimientos.Count == 0) { <p class="text-muted">Sin reconocimientos registrados.</p> }
+        else
+        {
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Nombre</th><th>Tipo</th><th>Institución</th><th>Ámbito</th><th>Fecha</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var x in Model.Reconocimientos)
+                {
+                    <tr>
+                        <td>@x.Nombre</td><td>@x.Tipo</td><td>@x.Institucion</td><td>@x.Ambito</td><td>@x.Fecha</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="EditarReconocimiento" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id">Editar</a>
+                            <form method="post" asp-page-handler="RetirarReconocimiento" asp-route-cedula="@d.Cedula" asp-route-id="@x.Id" class="d-inline" onsubmit="return confirm('¿Retirar este reconocimiento?')">
+                                <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <h3 class="h6 mt-3">Agregar reconocimientos</h3>
+        @foreach (var e in Model.ErroresDe("reconocimientos")) { <div class="alert alert-danger py-1 mb-1">@e</div> }
+        <form method="post" asp-page-handler="AgregarReconocimientos" asp-route-cedula="@d.Cedula">
+            <div class="table-responsive">
+            <table class="table table-sm">
+                <thead><tr><th>Nombre</th><th>Tipo</th><th>Institución</th><th>Ámbito</th><th>Fecha</th><th></th></tr></thead>
+                <tbody data-renglones>
+                @{ var filasRec = Model.NuevosReconocimientos.Count > 0 ? Model.NuevosReconocimientos : new List<ReconocimientoFormulario> { new() }; }
+                @for (var i = 0; i < filasRec.Count; i++)
+                {
+                    var r = filasRec[i];
+                    <tr class="renglon">
+                        <td><input class="form-control form-control-sm" name="reconocimientos[@i].Nombre" value="@r.Nombre" /></td>
+                        <td><input class="form-control form-control-sm" name="reconocimientos[@i].Tipo" value="@r.Tipo" placeholder="Premio" /></td>
+                        <td><input class="form-control form-control-sm" name="reconocimientos[@i].Institucion" value="@r.Institucion" /></td>
+                        <td>
+                            <select class="form-select form-select-sm" name="reconocimientos[@i].Ambito">
+                                @foreach (var a in new[] { "Local", "Regional", "Nacional", "Internacional" })
+                                {
+                                    <option selected="@(r.Ambito == a)">@a</option>
+                                }
+                            </select>
+                        </td>
+                        <td><input class="form-control form-control-sm" type="date" name="reconocimientos[@i].Fecha" value="@r.Fecha" /></td>
+                        <td><button type="button" class="btn btn-sm btn-outline-secondary" data-quitar title="Quitar renglón">✕</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-agregar>+ Otro renglón</button>
+            <button class="btn btn-sm btn-primary">Guardar reconocimientos</button>
+        </form>
+    </div>
+</section>
+
+@* ======================================================================= *@
+@* PROGRAMAS (tabla puente docente_departamento)                           *@
+@* ======================================================================= *@
+<section id="programas" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Programas en los que está vinculado</h2></div>
+    <div class="card-body">
+        @if (Model.Departamentos.Count == 0) { <p class="text-muted">No está vinculado a ningún programa.</p> }
+        else
+        {
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Programa</th><th>Dedicación</th><th>Modalidad</th><th>Ingreso</th><th>Salida</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var x in Model.Departamentos)
+                {
+                    <tr>
+                        <td>@x.DepartamentoNombre</td><td>@x.Dedicacion</td><td>@x.Modalidad</td><td>@x.FechaIngreso</td><td>@(x.FechaSalida ?? "—")</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="EditarPrograma" asp-route-cedula="@d.Cedula" asp-route-departamento="@x.Departamento">Editar</a>
+                            <form method="post" asp-page-handler="RetirarPrograma" asp-route-cedula="@d.Cedula" asp-route-departamento="@x.Departamento" class="d-inline" onsubmit="return confirm('¿Retirar esta vinculación?')">
+                                <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <h3 class="h6 mt-3">Vincular a un programa</h3>
+        @foreach (var e in Model.ErroresDe("programas")) { <div class="alert alert-danger py-1 mb-1">@e</div> }
+        @if (Model.OpcionesProgramas.Count == 0)
+        {
+            <p class="text-muted">Aún no hay programas. Cree uno primero en <a href="/Programas/Crear">Programas</a>.</p>
+        }
+        else
+        {
+            var p = Model.NuevoPrograma;
+            <form method="post" asp-page-handler="AsignarPrograma" asp-route-cedula="@d.Cedula" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small">Programa</label>
+                    @* Desplegable: la persona VE el nombre del programa; se MANDA su id *@
+                    <select class="form-select form-select-sm" name="programa.Departamento">
+                        <option value="">— seleccione —</option>
+                        @foreach (var o in Model.OpcionesProgramas)
+                        {
+                            <option value="@o.Id" selected="@(p.Departamento == o.Id)">@o.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Dedicación</label>
+                    <select class="form-select form-select-sm" name="programa.Dedicacion">
+                        @foreach (var t in new[] { "Tiempo completo", "Medio tiempo", "Cátedra" })
+                        {
+                            <option selected="@(p.Dedicacion == t)">@t</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Modalidad</label>
+                    <input class="form-control form-control-sm" name="programa.Modalidad" value="@p.Modalidad" placeholder="Presencial" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Ingreso</label>
+                    <input class="form-control form-control-sm" type="date" name="programa.FechaIngreso" value="@p.FechaIngreso" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Salida (opcional)</label>
+                    <input class="form-control form-control-sm" type="date" name="programa.FechaSalida" value="@p.FechaSalida" />
+                </div>
+                <div class="col-12"><button class="btn btn-sm btn-primary">Vincular</button></div>
+            </form>
+        }
+    </div>
+</section>
+
+@* ======================================================================= *@
+@* REDES (tabla puente red_docente)                                        *@
+@* ======================================================================= *@
+<section id="redes" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Redes académicas</h2></div>
+    <div class="card-body">
+        @if (Model.RedesDelDocente.Count == 0) { <p class="text-muted">No pertenece a ninguna red.</p> }
+        else
+        {
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Red</th><th>Desde</th><th>Hasta</th><th>Actividades destacadas</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var x in Model.RedesDelDocente)
+                {
+                    <tr>
+                        <td>@x.RedNombre</td><td>@x.FechaInicio</td><td>@(x.FechaFin ?? "—")</td><td>@x.ActDestacadas</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" asp-page="EditarRed" asp-route-cedula="@d.Cedula" asp-route-red="@x.Red">Editar</a>
+                            <form method="post" asp-page-handler="RetirarRed" asp-route-cedula="@d.Cedula" asp-route-red="@x.Red" class="d-inline" onsubmit="return confirm('¿Retirar de esta red?')">
+                                <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <h3 class="h6 mt-3">Agregar a una red</h3>
+        @foreach (var e in Model.ErroresDe("redes")) { <div class="alert alert-danger py-1 mb-1">@e</div> }
+        @if (Model.OpcionesRedes.Count == 0)
+        {
+            <p class="text-muted">Aún no hay redes. Cree una primero en <a href="/Redes/Crear">Redes</a>.</p>
+        }
+        else
+        {
+            var n = Model.NuevaRed;
+            <form method="post" asp-page-handler="AsignarRed" asp-route-cedula="@d.Cedula" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small">Red</label>
+                    <select class="form-select form-select-sm" name="red.Red">
+                        <option value="">— seleccione —</option>
+                        @foreach (var o in Model.OpcionesRedes)
+                        {
+                            <option value="@o.Idr" selected="@(n.Red == o.Idr)">@o.Nombre (@o.Pais)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Desde</label>
+                    <input class="form-control form-control-sm" type="date" name="red.FechaInicio" value="@n.FechaInicio" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small">Hasta (opcional)</label>
+                    <input class="form-control form-control-sm" type="date" name="red.FechaFin" value="@n.FechaFin" />
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small">Actividades destacadas</label>
+                    <input class="form-control form-control-sm" name="red.ActDestacadas" value="@n.ActDestacadas" />
+                </div>
+                <div class="col-12"><button class="btn btn-sm btn-primary">Agregar a la red</button></div>
+            </form>
+        }
+    </div>
+</section>
+
+@* ======================================================================= *@
+@* INTERESES FUTUROS (puente PURO: se asigna o se retira, no se edita)     *@
+@* ======================================================================= *@
+<section id="intereses" class="card mb-4">
+    <div class="card-header"><h2 class="h5 mb-0">Intereses de investigación</h2></div>
+    <div class="card-body">
+        @if (Model.Intereses.Count == 0) { <p class="text-muted">Sin intereses registrados.</p> }
+        else
+        {
+            <ul class="list-group mb-3" style="max-width:40em">
+            @foreach (var x in Model.Intereses)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>@x.TerminoClave @if (x.TerminoIngles != null) { <small class="text-muted">(@x.TerminoIngles)</small> }</span>
+                    <form method="post" asp-page-handler="RetirarInteres" asp-route-cedula="@d.Cedula" asp-route-termino="@x.TerminoClave" class="d-inline" onsubmit="return confirm('¿Retirar este interés?')">
+                        <button class="btn btn-sm btn-outline-danger">Retirar</button>
+                    </form>
+                </li>
+            }
+            </ul>
+        }
+
+        @foreach (var e in Model.ErroresDe("intereses")) { <div class="alert alert-danger py-1 mb-1">@e</div> }
+        @if (Model.OpcionesTerminos.Count == 0)
+        {
+            <p class="text-muted">Aún no hay términos clave. Cree uno primero en <a href="/TerminosClave/Crear">Términos clave</a>.</p>
+        }
+        else
+        {
+            <form method="post" asp-page-handler="AsignarInteres" asp-route-cedula="@d.Cedula" class="d-flex gap-2" style="max-width:40em">
+                <select class="form-select form-select-sm" name="interes.TerminoClave">
+                    <option value="">— seleccione un término —</option>
+                    @foreach (var o in Model.OpcionesTerminos)
+                    {
+                        <option value="@o.Termino" selected="@(Model.NuevoInteres.TerminoClave == o.Termino)">@o.Termino</option>
+                    }
+                </select>
+                <button class="btn btn-sm btn-primary text-nowrap">Agregar interés</button>
+            </form>
+        }
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    // Formularios de VARIOS RENGLONES (sin librerías).
+    // "+ Otro renglón" copia el último renglón vacío; "✕" lo quita. Después se
+    // vuelven a numerar los nombres (estudios[0].Titulo, estudios[1].Titulo...)
+    // para que el servidor los reciba como UNA lista y los mande en UN solo envío.
+    function renumerar(cuerpo) {
+        cuerpo.querySelectorAll('.renglon').forEach(function (fila, i) {
+            fila.querySelectorAll('[name]').forEach(function (campo) {
+                campo.name = campo.name.replace(/\[\d+\]/, '[' + i + ']');
+            });
+        });
+    }
+    document.querySelectorAll('[data-agregar]').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            var cuerpo = boton.closest('form').querySelector('[data-renglones]');
+            var filas = cuerpo.querySelectorAll('.renglon');
+            var copia = filas[filas.length - 1].cloneNode(true);
+            copia.querySelectorAll('input').forEach(function (c) { c.value = ''; });
+            cuerpo.appendChild(copia);
+            renumerar(cuerpo);
+        });
+    });
+    document.addEventListener('click', function (e) {
+        if (!e.target.matches('[data-quitar]')) return;
+        var cuerpo = e.target.closest('[data-renglones]');
+        if (cuerpo.querySelectorAll('.renglon').length === 1) return;   // siempre queda al menos uno
+        e.target.closest('.renglon').remove();
+        renumerar(cuerpo);
+    });
+</script>
+}

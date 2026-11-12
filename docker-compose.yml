@@ -1,3 +1,5 @@
+# Los secretos (contraseña de la base) NO van escritos aquí: se leen del archivo
+# .env, que está en .gitignore. Copie .env.example como .env y ponga su clave.
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -5,7 +7,7 @@ services:
     restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Aplicacionweb123!
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     ports:
       - "11472:1433"
     volumes:
@@ -22,7 +24,7 @@ services:
     container_name: gestion-sqlserver-init
     restart: "no"
     environment:
-      - MSSQL_SA_PASSWORD=Aplicacionweb123!
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     volumes:
       - ./db:/scripts:ro
     depends_on:
@@ -36,15 +38,12 @@ services:
     restart: unless-stopped
     ports:
       - "8074:8074"
-<<<<<<< HEAD
-=======
     volumes:
       - ./api_gestion:/app
       - /app/bin
       - /app/obj
->>>>>>> 05bd3051e7b6c901b480ffddfc5120e1ee1c0d10
     environment:
-      - ConnectionStrings__SqlServer=Server=sqlserver,1433;Database=gestion_local;User Id=sa;Password=Aplicacionweb123!;TrustServerCertificate=True;
+      - ConnectionStrings__SqlServer=Server=sqlserver,1433;Database=gestion_local;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
     depends_on:
       sqlserver-init:
         condition: service_completed_successfully

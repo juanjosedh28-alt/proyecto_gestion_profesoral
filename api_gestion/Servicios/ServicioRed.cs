@@ -25,28 +25,22 @@ public class ServicioRed : IServicioRed
     public Task<List<Red>> ListarAsync() => _repo.ListarAsync();
 
     public async Task<Red> ObtenerAsync(int clave) =>
-        await _repo.ObtenerAsync(clave) ?? throw new NoEncontradoExcepcion($"No se encontró el red con id {clave}.");
+        await _repo.ObtenerAsync(clave) ?? throw new NoEncontradoExcepcion($"No se encontró la red con id {clave}.");
 
     public async Task<Red> CrearAsync(RedCrear p)
     {
-        if (await _repo.ExisteAsync(p.Idr)) throw new ConflictoExcepcion($"Ya existe un red con id {p.Idr}.");
-        var entidad = Mapear(p);
-        await _repo.CrearAsync(entidad);
-        return entidad;
+        // Si el id ya existe, el procedimiento sp_crear_red responde 409.
+        return await _repo.CrearAsync(Mapear(p));
     }
 
     public async Task<Red> ActualizarAsync(int idr, RedCrear p)
     {
         if (idr != p.Idr) throw new ValidacionExcepcion($"El id de la ruta ({idr}) no coincide con el id del cuerpo ({p.Idr}).");
-        var entidad = Mapear(p);
-        if (!await _repo.ActualizarAsync(entidad)) throw new NoEncontradoExcepcion($"No se encontró el red con id {idr}.");
-        return entidad;
+        // Si no existe, el procedimiento sp_actualizar_red responde 404.
+        return await _repo.ActualizarAsync(Mapear(p));
     }
 
-    public async Task EliminarAsync(int clave)
-    {
-        if (!await _repo.EliminarLogicoAsync(clave)) throw new NoEncontradoExcepcion($"No se encontró el red con id {clave}.");
-    }
+    public Task EliminarAsync(int clave) => _repo.EliminarLogicoAsync(clave);
 
     private static Red Mapear(RedCrear p) => new()
     {
