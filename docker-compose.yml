@@ -1,4 +1,4 @@
-# Los secretos (contraseña de la base) NO van escritos aquí: se leen del archivo
+# Los secretos (contraseña de la base y clave de los tokens) NO van escritos aquí: se leen del archivo
 # .env, que está en .gitignore. Copie .env.example como .env y ponga su clave.
 services:
   sqlserver:
@@ -44,6 +44,8 @@ services:
       - /app/obj
     environment:
       - ConnectionStrings__SqlServer=Server=sqlserver,1433;Database=gestion_local;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
+      # v3: la clave que FIRMA los tokens. Es un secreto: viene del archivo .env.
+      - Jwt__Key=${JWT_KEY}
     depends_on:
       sqlserver-init:
         condition: service_completed_successfully
