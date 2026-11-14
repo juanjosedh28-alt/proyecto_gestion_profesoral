@@ -1,0 +1,28 @@
+@page
+@model front_razor.Pages.Sesion.IniciarModel
+@{ ViewData["Title"] = "Iniciar sesión"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-5 col-lg-4">
+        <h1 class="h3 mb-3">Iniciar sesión</h1>
+
+        @if (Model.Aviso != null)
+        {
+            <div class="alert alert-warning">@Model.Aviso</div>
+        }
+
+        <form method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="Volver" />
+            <div class="mb-3">
+                <label asp-for="Formulario.Email" class="form-label"></label>
+                <input asp-for="Formulario.Email" class="form-control" type="email" autocomplete="username" autofocus />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Formulario.Contrasena" class="form-label"></label>
+                <input asp-for="Formulario.Contrasena" class="form-control" autocomplete="current-password" />
+            </div>
+            <button class="btn btn-primary w-100">Entrar</button>
+        </form>
+    </div>
+</div>
