@@ -1,0 +1,63 @@
+@page
+@model front_razor.Pages.Permisos.IndexModel
+@{ ViewData["Title"] = "Permisos por rol"; }
+
+<h1 class="h3 mb-3">Permisos por rol</h1>
+
+<form method="get" class="row g-2 align-items-end mb-3 no-ocultar">
+    <div class="col-auto">
+        <label for="rolId" class="form-label">Rol</label>
+        <select id="rolId" name="rolId" class="form-select" onchange="this.form.submit()">
+            <option value="">— Elija un rol —</option>
+            @foreach (var r in Model.Roles)
+            {
+                <option value="@r.Id" selected="@(r.Id == Model.RolId)">@r.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto"><button class="btn btn-outline-secondary">Ver</button></div>
+</form>
+
+@if (Model.MensajeError != null)
+{
+    <div class="alert alert-danger">@Model.MensajeError</div>
+}
+else if (Model.RolId is not null)
+{
+    <div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Permiso (ruta)</th><th>Qué permite</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var p in Model.Permisos)
+        {
+            <tr>
+                <td><code>@p.RutaNombre</code></td>
+                <td>@p.Descripcion</td>
+                <td>
+                    @if (p.Asignada) { <span class="badge bg-success">Tiene</span> }
+                    else { <span class="badge bg-secondary">No tiene</span> }
+                </td>
+                <td class="text-end">
+                    @if (p.Asignada)
+                    {
+                        <form method="post" asp-page-handler="Quitar" asp-route-rutaId="@p.RutaId" asp-route-rolId="@p.RolId" class="d-inline">
+                            <button class="btn btn-sm btn-outline-danger">Quitar</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form method="post" asp-page-handler="Dar" asp-route-rutaId="@p.RutaId" asp-route-rolId="@p.RolId" class="d-inline">
+                            <button class="btn btn-sm btn-outline-success">Dar</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+    <p class="small text-muted">
+        El cambio surte efecto en la <strong>siguiente acción</strong> de los usuarios de este rol, sin que tengan que volver a iniciar sesión:
+        la API revisa el permiso en la base en cada petición (el token solo dice quién es, no qué puede hacer).
+    </p>
+}
