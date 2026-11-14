@@ -21,7 +21,7 @@ public interface IRepositorioAcceso
 /// <summary>
 /// Repositorio del control de acceso. Igual que los de la v2: NO tiene SQL,
 /// solo llama procedimientos. La decisión del permiso la toma
-/// sp_verificar_acceso_ruta en la base; aquí no se escribe el JOIN de permisos.
+/// sp_verificar_acceso_ruta en la base; aquí no se escribe el cruce de tablas de los permisos.
 /// </summary>
 public class RepositorioAcceso : IRepositorioAcceso
 {
