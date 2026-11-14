@@ -13,12 +13,12 @@ public class ClienteSesion : ClienteApiBase
     public ClienteSesion(HttpClient http) : base(http) { }
 
     /// <summary>
-    /// POST /api/login. Si las credenciales no son correctas, la API responde
+    /// POST /api/sesion. Si las credenciales no son correctas, la API responde
     /// 401 y aquí llega como ErrorApiException(401) con su mensaje: como esta
     /// petición no lleva token, no se confunde con una sesión vencida.
     /// </summary>
     public Task<SesionRespuesta> IniciarAsync(string email, string contrasena) =>
-        PostAsync<SesionRespuesta>("api/login", new { email, contrasena });
+        PostAsync<SesionRespuesta>("api/sesion", new { email, contrasena });
 
     /// <summary>GET /api/permisos/mios: las rutas para armar el menú (la API saca el correo del token).</summary>
     public Task<MisPermisos> MisPermisosAsync() => GetAsync<MisPermisos>("api/permisos/mios");

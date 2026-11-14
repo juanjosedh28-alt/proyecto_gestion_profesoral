@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ApiGestion.Peticiones;
 
-/// <summary>(v3) Cuerpo de POST /api/login.</summary>
+/// <summary>(v3) Cuerpo de POST /api/sesion.</summary>
 public class InicioSesion
 {
     [Required(ErrorMessage = "El correo es obligatorio.")]

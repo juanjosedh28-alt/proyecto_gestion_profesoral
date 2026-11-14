@@ -10,7 +10,7 @@ namespace front_razor.Pages.Sesion;
 /// (v3) Inicio de sesión. Es una de las dos páginas que se abren sin sesión.
 ///
 /// Al pulsar Entrar:
-///   1. Manda correo y contraseña a POST /api/login.
+///   1. Manda correo y contraseña a POST /api/sesion.
 ///   2. Si la API responde 401, muestra su mensaje (el mismo si falló el correo
 ///      o la contraseña) y BORRA la contraseña del formulario.
 ///   3. Si responde 200, guarda en la sesión del servidor el token, el correo,

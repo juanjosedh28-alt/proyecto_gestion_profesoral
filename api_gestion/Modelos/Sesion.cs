@@ -1,7 +1,7 @@
 namespace ApiGestion.Modelos;
 
 /// <summary>
-/// (v3) Lo que devuelve POST /api/login cuando las credenciales son correctas.
+/// (v3) Lo que devuelve POST /api/sesion cuando las credenciales son correctas.
 /// Los roles van para MOSTRARLOS; los permisos NO van aquí ni en el token: se
 /// consultan en cada petición.
 /// </summary>

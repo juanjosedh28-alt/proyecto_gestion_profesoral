@@ -39,7 +39,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Gestión Profesoral", Version = "v3", Description = "CRUD de las 16 tablas del módulo por procedimientos almacenados, con inicio de sesión (JWT) y permisos por rol" });
 
     // v3 — EL BOTÓN «Authorize» DE SWAGGER. Sin esto, desde Swagger todo
-    // respondería 401. Cómo se usa: POST /api/login → copiar el "token" →
+    // respondería 401. Cómo se usa: POST /api/sesion → copiar el "token" →
     // botón Authorize → pegar SOLO el token (la palabra Bearer la pone Swagger).
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -48,7 +48,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Pegue solo el token que devuelve POST /api/login."
+        Description = "Pegue solo el token que devuelve POST /api/sesion."
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -108,7 +108,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // 2c. v3 — AUTORIZACIÓN. La política de reserva (FallbackPolicy) exige sesión
 //     en TODO endpoint que no diga lo contrario: si alguien escribe un
 //     controlador nuevo y olvida [Authorize], igual queda protegido.
-//     El único que dice lo contrario es POST /api/login ([AllowAnonymous]).
+//     El único que dice lo contrario es POST /api/sesion ([AllowAnonymous]).
 builder.Services.AddAuthorization(o =>
     o.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 

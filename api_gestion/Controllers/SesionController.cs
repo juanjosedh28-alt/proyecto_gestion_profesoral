@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ApiGestion.Controllers;
 
 /// <summary>
-/// (v3) POST /api/login — iniciar sesión.
+/// (v3) POST /api/sesion — iniciar sesión.
 ///
 /// [AllowAnonymous]: es el ÚNICO endpoint del módulo que no pide token,
 /// porque quien está entrando todavía no tiene uno.
@@ -19,7 +19,7 @@ namespace ApiGestion.Controllers;
 ///   422 → faltó el correo o la contraseña (formulario incompleto).
 /// </summary>
 [ApiController]
-[Route("api/login")]
+[Route("api/sesion")]
 [AllowAnonymous]
 public class SesionController : ControllerBase
 {

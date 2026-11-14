@@ -20,7 +20,7 @@ public class InicioSesionFormulario
     public string Contrasena { get; set; } = string.Empty;
 }
 
-/// <summary>Respuesta de POST /api/login.</summary>
+/// <summary>Respuesta de POST /api/sesion.</summary>
 public class SesionRespuesta
 {
     public string Token { get; set; } = string.Empty;
