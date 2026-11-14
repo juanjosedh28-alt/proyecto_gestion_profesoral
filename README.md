@@ -12,11 +12,19 @@ evaluaciones, experiencia, reconocimientos, programas, redes e intereses de inve
 ## Arrancar
 
 ```bash
-cp .env.example .env          # y ponga una contraseña segura en .env
+cp .env.example .env          # ponga una contraseña segura y una JWT_KEY de 32 caracteres o más
 docker compose up -d --build
 ```
 
-La guía completa de verificación está en `docs/spec_kit/versiones/v2_gestion_profesoral/7_quickstart.md`.
+Desde la v3 hay que **iniciar sesión**. Usuarios de prueba:
+
+| Correo | Contraseña | Rol |
+|---|---|---|
+| `admin@gestion.edu.co` | `admin123` | Administrador (todo, incluida la administración de usuarios, roles y permisos) |
+| `editor@gestion.edu.co` | `editor123` | Editor (ve y modifica el módulo) |
+| `consulta@gestion.edu.co` | `consulta123` | Consulta (solo ve) |
+
+La guía completa de verificación está en `docs/spec_kit/versiones/v3_control_acceso/7_quickstart.md`.
 
 ## Versiones
 
@@ -24,6 +32,7 @@ La guía completa de verificación está en `docs/spec_kit/versiones/v2_gestion_
 |---|---|---|
 | v1 | CRUD de las 5 tablas sin clave foránea | `docs/spec_kit/versiones/v1_programa/` |
 | v2 | CRUD de las 11 tablas con clave foránea, todo por procedimientos almacenados, disparadores, desplegables y maestro-detalle | `docs/spec_kit/versiones/v2_gestion_profesoral/` |
+| v3 | Control de acceso: contraseña con bcrypt, inicio de sesión con JWT, permiso por rol en cada petición, menú según el rol y administración de usuarios, roles y permisos | `docs/spec_kit/versiones/v3_control_acceso/` |
 
 La constitución del proyecto (las reglas que valen para todas las versiones) está en `docs/spec_kit/1_constitution.md`.
-Las pruebas de la API están en `postman/`.
+Las pruebas de la API están en `postman/` (desde la v3 se usa `gestion_profesoral_v3.postman_collection.json`, que incluye la regresión de la v2 con token).
