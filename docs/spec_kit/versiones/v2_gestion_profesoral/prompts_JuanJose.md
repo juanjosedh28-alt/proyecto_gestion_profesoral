@@ -1,49 +1,56 @@
-## 1. Despliegue y Depuración de Infraestructura (Docker y YAML)
+# Bitácora de Prompts - Versión 2 (`v2_gestion_profesoral`)
 
-### Prompt 1: Diagnóstico de error de sintaxis en `docker-compose.yml`
-> **Intención:** Corregir el fallo de lectura del archivo de orquestación (`go-yaml load error in scanner`) al intentar levantar los servicios de SQL Server, API y Frontend.
-> 
-> **Prompt utilizado:**
-> *"Tengo el siguiente error al ejecutar `docker compose up -d --build`: `go-yaml load error in scanner (while scanning a simple key) at L39.C1-L40.C1: could not find expected ':'`. Ayúdame a corregir la estructura YAML de `docker-compose.yml` para conectar `sqlserver`, `db-init`, `api-gestion` y `front-razor`."*
-> 
-> **Resultado:** Se estandarizó la indentación y variables de entorno (`ConnectionStrings__DefaultConnection` y `ApiGestionUrl`) logrando iniciar la orquestación de los contenedores.
+- **Autor:** Juan José
+- **Versión:** V2 - Gestión Profesoral (Procedimientos Almacenados, Arquitectura en Capas API REST y Frontend Razor)
 
 ---
 
-## 2. Resolución de Conflictos de Fusión y Compilación (.NET 8)
+## 1. Capa de Datos y Procedimientos Almacenados (`db/v2_procedimientos.sql`)
 
-### Prompt 2: Limpieza de marcadores de conflicto en `Dockerfile` y `.csproj`
-> **Intención:** Resolver los errores de construcción de la imagen Docker de `api-gestion` provocados por marcas de fusión de Git (`<<<<<<< HEAD` y `error MSB4025`).
+### Prompt 1: Diseño de Procedimientos Almacenados con Borrado Lógico
+> **Intención:** Estandarizar las operaciones CRUD de las 16 entidades del modelo relacional en SQL Server aplicando borrado lógico e integridad referencial.
 > 
 > **Prompt utilizado:**
-> *"Al construir la imagen de Docker para `api_gestion`, falla con `error MSB4025: The project file could not be loaded. Name cannot begin with the '<' character` y marcas `<<<<<<< HEAD` en el `Dockerfile`. ¿Cómo limpio `ApiGestion.csproj` y el `Dockerfile` para compilar en .NET 8?"*
+> *"Genera los procedimientos almacenados en T-SQL (`sp_listar_*`, `sp_consultar_*`, `sp_crear_*`, `sp_actualizar_*` y `sp_eliminar_*`) para las tablas del esquema `gestion_profesoral`, implementando borrado lógico mediante el campo `activo` (`UPDATE ... SET activo = 0` y filtros `WHERE activo = 1`) y validaciones de existencia previa."*
 > 
-> **Resultado:** Se restauró el archivo de proyecto con las dependencias de Dapper, `Microsoft.Data.SqlClient` y Swashbuckle, y se configuró el `Dockerfile` multietapa.
-
-### Prompt 3: Sincronización de Repositorios, Servicios y Controladores
-> **Intención:** Eliminar definiciones duplicadas (`CS0101`) y errores de conflicto (`CS8300`) en los archivos C# de la capa de datos y controladores.
-> 
-> **Prompt utilizado:**
-> *"Ejecuté `dotnet build` y me aparecen errores `CS8300` por marcadores de conflicto de Git en `Program.cs`, `ProgramaController.cs` y los repositorios, además de duplicidad en `IRepositorioPrograma`. Ayúdame a limpiar las interfaces y asegurar que el borrado lógico (`activo = 0`) y los procedimientos almacenados queden alineados."*
-> 
-> **Resultado:** Se eliminó el archivo duplicado y se logró compilar el backend con 0 errores.
+> **Código / Artefacto generado:** Script `db/v2_procedimientos.sql` con los procedimientos almacenados de maestros, entidades hijas del docente y tablas puente (`docente_departamento`, `red_docente`).
 
 ---
 
-## 3. Verificación de Frontend (`front_razor`) y Arquitectura para Sustentación
+## 2. Arquitectura Backend en .NET 8 y Dapper (`api_gestion/`)
 
-### Prompt 4: Despliegue del contenedor `front-razor`
-> **Intención:** Solucionar el error `ERR_EMPTY_RESPONSE` en `http://localhost:8075/` asegurando que el cliente Razor Pages compile y se conecte a la API.
+### Prompt 2: Centralización de ejecución de Stored Procedures con Dapper
+> **Intención:** Evitar código repetitivo de apertura de conexiones y manejo de parámetros en los 16 repositorios del sistema.
 > 
 > **Prompt utilizado:**
-> *"El contenedor `front-razor` no responde en el puerto 8075 (`ERR_EMPTY_RESPONSE`). Ayúdame a corregir el `Dockerfile` de `front_razor` para que publique correctamente con .NET 8 y consuma la API en `http://api-gestion:8080/`."*
+> *"Crea una clase utilitaria `EjecutorProcedimientos` en C# usando Dapper y `Microsoft.Data.SqlClient` que permita invocar procedimientos almacenados (`CommandType.StoredProcedure`) de forma asíncrona para consultas múltiples, registros únicos y comandos de escritura."*
 > 
-> **Resultado:** Se levantó el frontend en el puerto `8075` conectado a la API REST.
+> **Código / Artefacto generado:** `api_gestion/Repositorios/EjecutorProcedimientos.cs` y los 16 repositorios tipados (`RepositorioDocente.cs`, `RepositorioEstudiosRealizados.cs`, `RepositorioRedDocente.cs`, etc.).
 
-### Prompt 5: Trazabilidad de Controladores y Claves Foráneas
-> **Intención:** Validar el flujo de arquitectura en capas y el manejo de excepciones SQL (violación de llaves foráneas) para la revisión del proyecto.
+### Prompt 3: Middleware Global para Excepciones de Base de Datos y Claves Foráneas
+> **Intención:** Traducir los errores nativos de SQL Server en respuestas HTTP semánticas (409 Conflict, 404 Not Found, 400 Bad Request) sin exponer trazas internas.
 > 
 > **Prompt utilizado:**
-> *"Muéstrame la ruta exacta de los controladores que manejan tablas con clave foránea y cómo el middleware captura los errores de SQL Server (código 547) para responder un HTTP 409 Conflict en lugar de un error 500."*
+> *"Implementa un middleware en ASP.NET Core 8 (`ManejadorErrores` y `ManejadorErroresSql`) que intercepte `SqlException` y mapee los códigos de violación de clave foránea (`547`) y clave única duplicada (`2627`, `2601`) a una `ConflictoExcepcion` devolviendo HTTP 409 Conflict en formato JSON."*
 > 
-> **Resultado:** Se verificó la arquitectura `Controllers -> Servicios -> Repositorios -> EjecutorProcedi
+> **Código / Artefacto generado:** `api_gestion/Middleware/ManejadorErrores.cs`, `ManejadorErroresSql.cs` y excepciones personalizadas en `api_gestion/Excepciones/`.
+
+### Prompt 4: Implementación de Controladores REST, Servicios y DTOs
+> **Intención:** Exponer los endpoints CRUD de las tablas maestras y con claves foráneas respetando la separación de responsabilidades.
+> 
+> **Prompt utilizado:**
+> *"Implementa los controladores REST (`DocenteController`, `EstudiosRealizadosController`, `EvaluacionDocenteController`, `DocenteDepartamentoController`, `RedDocenteController`, entre otros) junto con sus servicios y objetos de petición (`*Crear.cs`), conectando las reglas de negocio en `Validaciones.cs` e inyectando las dependencias en `Program.cs`."*
+> 
+> **Código / Artefacto generado:** Los 16 controladores en `api_gestion/Controllers/`, sus servicios en `api_gestion/Servicios/` y DTOs en `api_gestion/Peticiones/`.
+
+---
+
+## 3. Frontend Razor Pages y Consumo de API (`front_razor/`)
+
+### Prompt 5: Clientes HTTP Tipados y Gestión de Entidades Relacionadas
+> **Intención:** Conectar las vistas de Razor Pages con los endpoints de `api_gestion` para gestionar tanto los maestros como los registros hijos y tablas puente desde el perfil del docente.
+> 
+> **Prompt utilizado:**
+> *"Desarrolla la clase base `ClienteApiBase` con `HttpClient` y los clientes específicos (`ClienteDocente`, `ClientesDetalleDocente`, `ClientesPuentes`) junto con las páginas Razor de detalle y edición (`Pages/Docentes/Detalle.cshtml`, `EditarEstudio.cshtml`, `EditarRed.cshtml`, `EditarPrograma.cshtml`) para administrar las relaciones del docente y capturar errores de validación de la API."*
+> 
+> **Código / Artefacto generado:** Clientes HTTP en `front_razor/Clientes/`, modelos de vista en `front_razor/Modelos/` y páginas Razor en `front_razor/Pages/`.
