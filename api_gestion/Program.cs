@@ -1,9 +1,14 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using ApiGestion.Autorizacion;
 using ApiGestion.Middleware;
 using ApiGestion.Repositorios;
 using ApiGestion.Servicios;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,13 +36,95 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Gestión Profesoral", Version = "v2", Description = "CRUD de las 16 tablas del módulo, todo por procedimientos almacenados (v1 + v2)" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API Gestión Profesoral", Version = "v3", Description = "CRUD de las 16 tablas del módulo por procedimientos almacenados, con inicio de sesión (JWT) y permisos por rol" });
+
+    // v3 — EL BOTÓN «Authorize» DE SWAGGER. Sin esto, desde Swagger todo
+    // respondería 401. Cómo se usa: POST /api/login → copiar el "token" →
+    // botón Authorize → pegar SOLO el token (la palabra Bearer la pone Swagger).
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Pegue solo el token que devuelve POST /api/login."
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
+            Array.Empty<string>()
+        }
+    });
 });
+
+// 2b. v3 — AUTENTICACIÓN con JWT.
+//     La clave que firma los tokens es un SECRETO: llega por la variable de
+//     entorno Jwt__Key (docker-compose la toma de JWT_KEY en el archivo .env).
+//     Si falta o es corta, la API NO arranca: mejor un error claro al iniciar
+//     que una API que acepta tokens firmados con una clave débil.
+var configuracionJwt = new ConfiguracionJwt();
+builder.Configuration.GetSection("Jwt").Bind(configuracionJwt);
+if (string.IsNullOrWhiteSpace(configuracionJwt.Key) || configuracionJwt.Key.Length < 32)
+    throw new InvalidOperationException(
+        "Falta la clave Jwt:Key o tiene menos de 32 caracteres. Póngala en el archivo .env (JWT_KEY) y reinicie con docker compose up -d.");
+builder.Services.AddSingleton(configuracionJwt);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opciones =>
+    {
+        // Los nombres de los claims se leen tal cual vienen en el token ("name", "role").
+        opciones.MapInboundClaims = false;
+        opciones.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = configuracionJwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = configuracionJwt.Audience,
+            ValidateIssuerSigningKey = true,   // la FIRMA: un token alterado no pasa
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuracionJwt.Key)),
+            ValidateLifetime = true,           // un token vencido no pasa
+            ClockSkew = TimeSpan.FromMinutes(1),
+            NameClaimType = "name",            // User.Identity.Name = el correo
+            RoleClaimType = "role"
+        };
+
+        // El 401 con el mismo formato { mensaje, detalle } de toda la API, en castellano.
+        opciones.Events = new JwtBearerEvents
+        {
+            OnChallenge = async contexto =>
+            {
+                contexto.HandleResponse();
+                var mensaje = contexto.AuthenticateFailure is SecurityTokenExpiredException
+                    ? "La sesión venció. Inicie sesión de nuevo."
+                    : "Debe iniciar sesión: la petición no trae un token válido.";
+                contexto.Response.StatusCode = 401;
+                await contexto.Response.WriteAsJsonAsync(new { mensaje, detalle = Array.Empty<string>() });
+            }
+        };
+    });
+
+// 2c. v3 — AUTORIZACIÓN. La política de reserva (FallbackPolicy) exige sesión
+//     en TODO endpoint que no diga lo contrario: si alguien escribe un
+//     controlador nuevo y olvida [Authorize], igual queda protegido.
+//     El único que dice lo contrario es POST /api/login ([AllowAnonymous]).
+builder.Services.AddAuthorization(o =>
+    o.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 
 // 3. Inyección de dependencias: cada interfaz con su implementación
 
 // v2: el único que habla con SQL Server. Todos los repositorios lo usan para llamar procedimientos.
 builder.Services.AddScoped<IEjecutorProcedimientos, EjecutorProcedimientos>();
+
+// v3: control de acceso
+builder.Services.AddScoped<IRepositorioAcceso, RepositorioAcceso>();
+builder.Services.AddScoped<IServicioSesion, ServicioSesion>();
+builder.Services.AddScoped<IRepositorioUsuario, RepositorioUsuario>();
+builder.Services.AddScoped<IServicioUsuario, ServicioUsuario>();
+builder.Services.AddScoped<IRepositorioRol, RepositorioRol>();
+builder.Services.AddScoped<IServicioRol, ServicioRol>();
+builder.Services.AddScoped<IRepositorioPermiso, RepositorioPermiso>();
 
 // v1: las 5 tablas sin clave foránea
 builder.Services.AddScoped<IRepositorioAreaConocimiento, RepositorioAreaConocimiento>();
@@ -94,6 +181,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// v3: primero AUTENTICAR (¿quién es? lee y valida el token) y después
+// AUTORIZAR (¿puede?). En el orden contrario, la autorización no sabría
+// quién pregunta y respondería 401 a todos.
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -8,6 +10,8 @@ namespace ApiGestion.Controllers;
 /// <summary>Endpoints HTTP de <c>linea_investigacion</c>. Solo traduce HTTP ↔ servicio; los errores los convierte el middleware.</summary>
 [ApiController]
 [Route("api/linea-investigacion")]
+[Authorize]
+[ExigePermiso("interfaz.lineas")]
 public class LineaInvestigacionController : ControllerBase
 {
     private readonly IServicioLineaInvestigacion _servicio;
@@ -20,6 +24,7 @@ public class LineaInvestigacionController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<LineaInvestigacion>> Obtener(int id) => Ok(await _servicio.ObtenerAsync(id));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<LineaInvestigacion>> Crear([FromBody] LineaInvestigacionCrear peticion)
     {
@@ -27,10 +32,12 @@ public class LineaInvestigacionController : ControllerBase
         return Created($"/api/linea-investigacion/{creado.Id}", creado);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<LineaInvestigacion>> Reemplazar(int id, [FromBody] LineaInvestigacionCrear peticion) =>
         Ok(await _servicio.ActualizarAsync(id, peticion));
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Eliminar(int id)
     {

@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -13,6 +15,8 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/intereses-futuros")]
+[Authorize]
+[ExigePermiso("interfaz.docentes")]
 public class InteresesFuturosController : ControllerBase
 {
     private readonly IServicioInteresesFuturos _servicio;
@@ -25,6 +29,7 @@ public class InteresesFuturosController : ControllerBase
     [HttpGet("{docente:int}/{terminoClave}")]
     public async Task<ActionResult<InteresesFuturos>> Obtener(int docente, string terminoClave) => Ok(await _servicio.ObtenerAsync(docente, terminoClave));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<InteresesFuturos>> Crear([FromBody] InteresesFuturosCrear peticion)
     {
@@ -32,6 +37,7 @@ public class InteresesFuturosController : ControllerBase
         return Created($"/api/intereses-futuros/{creado.Docente}/{Uri.EscapeDataString(creado.TerminoClave)}", creado);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{docente:int}/{terminoClave}")]
     public async Task<IActionResult> Eliminar(int docente, string terminoClave)
     {

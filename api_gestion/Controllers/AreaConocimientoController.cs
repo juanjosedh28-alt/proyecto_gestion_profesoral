@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -12,6 +14,8 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/area-conocimiento")]
+[Authorize]
+[ExigePermiso("interfaz.areas")]
 public class AreaConocimientoController : ControllerBase
 {
     private readonly IServicioAreaConocimiento _servicio;

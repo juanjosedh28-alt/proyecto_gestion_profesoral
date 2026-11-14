@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -12,6 +14,8 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/docente-departamento")]
+[Authorize]
+[ExigePermiso("interfaz.docentes")]
 public class DocenteDepartamentoController : ControllerBase
 {
     private readonly IServicioDocenteDepartamento _servicio;
@@ -24,6 +28,7 @@ public class DocenteDepartamentoController : ControllerBase
     [HttpGet("{docente:int}/{departamento:int}")]
     public async Task<ActionResult<DocenteDepartamento>> Obtener(int docente, int departamento) => Ok(await _servicio.ObtenerAsync(docente, departamento));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<DocenteDepartamento>> Crear([FromBody] DocenteDepartamentoCrear peticion)
     {
@@ -31,10 +36,12 @@ public class DocenteDepartamentoController : ControllerBase
         return Created($"/api/docente-departamento/{creado.Docente}/{creado.Departamento}", creado);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpPut("{docente:int}/{departamento:int}")]
     public async Task<ActionResult<DocenteDepartamento>> Reemplazar(int docente, int departamento, [FromBody] DocenteDepartamentoCrear peticion) =>
         Ok(await _servicio.ActualizarAsync(docente, departamento, peticion));
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{docente:int}/{departamento:int}")]
     public async Task<IActionResult> Eliminar(int docente, int departamento)
     {
