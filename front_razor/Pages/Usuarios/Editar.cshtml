@@ -1,0 +1,14 @@
+@page "{id:int}"
+@model front_razor.Pages.Usuarios.EditarModel
+@{ ViewData["Title"] = "Editar usuario"; ViewData["Roles"] = Model.Roles; ViewData["Editando"] = true; }
+
+<h1 class="h3 mb-3">Editar usuario</h1>
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <partial name="_Campos" model="Model.Formulario" />
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" asp-page="Index">Cancelar</a>
+</form>
+<p class="small text-muted mt-3">Si le quita un rol, el cambio surte efecto en su siguiente acción: no hace falta que vuelva a iniciar sesión.</p>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
