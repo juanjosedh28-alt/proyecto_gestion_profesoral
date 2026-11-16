@@ -1,29 +1,23 @@
-using front_razor.Clientes;
-using front_razor.Infraestructura;
-using front_razor.Modelos;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+@page
+@model front_razor.Pages.Experiencias.CrearModel
+@{ ViewData["Title"] = "Nueva Experiencia"; }
 
-namespace front_razor.Pages.EvaluacionesDocente;
-
-public class IndexModel : PageModel
-{
-    private readonly ClienteEvaluacion _cliente;
-    public IndexModel(ClienteEvaluacion cliente) => _cliente = cliente;
-
-    public List<EvaluacionVista> Lista { get; private set; } = new();
-    public string? Error { get; private set; }
-
-    public async Task OnGetAsync()
-    {
-        try { Lista = await _cliente.ListarAsync(); }
-        catch (ErrorApiException ex) { Error = ex.Message; }
-    }
-
-    public async Task<IActionResult> OnPostEliminarAsync(int id)
-    {
-        try { await _cliente.EliminarAsync(id); TempData["Mensaje"] = "Evaluación eliminada."; }
-        catch (ErrorApiException ex) { TempData["Mensaje"] = ex.Message; }
-        return RedirectToPage();
-    }
-}
+<h1 class="h4 mb-3">Registrar Experiencia</h1>
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">Docente</label>
+        <select asp-for="Formulario.Docente" class="form-select">
+            <option value="">-- Seleccione un docente --</option>
+            @foreach (var d in Model.Docentes) { <option value="@d.Cedula">@d.NombreCompleto (@d.Cedula)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Docente" class="text-danger"></span>
+    </div>
+    <div class="mb-3"><label class="form-label">Cargo</label><input asp-for="Formulario.NombreCargo" class="form-control" /><span asp-validation-for="Formulario.NombreCargo" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Institución</label><input asp-for="Formulario.Institucion" class="form-control" /><span asp-validation-for="Formulario.Institucion" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Tipo</label><input asp-for="Formulario.Tipo" class="form-control" /><span asp-validation-for="Formulario.Tipo" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Inicio</label><input asp-for="Formulario.FechaInicio" type="date" class="form-control" /><span asp-validation-for="Formulario.FechaInicio" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Fin (opcional)</label><input asp-for="Formulario.FechaFin" type="date" class="form-control" /></div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" href="/Experiencias">Cancelar</a>
+</form>
