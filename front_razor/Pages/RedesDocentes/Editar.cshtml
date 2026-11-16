@@ -1,0 +1,17 @@
+@page
+@model front_razor.Pages.RedesDocentes.EditarModel
+@{ ViewData["Title"] = "Editar Vinculación"; }
+
+<h1 class="h4 mb-3">Editar Red (@Model.Red) — Docente (@Model.Docente)</h1>
+<form method="post" class="col-md-6">
+    <input type="hidden" asp-for="Red" />
+    <input type="hidden" asp-for="Docente" />
+    <input type="hidden" asp-for="Formulario.Red" />
+    <input type="hidden" asp-for="Formulario.Docente" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3"><label class="form-label">Fecha Inicio</label><input asp-for="Formulario.FechaInicio" type="date" class="form-control" /><span asp-validation-for="Formulario.FechaInicio" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Fin</label><input asp-for="Formulario.FechaFin" class="form-control" /></div>
+    <div class="mb-3"><label class="form-label">Actividades Destacadas</label><textarea asp-for="Formulario.ActDestacadas" class="form-control" rows="3"></textarea><span asp-validation-for="Formulario.ActDestacadas" class="text-danger"></span></div>
+    <button class="btn btn-primary">Actualizar</button>
+    <a class="btn btn-secondary" href="/RedesDocentes">Cancelar</a>
+</form>
