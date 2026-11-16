@@ -1,15 +1,29 @@
-@page
-@model front_razor.Pages.EvaluacionesDocente.EditarModel
-@{ ViewData["Title"] = "Editar Evaluación"; }
+using front_razor.Clientes;
+using front_razor.Infraestructura;
+using front_razor.Modelos;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
-<h1 class="h4 mb-3">Editar Evaluación #@Model.Id</h1>
-<form method="post" class="col-md-6">
-    <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="Formulario.Docente" />
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
-    <div class="mb-3"><label class="form-label">Docente</label><input value="@Model.Formulario.Docente" class="form-control" disabled /></div>
-    <div class="mb-3"><label class="form-label">Semestre</label><input asp-for="Formulario.Semestre" class="form-control" /><span asp-validation-for="Formulario.Semestre" class="text-danger"></span></div>
-    <div class="mb-3"><label class="form-label">Calificación</label><input asp-for="Formulario.Calificacion" type="number" step="0.1" class="form-control" /><span asp-validation-for="Formulario.Calificacion" class="text-danger"></span></div>
-    <button class="btn btn-primary">Actualizar</button>
-    <a class="btn btn-secondary" href="/EvaluacionesDocente">Cancelar</a>
-</form>
+namespace front_razor.Pages.EvaluacionesDocente;
+
+public class IndexModel : PageModel
+{
+    private readonly ClienteEvaluacion _cliente;
+    public IndexModel(ClienteEvaluacion cliente) => _cliente = cliente;
+
+    public List<EvaluacionVista> Lista { get; private set; } = new();
+    public string? Error { get; private set; }
+
+    public async Task OnGetAsync()
+    {
+        try { Lista = await _cliente.ListarAsync(); }
+        catch (ErrorApiException ex) { Error = ex.Message; }
+    }
+
+    public async Task<IActionResult> OnPostEliminarAsync(int id)
+    {
+        try { await _cliente.EliminarAsync(id); TempData["Mensaje"] = "Evaluación eliminada."; }
+        catch (ErrorApiException ex) { TempData["Mensaje"] = ex.Message; }
+        return RedirectToPage();
+    }
+}
