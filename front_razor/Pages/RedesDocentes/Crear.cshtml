@@ -1,0 +1,29 @@
+@page
+@model front_razor.Pages.RedesDocentes.CrearModel
+@{ ViewData["Title"] = "Nueva Vinculación Red-Docente"; }
+
+<h1 class="h4 mb-3">Vincular Docente a Red</h1>
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">Red</label>
+        <select asp-for="Formulario.Red" class="form-select">
+            <option value="">-- Seleccione una red --</option>
+            @foreach (var r in Model.Redes) { <option value="@r.Idr">@r.Nombre (@r.Idr)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Red" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Docente</label>
+        <select asp-for="Formulario.Docente" class="form-select">
+            <option value="">-- Seleccione un docente --</option>
+            @foreach (var d in Model.Docentes) { <option value="@d.Cedula">@d.NombreCompleto (@d.Cedula)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Docente" class="text-danger"></span>
+    </div>
+    <div class="mb-3"><label class="form-label">Fecha Inicio</label><input asp-for="Formulario.FechaInicio" type="date" class="form-control" /><span asp-validation-for="Formulario.FechaInicio" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Fin (opcional)</label><input asp-for="Formulario.FechaFin" class="form-control" /></div>
+    <div class="mb-3"><label class="form-label">Actividades Destacadas</label><textarea asp-for="Formulario.ActDestacadas" class="form-control" rows="3"></textarea><span asp-validation-for="Formulario.ActDestacadas" class="text-danger"></span></div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" href="/RedesDocentes">Cancelar</a>
+</form>
