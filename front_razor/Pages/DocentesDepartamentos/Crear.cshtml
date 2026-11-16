@@ -1,0 +1,30 @@
+@page
+@model front_razor.Pages.DocentesDepartamentos.CrearModel
+@{ ViewData["Title"] = "Nueva Asignación Docente-Programa"; }
+
+<h1 class="h4 mb-3">Asignar Docente a Programa</h1>
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">Docente</label>
+        <select asp-for="Formulario.Docente" class="form-select">
+            <option value="">-- Seleccione un docente --</option>
+            @foreach (var d in Model.Docentes) { <option value="@d.Cedula">@d.NombreCompleto (@d.Cedula)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Docente" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Programa (Departamento)</label>
+        <select asp-for="Formulario.Departamento" class="form-select">
+            <option value="">-- Seleccione un programa --</option>
+            @foreach (var p in Model.Programas) { <option value="@p.Id">@p.Nombre (@p.Id)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Departamento" class="text-danger"></span>
+    </div>
+    <div class="mb-3"><label class="form-label">Dedicación</label><input asp-for="Formulario.Dedicacion" class="form-control" placeholder="Tiempo Completo..." /><span asp-validation-for="Formulario.Dedicacion" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Modalidad</label><input asp-for="Formulario.Modalidad" class="form-control" /><span asp-validation-for="Formulario.Modalidad" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Ingreso</label><input asp-for="Formulario.FechaIngreso" type="date" class="form-control" /><span asp-validation-for="Formulario.FechaIngreso" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Salida (opcional)</label><input asp-for="Formulario.FechaSalida" type="date" class="form-control" /></div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" href="/DocentesDepartamentos">Cancelar</a>
+</form>
