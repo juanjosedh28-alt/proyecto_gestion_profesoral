@@ -1,0 +1,18 @@
+@page
+@model front_razor.Pages.Reconocimientos.EditarModel
+@{ ViewData["Title"] = "Editar Reconocimiento"; }
+
+<h1 class="h4 mb-3">Editar Reconocimiento #@Model.Id</h1>
+<form method="post" class="col-md-6">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Formulario.Docente" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3"><label class="form-label">Docente</label><input value="@Model.Formulario.Docente" class="form-control" disabled /></div>
+    <div class="mb-3"><label class="form-label">Nombre</label><input asp-for="Formulario.Nombre" class="form-control" /><span asp-validation-for="Formulario.Nombre" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Tipo</label><input asp-for="Formulario.Tipo" class="form-control" /><span asp-validation-for="Formulario.Tipo" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Institución</label><input asp-for="Formulario.Institucion" class="form-control" /><span asp-validation-for="Formulario.Institucion" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Ámbito</label><input asp-for="Formulario.Ambito" class="form-control" /><span asp-validation-for="Formulario.Ambito" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha</label><input asp-for="Formulario.Fecha" type="date" class="form-control" /><span asp-validation-for="Formulario.Fecha" class="text-danger"></span></div>
+    <button class="btn btn-primary">Actualizar</button>
+    <a class="btn btn-secondary" href="/Reconocimientos">Cancelar</a>
+</form>
