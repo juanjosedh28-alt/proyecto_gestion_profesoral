@@ -6,24 +6,20 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace front_razor.Pages.EvaluacionesDocente;
 
-public class IndexModel : PageModel
+public class EditarModel : PageModel
 {
     private readonly ClienteEvaluacion _cliente;
-    public IndexModel(ClienteEvaluacion cliente) => _cliente = cliente;
+    public EditarModel(ClienteEvaluacion cliente) => _cliente = cliente;
 
-    public List<EvaluacionVista> Lista { get; private set; } = new();
-    public string? Error { get; private set; }
+    [BindProperty(SupportsGet = true)] public int Id { get; set; }
+    [BindProperty] public EvaluacionFormulario Formulario { get; set; } = new();
 
-    public async Task OnGetAsync()
+    public async Task<IActionResult> OnGetAsync() { Formulario = EvaluacionFormulario.Desde(await _cliente.ObtenerAsync(Id)); return Page(); }
+
+    public async Task<IActionResult> OnPostAsync()
     {
-        try { Lista = await _cliente.ListarAsync(); }
-        catch (ErrorApiException ex) { Error = ex.Message; }
-    }
-
-    public async Task<IActionResult> OnPostEliminarAsync(int id)
-    {
-        try { await _cliente.EliminarAsync(id); TempData["Mensaje"] = "Evaluación eliminada."; }
-        catch (ErrorApiException ex) { TempData["Mensaje"] = ex.Message; }
-        return RedirectToPage();
+        if (!ModelState.IsValid) return Page();
+        try { await _cliente.ReemplazarAsync(Id, Formulario); TempData["Mensaje"] = "Evaluación actualizada."; return RedirectToPage("Index"); }
+        catch (ErrorApiException ex) { ErroresFormulario.Aplicar(ModelState, ex, "Formulario"); return Page(); }
     }
 }
