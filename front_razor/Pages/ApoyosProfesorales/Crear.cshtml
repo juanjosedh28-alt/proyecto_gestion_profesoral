@@ -1,0 +1,24 @@
+@page
+@model front_razor.Pages.ApoyosProfesorales.CrearModel
+@{ ViewData["Title"] = "Nuevo Apoyo Profesoral"; }
+
+<h1 class="h4 mb-3">Registrar Apoyo Profesoral</h1>
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">Estudio Realizado</label>
+        <select asp-for="Formulario.Estudios" class="form-select">
+            <option value="">-- Seleccione un estudio --</option>
+            @foreach (var e in Model.Estudios) { <option value="@e.Id">@e.Titulo - @e.DocenteNombre (@e.Id)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Estudios" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">¿Con Apoyo?</label>
+        <select asp-for="Formulario.ConApoyo" class="form-select"><option value="1">Sí (1)</option><option value="0">No (0)</option></select>
+    </div>
+    <div class="mb-3"><label class="form-label">Institución</label><input asp-for="Formulario.Institucion" class="form-control" /><span asp-validation-for="Formulario.Institucion" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Tipo</label><input asp-for="Formulario.Tipo" class="form-control" /><span asp-validation-for="Formulario.Tipo" class="text-danger"></span></div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" href="/ApoyosProfesorales">Cancelar</a>
+</form>
