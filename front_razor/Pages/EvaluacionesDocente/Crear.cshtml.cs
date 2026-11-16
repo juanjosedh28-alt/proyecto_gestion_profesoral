@@ -4,15 +4,15 @@ using front_razor.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace front_razor.Pages.Experiencias;
+namespace front_razor.Pages.EvaluacionesDocente;
 
 public class CrearModel : PageModel
 {
-    private readonly ClienteExperiencia _cliente;
+    private readonly ClienteEvaluacion _cliente;
     private readonly ClienteDocente _docentes;
-    public CrearModel(ClienteExperiencia cliente, ClienteDocente docentes) { _cliente = cliente; _docentes = docentes; }
+    public CrearModel(ClienteEvaluacion cliente, ClienteDocente docentes) { _cliente = cliente; _docentes = docentes; }
 
-    [BindProperty] public ExperienciaFormulario Formulario { get; set; } = new();
+    [BindProperty] public EvaluacionFormulario Formulario { get; set; } = new();
     public List<DocenteVista> Docentes { get; private set; } = new();
 
     public async Task OnGetAsync() => Docentes = await _docentes.ListarAsync();
@@ -23,8 +23,8 @@ public class CrearModel : PageModel
         if (!ModelState.IsValid) { Docentes = await _docentes.ListarAsync(); return Page(); }
         try
         {
-            await _cliente.CrearVariosAsync(Formulario.Docente, new List<ExperienciaFormulario> { Formulario });
-            TempData["Mensaje"] = "Experiencia registrada.";
+            await _cliente.CrearVariosAsync(Formulario.Docente, new List<EvaluacionFormulario> { Formulario });
+            TempData["Mensaje"] = "Evaluación creada correctamente.";
             return RedirectToPage("Index");
         }
         catch (ErrorApiException ex) { ErroresFormulario.Aplicar(ModelState, ex, "Formulario"); Docentes = await _docentes.ListarAsync(); return Page(); }
