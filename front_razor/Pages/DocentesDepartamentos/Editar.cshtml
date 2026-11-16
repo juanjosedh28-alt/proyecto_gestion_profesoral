@@ -1,0 +1,18 @@
+@page
+@model front_razor.Pages.DocentesDepartamentos.EditarModel
+@{ ViewData["Title"] = "Editar Asignación"; }
+
+<h1 class="h4 mb-3">Editar Docente (@Model.Docente) — Programa (@Model.Departamento)</h1>
+<form method="post" class="col-md-6">
+    <input type="hidden" asp-for="Docente" />
+    <input type="hidden" asp-for="Departamento" />
+    <input type="hidden" asp-for="Formulario.Docente" />
+    <input type="hidden" asp-for="Formulario.Departamento" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3"><label class="form-label">Dedicación</label><input asp-for="Formulario.Dedicacion" class="form-control" /><span asp-validation-for="Formulario.Dedicacion" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Modalidad</label><input asp-for="Formulario.Modalidad" class="form-control" /><span asp-validation-for="Formulario.Modalidad" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Ingreso</label><input asp-for="Formulario.FechaIngreso" type="date" class="form-control" /><span asp-validation-for="Formulario.FechaIngreso" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha Salida</label><input asp-for="Formulario.FechaSalida" type="date" class="form-control" /></div>
+    <button class="btn btn-primary">Actualizar</button>
+    <a class="btn btn-secondary" href="/DocentesDepartamentos">Cancelar</a>
+</form>
