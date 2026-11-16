@@ -1,0 +1,31 @@
+@page
+@model front_razor.Pages.EstudiosRealizados.CrearModel
+@{ ViewData["Title"] = "Nuevo Estudio"; }
+
+<h1 class="h4 mb-3">Registrar Estudio Realizado</h1>
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3"><label class="form-label">ID del Estudio</label><input asp-for="Formulario.Id" type="number" class="form-control" /><span asp-validation-for="Formulario.Id" class="text-danger"></span></div>
+    <div class="mb-3">
+        <label class="form-label">Docente</label>
+        <select asp-for="Formulario.Docente" class="form-select">
+            <option value="">-- Seleccione un docente --</option>
+            @foreach (var d in Model.Docentes) { <option value="@d.Cedula">@d.NombreCompleto (@d.Cedula)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Docente" class="text-danger"></span>
+    </div>
+    <div class="mb-3"><label class="form-label">Título</label><input asp-for="Formulario.Titulo" class="form-control" /><span asp-validation-for="Formulario.Titulo" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Universidad</label><input asp-for="Formulario.Universidad" class="form-control" /><span asp-validation-for="Formulario.Universidad" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Fecha</label><input asp-for="Formulario.Fecha" type="date" class="form-control" /><span asp-validation-for="Formulario.Fecha" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Tipo</label><input asp-for="Formulario.Tipo" class="form-control" placeholder="Pregrado, Maestría, Doctorado..." /><span asp-validation-for="Formulario.Tipo" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Ciudad</label><input asp-for="Formulario.Ciudad" class="form-control" /><span asp-validation-for="Formulario.Ciudad" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">País</label><input asp-for="Formulario.Pais" class="form-control" /><span asp-validation-for="Formulario.Pais" class="text-danger"></span></div>
+    <div class="mb-3">
+        <label class="form-label">Institución Acreditada</label>
+        <select asp-for="Formulario.InsAcreditada" class="form-select"><option value="1">Sí (1)</option><option value="0">No (0)</option></select>
+    </div>
+    <div class="mb-3"><label class="form-label">Metodología</label><input asp-for="Formulario.Metodologia" class="form-control" placeholder="Presencial, Virtual..." /><span asp-validation-for="Formulario.Metodologia" class="text-danger"></span></div>
+    <div class="mb-3"><label class="form-label">Perfil del Egresado</label><textarea asp-for="Formulario.PerfilEgresado" class="form-control" rows="3"></textarea><span asp-validation-for="Formulario.PerfilEgresado" class="text-danger"></span></div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" href="/EstudiosRealizados">Cancelar</a>
+</form>
