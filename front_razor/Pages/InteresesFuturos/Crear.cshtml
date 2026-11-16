@@ -1,0 +1,26 @@
+@page
+@model front_razor.Pages.InteresesFuturos.CrearModel
+@{ ViewData["Title"] = "Nuevo Interés Futuro"; }
+
+<h1 class="h4 mb-3">Asociar Término Clave a Docente</h1>
+<form method="post" class="col-md-6">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <div class="mb-3">
+        <label class="form-label">Docente</label>
+        <select asp-for="Formulario.Docente" class="form-select">
+            <option value="">-- Seleccione un docente --</option>
+            @foreach (var d in Model.Docentes) { <option value="@d.Cedula">@d.NombreCompleto (@d.Cedula)</option> }
+        </select>
+        <span asp-validation-for="Formulario.Docente" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Término Clave</label>
+        <select asp-for="Formulario.TerminoClave" class="form-select">
+            <option value="">-- Seleccione un término --</option>
+            @foreach (var t in Model.Terminos) { <option value="@t.Termino">@t.Termino (@t.TerminoIngles)</option> }
+        </select>
+        <span asp-validation-for="Formulario.TerminoClave" class="text-danger"></span>
+    </div>
+    <button class="btn btn-primary">Guardar</button>
+    <a class="btn btn-secondary" href="/InteresesFuturos">Cancelar</a>
+</form>
