@@ -1,32 +1,32 @@
 @page
 @{ ViewData["Title"] = "Inicio"; }
 
-<h1 class="h3 mb-3">Gestión Profesoral — Módulo Completo (16 Tablas)</h1>
+<h1 class="h3 mb-3">Gestión Profesoral — las 16 tablas del módulo</h1>
 
-<h2 class="h5 text-primary mt-4 mb-3">1. Tablas Maestras Independientes (Sin Clave Foránea)</h2>
+<h2 class="h5 text-primary mt-4 mb-3">1. Catálogos (no dependen de otra tabla)</h2>
 <div class="row g-3">
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/AreasConocimiento"><div class="card-body"><h3 class="h6 mb-1">1. Áreas de conocimiento</h3><p class="text-muted small mb-0">Catálogo base (218 registros)</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/TerminosClave"><div class="card-body"><h3 class="h6 mb-1">2. Términos clave</h3><p class="text-muted small mb-0">CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/LineasInvestigacion"><div class="card-body"><h3 class="h6 mb-1">3. Líneas de investigación</h3><p class="text-muted small mb-0">CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Programas"><div class="card-body"><h3 class="h6 mb-1">4. Programas</h3><p class="text-muted small mb-0">CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Redes"><div class="card-body"><h3 class="h6 mb-1">5. Redes</h3><p class="text-muted small mb-0">CRUD completo</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/AreasConocimiento"><div class="card-body"><h3 class="h6 mb-1">1. Áreas de conocimiento</h3><p class="text-muted small mb-0">Catálogo de consulta</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/TerminosClave"><div class="card-body"><h3 class="h6 mb-1">2. Términos clave</h3><p class="text-muted small mb-0">Crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/LineasInvestigacion"><div class="card-body"><h3 class="h6 mb-1">3. Líneas de investigación</h3><p class="text-muted small mb-0">Crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Programas"><div class="card-body"><h3 class="h6 mb-1">4. Programas</h3><p class="text-muted small mb-0">Crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Redes"><div class="card-body"><h3 class="h6 mb-1">5. Redes</h3><p class="text-muted small mb-0">Crear, editar y eliminar</p></div></a></div>
 </div>
 
-<h2 class="h5 text-primary mt-4 mb-3">2. Entidad Central y Tablas Dependientes (Con Clave Foránea)</h2>
+<h2 class="h5 text-primary mt-4 mb-3">2. Docentes y su información</h2>
 <div class="row g-3">
-    <div class="col-md-4"><a class="card h-100 text-decoration-none border-primary" href="/Docentes"><div class="card-body"><h3 class="h6 mb-1">6. Docentes (Maestro Principal)</h3><p class="text-muted small mb-0">CRUD + Vista Maestro-Detalle</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosRealizados"><div class="card-body"><h3 class="h6 mb-1">7. Estudios realizados</h3><p class="text-muted small mb-0">FK: Docente — CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EvaluacionesDocente"><div class="card-body"><h3 class="h6 mb-1">8. Evaluaciones docente</h3><p class="text-muted small mb-0">FK: Docente — CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Reconocimientos"><div class="card-body"><h3 class="h6 mb-1">9. Reconocimientos</h3><p class="text-muted small mb-0">FK: Docente — CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Experiencias"><div class="card-body"><h3 class="h6 mb-1">10. Experiencias</h3><p class="text-muted small mb-0">FK: Docente — CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/ApoyosProfesorales"><div class="card-body"><h3 class="h6 mb-1">11. Apoyo profesoral</h3><p class="text-muted small mb-0">PK/FK 1:1 Estudio — CRUD completo</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Becas"><div class="card-body"><h3 class="h6 mb-1">12. Becas</h3><p class="text-muted small mb-0">PK/FK 1:1 Estudio — CRUD completo</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none border-primary" href="/Docentes"><div class="card-body"><h3 class="h6 mb-1">6. Docentes (maestro)</h3><p class="text-muted small mb-0">Crear, editar y eliminar; en «Detalle» se ve y se agrega toda su información</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosRealizados"><div class="card-body"><h3 class="h6 mb-1">7. Estudios realizados</h3><p class="text-muted small mb-0">Pertenece a un docente · crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EvaluacionesDocente"><div class="card-body"><h3 class="h6 mb-1">8. Evaluaciones docente</h3><p class="text-muted small mb-0">Pertenece a un docente · crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Reconocimientos"><div class="card-body"><h3 class="h6 mb-1">9. Reconocimientos</h3><p class="text-muted small mb-0">Pertenece a un docente · crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Experiencias"><div class="card-body"><h3 class="h6 mb-1">10. Experiencias</h3><p class="text-muted small mb-0">Pertenece a un docente · crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/ApoyosProfesorales"><div class="card-body"><h3 class="h6 mb-1">11. Apoyo profesoral</h3><p class="text-muted small mb-0">Uno por estudio · crear, editar y eliminar</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Becas"><div class="card-body"><h3 class="h6 mb-1">12. Becas</h3><p class="text-muted small mb-0">Uno por estudio · crear, editar y eliminar</p></div></a></div>
 </div>
 
-<h2 class="h5 text-primary mt-4 mb-3">3. Tablas Puente / Relaciones Muchos a Muchos (PK Compuesta)</h2>
+<h2 class="h5 text-primary mt-4 mb-3">3. Relaciones (une dos tablas)</h2>
 <div class="row g-3 mb-4">
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/DocentesDepartamentos"><div class="card-body"><h3 class="h6 mb-1">13. Docente — Departamento</h3><p class="text-muted small mb-0">Puente Docente ↔ Programa</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/InteresesFuturos"><div class="card-body"><h3 class="h6 mb-1">14. Intereses futuros</h3><p class="text-muted small mb-0">Puente Docente ↔ Término Clave</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/RedesDocentes"><div class="card-body"><h3 class="h6 mb-1">15. Red — Docente</h3><p class="text-muted small mb-0">Puente Red ↔ Docente</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosAc"><div class="card-body"><h3 class="h6 mb-1">16. Estudio — Área Conocimiento</h3><p class="text-muted small mb-0">Puente Estudio ↔ Área</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/DocentesDepartamentos"><div class="card-body"><h3 class="h6 mb-1">13. Docente — Departamento</h3><p class="text-muted small mb-0">Docente ↔ programa</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/InteresesFuturos"><div class="card-body"><h3 class="h6 mb-1">14. Intereses futuros</h3><p class="text-muted small mb-0">Docente ↔ término clave</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/RedesDocentes"><div class="card-body"><h3 class="h6 mb-1">15. Red — Docente</h3><p class="text-muted small mb-0">Red ↔ docente</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosAc"><div class="card-body"><h3 class="h6 mb-1">16. Estudio — Área de conocimiento</h3><p class="text-muted small mb-0">Estudio ↔ área de conocimiento</p></div></a></div>
 </div>
