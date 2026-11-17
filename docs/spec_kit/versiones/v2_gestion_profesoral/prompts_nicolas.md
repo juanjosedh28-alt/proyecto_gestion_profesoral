@@ -77,3 +77,20 @@ Probar todo con Docker (`7_quickstart.md`) y anotar aquí lo que falle y cómo s
 - `sqlserver-init` en **Exited (0)**: se crearon los 79 procedimientos, las 11 vistas y los 2 disparadores sin errores.
 - Colección de Postman: **91 de 91 pruebas en verde**, 0 fallidas. Incluye las peticiones que deben fallar (404, 409, 422), y ninguna respondió 500.
 - El disparador se comprobó: `total_estudios` subió a 3 al agregar tres estudios en un envío y bajó a 2 al retirar uno, sin que la API enviara el número.
+
+## Correcciones del profesor (17 de noviembre)
+
+> **Prompt:** el profesor pide que se vean todas las tablas en la ventana principal y todo lo que exige `VERSION_2.md`. Juan José ya subió a `main` las pantallas de cada tabla de detalle; revisa su código y corrige lo que falte.
+
+**Qué encontró la IA al revisar `main`:**
+
+| # | Problema | Cómo se arregló |
+|---|---|---|
+| 1 | 18 páginas llamaban a `ErroresFormulario.Aplicar(...)`, que no existía: el front no compilaba | Se agregó el método en `Infraestructura/ErroresFormulario.cs` |
+| 2 | `EvaluacionesDocente/Index.cshtml` pedía un `IndexModel` que no estaba | Se creó `EvaluacionesDocente/Index.cshtml.cs` |
+| 3 | Se habían borrado los comentarios de `ClientesDetalleDocente.cs` y `ClientesPuentes.cs` (la interpretabilidad se califica) | Se restauraron, conservando los métodos nuevos `ListarAsync` |
+| 4 | Un error al eliminar salía en verde, como si fuera éxito | Se manda por `TempData["Error"]`, que el layout muestra en rojo |
+| 5 | Abrir «Editar» de un registro que no existe daba error 500 | Vuelve al listado con el mensaje |
+| 6 | La página de inicio decía «FK», «PK» y «CRUD» (criterio 11: la interfaz no habla en jerga) | Se cambiaron por palabras comunes |
+| 7 | El menú solo tenía 6 entradas | Ahora tiene las 16 tablas en tres grupos: catálogos, información del docente y relaciones |
+| 8 | Los desplegables decían «Sí (1)» y «No (0)»; la fecha fin de Red-Docente no tenía calendario | «Sí»/«No» y campo de fecha |
