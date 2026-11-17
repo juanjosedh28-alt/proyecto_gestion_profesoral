@@ -23,7 +23,7 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPostEliminarAsync(int estudio, string area)
     {
         try { await _cliente.EliminarAsync(estudio, area); TempData["Mensaje"] = "Asociación eliminada."; }
-        catch (ErrorApiException ex) { TempData["Mensaje"] = ex.Message; }
+        catch (ErrorApiException ex) { TempData["Error"] = ex.Message; }
         return RedirectToPage();
     }
 }

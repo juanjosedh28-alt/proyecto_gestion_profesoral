@@ -23,7 +23,7 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnPostEliminarAsync(int red, int docente)
     {
         try { await _cliente.EliminarAsync(red, docente); TempData["Mensaje"] = "Vinculación eliminada."; }
-        catch (ErrorApiException ex) { TempData["Mensaje"] = ex.Message; }
+        catch (ErrorApiException ex) { TempData["Error"] = ex.Message; }
         return RedirectToPage();
     }
 }
