@@ -87,3 +87,19 @@
 - [ ] **T-V2-802** Colección de Postman completa en verde.
 - [ ] **T-V2-803** Los 12 criterios por la interfaz (quickstart §4), incluida la regresión de la v1.
 - [ ] **T-V2-804** Tag `v2` sobre el commit de `main` que pasa todo.
+
+## Fase 9 — Correcciones del profesor (17 de noviembre de 2026)
+
+- [x] Pantalla propia de las 10 tablas de detalle y puentes (Juan José, en `main`)
+- [x] Página de inicio con las 16 tablas en tres grupos (Juan José)
+- [x] Arreglar lo que impedía compilar: `ErroresFormulario.Aplicar` y el `IndexModel` de evaluaciones (Nicolás)
+- [x] Menú con las 16 tablas y página de inicio sin jerga (Nicolás)
+- [x] Errores en rojo, 404 al editar sin error 500, nombres en vez de códigos al editar, avisos de desplegable vacío (Nicolás)
+- [x] Mensajes de validación en castellano (Nicolás)
+- [x] CRUD completo de `area_conocimiento`: procedimientos, API, front y colección (Nicolás)
+- [x] Comentarios en las pantallas nuevas y en los clientes (Nicolás)
+- [x] Colección: CRUD de área de conocimiento y listado de cada tabla (Nicolás)
+- [ ] Correr la colección completa y el quickstart con Docker (equipo)
+- [ ] Revisar `9_checklist.md` (alguien distinto de quien escribió cada parte)
+- [ ] PR a `main` y tag `v2` en el commit que pasa los criterios (encargado del main, consultando al profesor)
+

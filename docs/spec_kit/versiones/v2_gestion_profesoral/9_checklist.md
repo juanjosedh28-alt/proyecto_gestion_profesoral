@@ -34,6 +34,15 @@ Revisó: ______________________  Fecha: ____/____/________
 | [ ] | R9 La v1 también por procedimientos | Sí | `grep` del criterio 3 |
 | [ ] | R10 URL de red ≤ 45 | Sí | Crear una red con URL larga → 422 |
 
+## Correcciones del profesor (17 de noviembre)
+
+| ✔ | Requisito | ¿Cómo se verifica? |
+|---|---|---|
+| [ ] | RF14.10 Las 16 tablas en la página de inicio y en el menú | Abrir el front: 16 tarjetas y cuatro entradas en la barra |
+| [ ] | RF14.11 Pantalla propia de cada tabla de detalle | Abrir cada una desde el menú: lista, crear, editar (si aplica), retirar |
+| [ ] | RF14.12 / D65 Área de conocimiento con CRUD | Colección carpeta 7; en el front: Nueva, Editar, Eliminar |
+| [ ] | RF14.13 / D67 Ningún mensaje en inglés | Crear un estudio sin elegir docente: el aviso sale en castellano |
+
 ## Requisitos no funcionales
 
 | ✔ | Requisito | ¿Cómo se verifica? |

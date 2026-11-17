@@ -160,7 +160,17 @@ Flujo: `Página (PageModel) → ClienteXxx → HttpClient → API`, igual que la
   tiene opciones, se muestra «Aún no hay … Cree uno primero en …» con el enlace.
 - **Errores**: `409`/`422` se muestran dentro de la sección y se conservan los renglones escritos; lo demás va a
   `TempData["Error"]`. El mensaje genérico no muestra números HTTP.
-- **Barra**: un enlace nuevo, «Docentes».
+- **Barra**: «Catálogos», «Docentes», «Información del docente» y «Relaciones», con las 16 tablas (D66). La
+  página de inicio repite los mismos tres grupos en 16 tarjetas.
+- **Pantalla propia por tabla de detalle** (D66): carpetas `EstudiosRealizados`, `EvaluacionesDocente`,
+  `Experiencias`, `Reconocimientos`, `ApoyosProfesorales`, `Becas`, `DocentesDepartamentos`, `RedesDocentes`,
+  `InteresesFuturos` y `EstudiosAc`, cada una con `Index` (lista completa con `ListarAsync`), `Crear` (padre en
+  desplegable) y `Editar` (si la tabla tiene `PUT`). Los errores 409/422 se pasan al formulario con
+  `ErroresFormulario.Aplicar`; los de retirar van a `TempData["Error"]`.
+- **Área de conocimiento** (D65): `AreasConocimiento/Crear`, `Editar` (código bloqueado) y botón Eliminar en el
+  listado. En la API: `AreaConocimientoCrear`, tres métodos más en servicio y repositorio y tres procedimientos
+  (`sp_crear_`, `sp_actualizar_`, `sp_eliminar_area_conocimiento`).
+- **Mensajes de validación de ASP.NET en castellano** (D67) en `Program.cs`.
 
 ---
 
