@@ -7,7 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace ApiGestion.Controllers;
 
 /// <summary>
-/// (v3) POST /api/sesion — iniciar sesión.
+/// (v3) POST /api/sesion — iniciar sesión. También responde en POST /api/login:
+/// la guía del profesor (FLUJO_CONTROL_DE_ACCESO.md) usa /api/sesion, y la
+/// metodología y el documento del módulo dicen /api/login. Las dos rutas
+/// llegan al MISMO método, así que no hay dos lógicas que mantener.
 ///
 /// [AllowAnonymous]: es el ÚNICO endpoint del módulo que no pide token,
 /// porque quien está entrando todavía no tiene uno.
@@ -28,6 +31,7 @@ public class SesionController : ControllerBase
     public SesionController(IServicioSesion servicio) => _servicio = servicio;
 
     [HttpPost]
+    [HttpPost("/api/login")]   // ruta absoluta: no se le antepone «api/sesion»
     public async Task<ActionResult<Sesion>> Iniciar([FromBody] InicioSesion peticion)
     {
         var sesion = await _servicio.IniciarAsync(peticion.Email, peticion.Contrasena);
