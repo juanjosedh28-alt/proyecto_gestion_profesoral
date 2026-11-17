@@ -12,12 +12,14 @@ public class EditarModel : PageModel
     public EditarModel(ClienteEstudio cliente) => _cliente = cliente;
 
     [BindProperty(SupportsGet = true)] public int Id { get; set; }
+    // Nombre del docente: la clave foránea se muestra con el nombre, no solo con la cédula (criterio 5).
+    [BindProperty] public string? DocenteNombre { get; set; }
     [BindProperty] public EstudioFormulario Formulario { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
         // Si el registro no existe (404) se vuelve al listado con el mensaje, en vez de un error 500.
-        try { Formulario = EstudioFormulario.Desde(await _cliente.ObtenerAsync(Id)); return Page(); }
+        try { var vista = await _cliente.ObtenerAsync(Id); Formulario = EstudioFormulario.Desde(vista); DocenteNombre = vista.DocenteNombre; return Page(); }
         catch (ErrorApiException ex) { TempData["Error"] = ex.Message; return RedirectToPage("Index"); }
     }
 

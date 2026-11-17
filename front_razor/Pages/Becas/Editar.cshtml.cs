@@ -12,6 +12,8 @@ public class EditarModel : PageModel
     public EditarModel(ClienteBeca cliente) => _cliente = cliente;
 
     [BindProperty(SupportsGet = true)] public int Estudios { get; set; }
+    // Título del estudio: se muestra en vez del número (criterio 5).
+    [BindProperty] public string? EstudioTitulo { get; set; }
     [BindProperty] public BecaFormulario Formulario { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
@@ -19,6 +21,7 @@ public class EditarModel : PageModel
         var vista = await _cliente.ObtenerAsync(Estudios);
         if (vista is null) return RedirectToPage("Index");
         Formulario = BecaFormulario.Desde(vista);
+        EstudioTitulo = vista.EstudioTitulo;
         return Page();
     }
 

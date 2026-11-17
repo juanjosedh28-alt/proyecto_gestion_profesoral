@@ -13,12 +13,22 @@ public class EditarModel : PageModel
 
     [BindProperty(SupportsGet = true)] public int Docente { get; set; }
     [BindProperty(SupportsGet = true)] public int Departamento { get; set; }
+    // Nombres de la pareja, para el título (criterio 5: nombres, no códigos).
+    [BindProperty] public string? DocenteNombre { get; set; }
+    [BindProperty] public string? ProgramaNombre { get; set; }
     [BindProperty] public DocenteDepartamentoFormulario Formulario { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync()
     {
         // Si la pareja no existe (404) se vuelve al listado con el mensaje, en vez de un error 500.
-        try { Formulario = DocenteDepartamentoFormulario.Desde(await _cliente.ObtenerAsync(Docente, Departamento)); return Page(); }
+        try
+        {
+            var vista = await _cliente.ObtenerAsync(Docente, Departamento);
+            Formulario = DocenteDepartamentoFormulario.Desde(vista);
+            DocenteNombre = vista.DocenteNombre;
+            ProgramaNombre = vista.DepartamentoNombre;
+            return Page();
+        }
         catch (ErrorApiException ex) { TempData["Error"] = ex.Message; return RedirectToPage("Index"); }
     }
 
