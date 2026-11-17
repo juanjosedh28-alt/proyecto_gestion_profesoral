@@ -51,7 +51,9 @@ GO
 -- ############################################################
 
 -- ------------------------------------------------------------
--- area_conocimiento (catálogo precargado de 218 filas: solo lectura)
+-- area_conocimiento (catálogo precargado de 218 filas). En la v1 era de solo
+-- lectura (D22); la v2 le da CRUD completo, como pide VERSION_2.md criterio 1
+-- (D65). El id es el código oficial (por ejemplo 1A01): lo manda el cliente.
 -- ------------------------------------------------------------
 CREATE OR ALTER PROCEDURE sp_listar_area_conocimiento
 AS
@@ -69,6 +71,58 @@ BEGIN
     SET NOCOUNT ON;
     SELECT id, gran_area, area, disciplina
     FROM area_conocimiento WHERE id = @id AND activo = 1;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_crear_area_conocimiento
+    @id VARCHAR(6),
+    @gran_area VARCHAR(60),
+    @area VARCHAR(60),
+    @disciplina VARCHAR(150)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @msg NVARCHAR(400);
+    -- Se busca también entre los retirados: el código oficial no se reutiliza.
+    IF EXISTS (SELECT 1 FROM area_conocimiento WHERE id = @id)
+    BEGIN
+        SET @msg = CONCAT(N'Ya existe un área de conocimiento con el código «', @id, N'».');
+        THROW 50002, @msg, 1;
+    END;
+    INSERT INTO area_conocimiento (id, gran_area, area, disciplina)
+    VALUES (@id, @gran_area, @area, @disciplina);
+    EXEC sp_consultar_area_conocimiento @id;   -- devuelve la fila como quedó guardada
+END;
+GO
+
+CREATE OR ALTER PROCEDURE sp_actualizar_area_conocimiento
+    @id VARCHAR(6),
+    @gran_area VARCHAR(60),
+    @area VARCHAR(60),
+    @disciplina VARCHAR(150)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS (SELECT 1 FROM area_conocimiento WHERE id = @id AND activo = 1)
+        THROW 50004, N'No se encontró el área de conocimiento.', 1;
+    UPDATE area_conocimiento
+    SET gran_area = @gran_area, area = @area, disciplina = @disciplina
+    WHERE id = @id;
+    EXEC sp_consultar_area_conocimiento @id;
+END;
+GO
+
+-- Borrado LÓGICO. Igual que los demás catálogos de la v1 (regla R7), retirar un
+-- área que usa un estudio no se bloquea: el estudio la sigue mostrando y el
+-- desplegable deja de ofrecerla.
+CREATE OR ALTER PROCEDURE sp_eliminar_area_conocimiento
+    @id VARCHAR(6)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS (SELECT 1 FROM area_conocimiento WHERE id = @id AND activo = 1)
+        THROW 50004, N'No se encontró el área de conocimiento.', 1;
+    UPDATE area_conocimiento SET activo = 0 WHERE id = @id;
 END;
 GO
 
