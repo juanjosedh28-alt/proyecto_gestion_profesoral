@@ -11,6 +11,8 @@ namespace ApiGestion.Controllers;
 /// Endpoints HTTP de <c>area_conocimiento</c>. En la v1 eran solo de lectura;
 /// desde la v2 tienen CRUD completo (D65). Solo traduce HTTP ↔ servicio; los
 /// errores (404, 409, 422) los convierte el middleware.
+/// (v3) Leer exige «interfaz.areas»; crear, editar y retirar exigen además
+/// «datos.modificar», como en las demás tablas del módulo.
 /// </summary>
 [ApiController]
 [Route("api/area-conocimiento")]
@@ -28,6 +30,7 @@ public class AreaConocimientoController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<AreaConocimiento>> Obtener(string id) => Ok(await _servicio.ObtenerAsync(id));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<AreaConocimiento>> Crear([FromBody] AreaConocimientoCrear peticion)
     {
@@ -35,10 +38,12 @@ public class AreaConocimientoController : ControllerBase
         return Created($"/api/area-conocimiento/{creada.Id}", creada);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpPut("{id}")]
     public async Task<ActionResult<AreaConocimiento>> Reemplazar(string id, [FromBody] AreaConocimientoCrear peticion) =>
         Ok(await _servicio.ActualizarAsync(id, peticion));
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Eliminar(string id)
     {
