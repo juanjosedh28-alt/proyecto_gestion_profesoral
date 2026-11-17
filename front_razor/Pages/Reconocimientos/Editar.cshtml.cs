@@ -14,7 +14,12 @@ public class EditarModel : PageModel
     [BindProperty(SupportsGet = true)] public int Id { get; set; }
     [BindProperty] public ReconocimientoFormulario Formulario { get; set; } = new();
 
-    public async Task<IActionResult> OnGetAsync() { Formulario = ReconocimientoFormulario.Desde(await _cliente.ObtenerAsync(Id)); return Page(); }
+    public async Task<IActionResult> OnGetAsync()
+    {
+        // Si el registro no existe (404) se vuelve al listado con el mensaje, en vez de un error 500.
+        try { Formulario = ReconocimientoFormulario.Desde(await _cliente.ObtenerAsync(Id)); return Page(); }
+        catch (ErrorApiException ex) { TempData["Error"] = ex.Message; return RedirectToPage("Index"); }
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {
