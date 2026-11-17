@@ -94,3 +94,17 @@ Probar todo con Docker (`7_quickstart.md`) y anotar aquí lo que falle y cómo s
 | 6 | La página de inicio decía «FK», «PK» y «CRUD» (criterio 11: la interfaz no habla en jerga) | Se cambiaron por palabras comunes |
 | 7 | El menú solo tenía 6 entradas | Ahora tiene las 16 tablas en tres grupos: catálogos, información del docente y relaciones |
 | 8 | Los desplegables decían «Sí (1)» y «No (0)»; la fecha fin de Red-Docente no tenía calendario | «Sí»/«No» y campo de fecha |
+
+> **Prompt:** necesito que leas muy bien nuevamente lo que está pidiendo el profesor en la v2 con todo al detalle por favor para que todo esté muy bien
+
+**Qué encontró la IA al comparar el repositorio con `VERSION_2.md`, `0_METODOLOGIA.md` y el documento del módulo:**
+
+| # | Problema | Cómo se arregló |
+|---|---|---|
+| 9 | `area_conocimiento` era de solo lectura (D22 de la v1), pero el criterio 1 pide crear, editar y retirar en las tablas de la v1 | CRUD completo: 3 procedimientos, API, pantallas y pruebas (D65) |
+| 10 | Un desplegable sin elegir mostraba un mensaje en inglés | Mensajes de validación en castellano (D67) |
+| 11 | Al editar en las pantallas nuevas se veía la cédula o el número del estudio, no el nombre (criterio 5) | Se muestra el nombre |
+| 12 | Si un desplegable estaba vacío no se decía nada (RF14.6) | Aviso en castellano con enlace a donde crear el primero |
+| 13 | Las pantallas nuevas no tenían comentarios (se califica la interpretabilidad) | Comentario de qué hacen y por qué en cada una |
+| 14 | La colección no probaba los listados de cada tabla | Carpetas 7 (área de conocimiento) y 8 (listados) |
+| 15 | El spec kit decía «un solo enlace: Docentes»: ya no coincidía con el código | Se actualizaron `2_spec`, `3_plan`, `4_research`, `6_contracts`, `7_quickstart`, `8_tasks` y `9_checklist` |

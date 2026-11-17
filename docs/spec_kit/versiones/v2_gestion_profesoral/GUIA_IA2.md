@@ -46,6 +46,26 @@ Reglas:
 - Si el spec contradice al código real de la v1, dímelo antes de escribir código.
 ```
 
+### 2.1 Prompt de las correcciones del profesor (17 de noviembre de 2026)
+
+Se da a continuación del anterior, con `2_spec.md` §10, RF14.10 a RF14.13 y D65 a D67:
+
+```text
+El profesor pidió ver TODAS las tablas en la ventana principal y cumplir todo VERSION_2.md.
+Sin quitar el maestro-detalle de Docentes, agrega:
+1. Una pantalla propia (Index con la lista completa, Crear con el padre en un desplegable y Editar si la
+   tabla tiene PUT) para estudios, evaluaciones, experiencias, reconocimientos, apoyos, becas,
+   docente-departamento, red-docente, intereses futuros y estudio-área. Los clientes ganan ListarAsync.
+2. Página de inicio con 16 tarjetas en tres grupos (catálogos, docentes y su información, relaciones) y la
+   barra con «Catálogos», «Docentes», «Información del docente» y «Relaciones». Sin jerga: nada de FK, PK
+   ni CRUD en pantalla.
+3. CRUD completo de area_conocimiento (D65): sp_crear_, sp_actualizar_ y sp_eliminar_area_conocimiento
+   (código repetido → 409, también entre retirados), API y pantallas Crear/Editar/Eliminar.
+4. Mensajes de ModelBindingMessageProvider en castellano (D67).
+5. En la colección: el CRUD del área (con código al azar) y el listado de cada tabla de detalle.
+Mismas reglas: comentario del porqué en cada archivo, un commit por cambio, nada de SQL en Repositorios.
+```
+
 ## 3. Reglas que se le exigieron a la IA
 
 | Regla | Por qué |
@@ -69,6 +89,9 @@ El detalle está en cada `prompts_<integrante>.md`. Las que cambiaron el resulta
 | La API de la v1 aceptaba URL de 200 caracteres en una columna de 45 → `500` | Validación ajustada a 45 (D64) |
 | Los comentarios de los repositorios decían «UPDATE … SET activo = 0» y el `grep` del criterio 3 los encontraba | Se reescribieron sin palabras SQL |
 | En las pantallas de edición, la validación pedía un id que no venía en el formulario | Las claves van en campos ocultos y se fijan desde la ruta |
+| (17 nov) Las pantallas por tabla subidas a `main` no compilaban: llamaban a `ErroresFormulario.Aplicar`, que no existía, y faltaba el `IndexModel` de evaluaciones | Se agregó el método y la clase |
+| (17 nov) Un desplegable sin elegir mostraba «The value '' is invalid.» en inglés | Mensajes de validación en castellano (D67) |
+| (17 nov) Al editar se mostraba la cédula o el número del estudio en vez del nombre | Se guarda y se muestra el nombre (criterio 5) |
 
 ## 5. Preguntas de sustentación (para practicar)
 
