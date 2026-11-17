@@ -10,7 +10,7 @@
 1. `docs/spec_kit/1_constitution.md` — **incluidas las Enmiendas de la v2 y de la v3** al final (artículos 18 a 21).
 2. `CONCEPTOS_CONTROL_DE_ACCESO.md` y `FLUJO_CONTROL_DE_ACCESO.md` del proyecto del profesor: la teoría y los 16 pasos.
 3. `2_spec.md` de esta carpeta — qué se construye y los 15 criterios.
-4. `3_plan.md` y `4_research.md` — cómo y por qué (D65 a D76).
+4. `3_plan.md` y `4_research.md` — cómo y por qué (D68 a D79).
 5. `5_data_model.md` y `6_contracts.md` — tablas, rutas sembradas, procedimientos y contratos HTTP.
 6. El código de la v2 (`api_gestion/`, `front_razor/`, `db/`), para seguir su estilo.
 

@@ -16,7 +16,7 @@
 | API | `Program.cs` | Autenticación JWT, política de respaldo, botón «Authorize» de Swagger, registros |
 | API | `Autorizacion/ConfiguracionJwt.cs` | La configuración del token |
 | API | `Autorizacion/ExigePermisoAttribute.cs` | El filtro que pregunta a la base en cada petición |
-| API | `Controllers/SesionController.cs` | `POST /api/sesion` y su alias `POST /api/login` (D77) |
+| API | `Controllers/SesionController.cs` | `POST /api/sesion` y su alias `POST /api/login` (D80) |
 | API | `Controllers/PermisosController.cs` | `GET /api/permisos/mios` |
 | API | `Controllers/UsuarioController.cs`, `RolController.cs` | Administración (usuario, rol-usuario, rol, ruta, ruta-rol) |
 | API | `Servicios/ServicioSesion.cs` | Verifica la contraseña con bcrypt y arma el token |

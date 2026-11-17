@@ -1,38 +1,87 @@
 # Prompts de Nicolás — Versión 3
 
-> Integrante: **Nicolás** · Rama: `rama-nicolas-v3` · Herramienta: Claude (chat con herramientas de código), noviembre de 2026.
-> Aquí están los prompts **tal como los escribí**, lo que hizo la IA con cada uno y lo que hubo que corregir.
+> Integrante: **Nicolás** · Rama: `rama-nicolas-v3` · Herramienta: Claude (chat con herramientas de código) ·
+> Noviembre de 2026.
+>
+> Los prompts van **textuales**, como se escribieron. Debajo de cada uno: qué produjo, qué revisé y qué hubo que
+> corregir. Solo están los mensajes que llevaron del spec kit al código; las consultas sobre Git, Docker o Postman
+> no se incluyen.
 
 ---
 
-## Prompt 1 — Lo que pide el profesor para la v3
+## Cómo trabajé con la IA
 
-> (mensaje del profesor: sustentación de la v3 «control de acceso» el sábado 21 de noviembre; seguir en detalle
-> `CONCEPTOS_CONTROL_DE_ACCESO.md` y `FLUJO_CONTROL_DE_ACCESO.md`; la v4 no se sustenta)
+1. **Las fuentes son las del profesor.** Cada prompt de la v3 va acompañado del mensaje del profesor y de sus dos
+   documentos: `CONCEPTOS_CONTROL_DE_ACCESO.md` (la teoría) y `FLUJO_CONTROL_DE_ACCESO.md` (los 16 pasos en el código).
+   La v3 sigue ese flujo método por método; donde nuestro proyecto es distinto, la diferencia está escrita en
+   `4_research.md`.
+2. **La v3 va encima de una v2 que funciona.** Cuando el profesor corrigió la v2, no seguí con la v3 vieja:
+   primero se cerró la v2 corregida y después se rehízo la v3 sobre ella (D81), para que la regresión con token
+   corra sobre la v2 que se va a entregar.
+3. **Todo se prueba fuera del chat.** La IA no puede compilar ni levantar el proyecto: cada versión la levanté con
+   Docker, revisé los logs y corrí la colección de Postman.
+4. **Commits propios y pequeños.** Un commit por cambio, en mi rama, con mensajes que dicen qué y por qué.
+
+---
+
+## Prompt 1 — Construir la v3 con lo que pide el profesor
+
+> Cordial saludo estimadas y estimados estudiantes · La sustentación de la tercera entrega control de acceso es el
+> sábado 21 de noviembre · […] para la sustentación de la versión 3 debe tener en cuenta de manera muy detallada:
+> CONCEPTOS_CONTROL_DE_ACCESO.md · FLUJO_CONTROL_DE_ACCESO.md · la cuarta y última entrega no se sustenta […]
+>
 > esta es la 3ra entrega, puedes editarlo y completarlo porfa
 
-**Qué hizo la IA:** leyó los dos documentos del profesor, su spec de la v3 (los 10 criterios) y las guías de
-verificación con Swagger y Postman. Comparó con nuestro esquema: solo teníamos `usuario`, `rol` y `rol_usuario`,
-sin tabla de permisos, así que propuso agregar `ruta` y `ruta_rol` (D65) para que quitar un permiso funcione sin volver
-a entrar (criterio 7). Definió tres roles (D66) y la ruta `datos.modificar` para que Consulta no escriba (D67).
+**Resultado:** se compararon los 10 criterios de la spec de la v3 del profesor con nuestro esquema. El módulo solo
+tiene `usuario`, `rol` y `rol_usuario`, sin una tabla de permisos; sin ella el criterio 7 (quitar un permiso sin
+volver a entrar) no se puede cumplir. Por eso se agregaron `ruta` y `ruta_rol` (D68), igual que `ruta` y `rutarol`
+en el proyecto del profesor. Se definieron tres roles (D69) y la ruta `datos.modificar` para que Consulta no escriba
+(D70), que es el criterio de cierre del documento del módulo.
 
-Hizo la v3 en commits separados: base de datos, sesión con JWT, permisos en los 16 controladores, administración en la
-API, el front (sesión, inicio de sesión, menú, administración), la colección de Postman y este spec kit.
+**Construido, un commit por paso:**
 
-**Qué hubo que corregir durante el trabajo:**
+1. Base: `db/v3_control_acceso.sql` con `ruta`, `ruta_rol`, roles, permisos, usuarios con hash bcrypt (en el
+   script, no a mano) y los procedimientos `sp_verificar_acceso_ruta`, `sp_rutas_permitidas` y los de administración.
+2. API: `POST /api/sesion` con bcrypt y JWT; `[ExigePermiso]` que llama a `sp_verificar_acceso_ruta` en cada
+   petición; `[Authorize]` en los 16 controladores y `datos.modificar` en cada escritura; `GET /api/permisos/mios`.
+3. API: administración de usuarios, roles y permisos (solo Administrador).
+4. Front: token en la sesión del servidor, `ManejadorToken` (Bearer), `FiltroSesion`, 401 → iniciar sesión,
+   403 → «No tiene permiso»; menú según el rol y modo consulta; pantallas de Usuarios, Roles y Permisos por rol.
+5. Colección de Postman v3 y el spec kit de la v3.
 
-| Problema | Corrección |
-|---|---|
-| `sp_rutas_permitidas` ordenaba por una columna que no estaba en el `SELECT DISTINCT` (SQL Server lo rechaza) | Ordenar por el alias `ruta` |
-| La página de error fallaba cuando el 403 venía de un formulario (POST) | Leer el código de la ruta y aceptar GET y POST |
-| Las casillas de roles del formulario de usuario no llegaban al servidor por el nombre del campo | Nombrarlas `RolIds`, como los demás campos del formulario |
-| El inicio de sesión estaba en `/api/login` y la guía del profesor usa `/api/sesion` | Se cambió a `POST /api/sesion` (D73) |
-| Un comentario con la palabra JOIN hacía fallar el `grep` de «no hay SQL en C#» | Se reescribió el comentario |
+## Prompt 2 — Revisión exhaustiva antes de la sustentación
 
-**Lo que la IA NO pudo hacer:** compilar ni levantar el proyecto donde trabaja (no tiene acceso a NuGet), ni subir a
-GitHub. Por eso **yo** lo levanté con Docker, corrí la colección y subí la rama. Si apareció algún error al compilar,
-está anotado abajo.
+> […mismo mensaje del profesor…] esto fue lo que nos actualizo el profesor quiero que lo revise detenidamente y
+> exhaustivamente que no falte ningun detalle porfavor para poder hacer el trabajo correcto y lo que pide el profeso
 
-## Prompt 2 — Verificación
+**Resultado:** se volvió a leer cada documento (`CONCEPTOS`, `FLUJO`, la spec de la v3 del profesor, las guías de
+verificación con Swagger y Postman, `0_METODOLOGIA.md` y el documento del módulo) y se encontró:
 
-> (anotar aquí los errores que salieron al correr `docker compose up -d --build` y la colección, y cómo se arreglaron)
+| # | Hallazgo | Qué se hizo |
+|---|---|---|
+| 1 | La v3 estaba construida sobre la v2 anterior a las correcciones del profesor | Se rehízo sobre `rama-nicolas-v2-correcciones`, llevando los commits uno por uno (D81) |
+| 2 | El menú y la página de inicio de la v3 tenían 6 entradas; la v2 corregida tiene 16 tablas | Menú en grupos (Catálogos, Docentes, Información del docente, Relaciones, Administración) y 16 tarjetas, cada una según el rol |
+| 3 | Crear, editar y retirar áreas de conocimiento (nuevo en la v2 corregida) no exigía `datos.modificar` | Se agregó el atributo a las tres acciones |
+| 4 | La guía del profesor usa `POST /api/sesion`, pero `0_METODOLOGIA.md` §6 y el documento del módulo dicen `POST /api/login` | Las dos rutas llegan al mismo método (D80) |
+| 5 | Los `curl` de la regresión de la v1 ya no servían sin token (criterio 10) | Quickstart §2.1: cómo sacar el token y repetirlos con `Authorization: Bearer` |
+| 6 | La colección v3 venía de la colección v2 anterior | Se regeneró desde la v2 corregida: carpetas 0 a 8 de regresión con token y 9 a 11 de acceso, con pruebas nuevas (Consulta no crea áreas ni retira becas, `/api/login`) |
+| 7 | Las decisiones de la v3 empezaban en D65, el mismo número que usó después la v2 corregida | Se renumeraron D68 a D81 |
+
+---
+
+## Lo que hubo que corregir durante la construcción
+
+| # | Qué pasó | Cómo se corrigió | Quién lo detectó |
+|---|---|---|---|
+| 1 | `sp_rutas_permitidas` ordenaba por una columna que no estaba en el `SELECT DISTINCT` (SQL Server lo rechaza) | Ordenar por el alias `ruta` | La IA, al revisar el script |
+| 2 | La página de error fallaba cuando el 403 venía de un formulario (POST) | Leer el código de la ruta y aceptar GET y POST | La IA, al revisar el flujo del 403 |
+| 3 | Las casillas de roles del formulario de usuario no llegaban al servidor por el nombre del campo | Nombrarlas `RolIds`, como los demás campos | La IA, al revisar el enlace de datos |
+| 4 | Un comentario con la palabra JOIN hacía fallar el `grep` del criterio 6 | Se reescribió el comentario | La IA, corriendo el `grep` |
+| 5 | Al levantar con Docker la API se apagaba sola: el `.env` no tenía `JWT_KEY` | Se agregó la clave (32 caracteres o más). La API está hecha para no arrancar sin ella | Nicolás, con `docker compose ps` y el aviso «The JWT_KEY variable is not set» |
+| 6 | El front no compilaba: `Index.cshtml` usaba `Context.Session`, que no existe en una página Razor | `HttpContext.Session` | Nicolás, en `docker compose logs front-razor` (`error CS0103`) |
+
+## Verificación
+
+- `docker compose ps -a`: `sqlserver-init` en **Exited (0)**, API y front en **Up**.
+- Log del front: «Build succeeded» y «Application started».
+- Pendiente de anotar: el resultado de la colección v3 completa y del quickstart §4 en el front.

@@ -37,9 +37,9 @@ permisos de cada rol), solo para el rol Administrador.
 - `POST /api/sesion`: devuelve el token si las credenciales son correctas; **el mismo** `401` si falla el correo o la contraseña.
 - El token en cada petición, y el rechazo (`401`) de las que no lo traigan o lo traigan vencido o alterado.
 - La comprobación del permiso con `sp_verificar_acceso_ruta`, que cruza `usuario → rol_usuario → ruta_rol`.
-- Dos tablas nuevas, `ruta` y `ruta_rol` (decisión D65): el esquema del módulo solo trae `usuario`, `rol` y
+- Dos tablas nuevas, `ruta` y `ruta_rol` (decisión D68): el esquema del módulo solo trae `usuario`, `rol` y
   `rol_usuario`, y sin una tabla de permisos no hay forma de que quitar un permiso surta efecto (criterio 7).
-- Tres roles sembrados: **Administrador**, **Editor** y **Consulta** (decisión D66).
+- Tres roles sembrados: **Administrador**, **Editor** y **Consulta** (decisión D69).
 - Front: inicio y cierre de sesión, menú según el rol, modo consulta (sin botones de escritura), páginas de error 403 y 404,
   y la administración de usuarios, roles y permisos.
 
@@ -61,7 +61,7 @@ recuperación de contraseña, correo de confirmación y segundo factor (no los p
 
 ### RF16 — Identificarse devuelve un token
 
-`POST /api/sesion` con `{ email, contrasena }`. La misma acción responde en `POST /api/login` (D77).
+`POST /api/sesion` con `{ email, contrasena }`. La misma acción responde en `POST /api/login` (D80).
 
 | Caso | Respuesta |
 |---|---|
@@ -206,9 +206,9 @@ Los 10 del profesor (`CA-V3-01` a `CA-V3-10`), y los del módulo (`CA-V3-11` a `
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿El esquema del módulo tiene tabla de permisos? | No: solo `usuario`, `rol`, `rol_usuario`. Se agregan `ruta` y `ruta_rol` (D65), como en el proyecto del profesor |
-| ¿Qué roles hay? | Administrador (todo), Editor (el módulo y escribir), Consulta (el módulo, solo leer) (D66) |
-| ¿Cómo se distingue leer de escribir? | Con la ruta `datos.modificar` (D67) |
-| ¿Dónde se guarda el token en el front? | En la sesión del servidor, no en el navegador (D69) |
-| ¿El login se llama `/api/login` o `/api/sesion`? | Los dos: la guía del profesor usa `/api/sesion` y la metodología y el documento del módulo dicen `/api/login`. Las dos rutas llevan al mismo método (D77) |
+| ¿El esquema del módulo tiene tabla de permisos? | No: solo `usuario`, `rol`, `rol_usuario`. Se agregan `ruta` y `ruta_rol` (D68), como en el proyecto del profesor |
+| ¿Qué roles hay? | Administrador (todo), Editor (el módulo y escribir), Consulta (el módulo, solo leer) (D69) |
+| ¿Cómo se distingue leer de escribir? | Con la ruta `datos.modificar` (D70) |
+| ¿Dónde se guarda el token en el front? | En la sesión del servidor, no en el navegador (D72) |
+| ¿El login se llama `/api/login` o `/api/sesion`? | Los dos: la guía del profesor usa `/api/sesion` y la metodología y el documento del módulo dicen `/api/login`. Las dos rutas llevan al mismo método (D80) |
 | ¿Las pantallas por tabla de la v2 corregida también quedan protegidas? | Sí: usan las mismas rutas de la API, que exigen `interfaz.docentes` (o la del catálogo) y `datos.modificar` para escribir. En el menú y en la página de inicio aparecen según el rol |
