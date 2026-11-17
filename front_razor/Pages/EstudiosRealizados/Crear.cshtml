@@ -3,6 +3,8 @@
 @{ ViewData["Title"] = "Nuevo Estudio"; }
 
 <h1 class="h4 mb-3">Registrar Estudio Realizado</h1>
+@* RF14.6: si un desplegable no tiene opciones, se dice en castellano y se enlaza a donde crear la primera. *@
+@if (!Model.Docentes.Any()) { <div class="alert alert-warning">Todavía no hay docentes registrados. <a href="/Docentes/Crear">Cree el primero</a> antes de continuar.</div> }
 <form method="post" class="col-md-6">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
     <div class="mb-3"><label class="form-label">ID del Estudio</label><input asp-for="Formulario.Id" type="number" class="form-control" /><span asp-validation-for="Formulario.Id" class="text-danger"></span></div>
