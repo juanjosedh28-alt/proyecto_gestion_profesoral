@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace front_razor.Pages.Becas;
 
+/// <summary>
+/// Formulario para editar un registro de <c>beca</c>. La clave y el padre no se cambian:
+/// viajan en campos ocultos y en pantalla se muestra el nombre, no el código.
+/// Si el registro no existe se vuelve al listado con el aviso, en vez de un error 500.
+/// </summary>
 public class EditarModel : PageModel
 {
     private readonly ClienteBeca _cliente;
