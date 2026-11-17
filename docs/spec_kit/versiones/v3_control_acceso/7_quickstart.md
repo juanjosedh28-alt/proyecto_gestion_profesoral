@@ -41,8 +41,25 @@ Vuelva a ponerla.
 ## 2. Colección de Postman (CA-V3-02 a 05, 07, 09 a 14)
 
 Importe `postman/gestion_profesoral_v3.postman_collection.json` → clic derecho en la colección → **Run collection** →
-**Run**. Todo en verde. La carpeta **A** inicia sesión con los tres roles; las carpetas **0 a 6** son la regresión de la
-v2 con el token de administrador (CA-V3-10); **7, 8 y 9** son el control de acceso.
+**Run**. Todo en verde. La carpeta **A** inicia sesión con los tres roles; las carpetas **0 a 8** son la regresión de la
+v1 y la v2 con el token de administrador (CA-V3-10); **9, 10 y 11** son el control de acceso.
+
+---
+
+### 2.1 La regresión de la v1 con token (CA-V3-10)
+
+Los `curl` del quickstart de la v1 ahora necesitan el token. Se saca una vez y se agrega la cabecera:
+
+```bash
+TOKEN=$(curl -s -X POST http://localhost:8074/api/sesion -H "Content-Type: application/json" \
+  -d '{"email":"admin@gestion.edu.co","contrasena":"admin123"}' | sed 's/.*"token":"\([^"]*\)".*/\1/')
+
+curl -s -H "Authorization: Bearer $TOKEN" http://localhost:8074/api/area-conocimiento | grep -o '"id"' | wc -l   # 218
+curl -i -H "Authorization: Bearer $TOKEN" http://localhost:8074/api/area-conocimiento/1A01                       # 200
+curl -i http://localhost:8074/api/area-conocimiento/1A01                                                          # 401 (sin token)
+```
+
+El resto de los `curl` de `v1_programa/7_quickstart.md` se corre igual, con `-H "Authorization: Bearer $TOKEN"`.
 
 ---
 

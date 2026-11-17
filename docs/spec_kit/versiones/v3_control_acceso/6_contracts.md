@@ -15,7 +15,9 @@ Cada petición lleva la cabecera `Authorization: Bearer <token>`.
 
 ## 2. Sesión
 
-### `POST /api/sesion` — sin token
+### `POST /api/sesion` (o `POST /api/login`) — sin token
+
+Las dos rutas llegan al mismo método (D77).
 
 ```json
 { "email": "admin@gestion.edu.co", "contrasena": "admin123" }

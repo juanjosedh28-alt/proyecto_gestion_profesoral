@@ -61,7 +61,7 @@ recuperación de contraseña, correo de confirmación y segundo factor (no los p
 
 ### RF16 — Identificarse devuelve un token
 
-`POST /api/sesion` con `{ email, contrasena }`.
+`POST /api/sesion` con `{ email, contrasena }`. La misma acción responde en `POST /api/login` (D77).
 
 | Caso | Respuesta |
 |---|---|
@@ -73,7 +73,7 @@ El token (JWT firmado con HMAC-SHA256, 60 minutos) lleva `sub` y `name` = correo
 
 ### RF17 — Sin token no se entra
 
-Toda ruta de la API exige el token, **menos** `POST /api/sesion`.
+Toda ruta de la API exige el token, **menos** `POST /api/sesion` (y su alias `POST /api/login`).
 
 | Caso | Respuesta |
 |---|---|
@@ -175,18 +175,18 @@ Los 10 del profesor (`CA-V3-01` a `CA-V3-10`), y los del módulo (`CA-V3-11` a `
 |---|---|---|
 | CA-V3-01 | La columna `password` **no tiene texto legible** en ninguna fila | Quickstart §3: consulta SQL → 0 filas |
 | CA-V3-02 | Credenciales correctas → token; incorrectas → **el mismo** mensaje en los dos casos | Postman carpeta A |
-| CA-V3-03 | Una operación **sin token** → **401** | Postman carpeta 7 |
-| CA-V3-04 | Un token **alterado** → **401** | Postman carpeta 7 (token de consulta con el correo cambiado al del administrador) |
-| CA-V3-05 | Un rol sin permiso → **403**, y se explica la diferencia con 401 | Postman carpeta 7 |
+| CA-V3-03 | Una operación **sin token** → **401** | Postman carpeta 9 |
+| CA-V3-04 | Un token **alterado** → **401** | Postman carpeta 9 (token de consulta con el correo cambiado al del administrador) |
+| CA-V3-05 | Un rol sin permiso → **403**, y se explica la diferencia con 401 | Postman carpeta 9 |
 | CA-V3-06 | El permiso lo resuelve `sp_verificar_acceso_ruta`: no hay `JOIN` de permisos en C# | `grep` del quickstart §5 |
-| CA-V3-07 | **Quitarle un permiso a un rol surte efecto sin volver a identificarse** | Postman carpeta 8 y quickstart §4 en el front |
+| CA-V3-07 | **Quitarle un permiso a un rol surte efecto sin volver a identificarse** | Postman carpeta 10 y quickstart §4 en el front |
 | CA-V3-08 | El menú del front cambia según el rol | Quickstart §4 (admin, editor, consulta) |
-| CA-V3-09 | **Escribir la dirección a mano, sin permiso, responde 403** | Quickstart §4: consulta escribe `/Usuarios` → «No tiene permiso»; Postman carpeta 7 |
-| CA-V3-10 | **Regresión:** los criterios de la v1 y la v2 siguen pasando, **con token** | Postman carpetas 0 a 6 con el token de administrador |
-| CA-V3-11 | El rol Consulta no puede crear, editar ni retirar (API `403`, front sin botones) | Postman carpeta 7; quickstart §4 |
-| CA-V3-12 | Editar un usuario con la contraseña vacía no la cambia | Postman carpeta 9 |
-| CA-V3-13 | Un usuario retirado ya no inicia sesión | Postman carpeta 9 |
-| CA-V3-14 | No se puede dejar el sistema sin administrador | Postman carpeta 9 («eliminar el rol Administrador → 409») |
+| CA-V3-09 | **Escribir la dirección a mano, sin permiso, responde 403** | Quickstart §4: consulta escribe `/Usuarios` → «No tiene permiso»; Postman carpeta 9 |
+| CA-V3-10 | **Regresión:** los criterios de la v1 y la v2 siguen pasando, **con token** | Postman carpetas 0 a 8 con el token de administrador |
+| CA-V3-11 | El rol Consulta no puede crear, editar ni retirar (API `403`, front sin botones) | Postman carpeta 9; quickstart §4 |
+| CA-V3-12 | Editar un usuario con la contraseña vacía no la cambia | Postman carpeta 11 |
+| CA-V3-13 | Un usuario retirado ya no inicia sesión | Postman carpeta 11 |
+| CA-V3-14 | No se puede dejar el sistema sin administrador | Postman carpeta 11 («eliminar el rol Administrador → 409») |
 | CA-V3-15 | Sin `JWT_KEY` la API no arranca y lo dice | Quickstart §1 |
 
 > **El criterio 9 es el que no se puede simular.** Los demás se pueden cumplir con un front que esconde botones. Ese no.
@@ -196,7 +196,7 @@ Los 10 del profesor (`CA-V3-01` a `CA-V3-10`), y los del módulo (`CA-V3-11` a `
 ## 8. Definición de TERMINADA
 
 1. Los criterios en verde, verificados con `7_quickstart.md` y la colección `postman/gestion_profesoral_v3.postman_collection.json`.
-2. La regresión de la v1 y la v2 pasa (carpetas 0 a 6 de la colección v3).
+2. La regresión de la v1 y la v2 pasa (carpetas 0 a 8 de la colección v3).
 3. `9_checklist.md` revisado por **otro** integrante.
 4. PR de la rama a `main`, y tag `v3`.
 
@@ -210,4 +210,5 @@ Los 10 del profesor (`CA-V3-01` a `CA-V3-10`), y los del módulo (`CA-V3-11` a `
 | ¿Qué roles hay? | Administrador (todo), Editor (el módulo y escribir), Consulta (el módulo, solo leer) (D66) |
 | ¿Cómo se distingue leer de escribir? | Con la ruta `datos.modificar` (D67) |
 | ¿Dónde se guarda el token en el front? | En la sesión del servidor, no en el navegador (D69) |
-| ¿El login se llama `/api/login`? | No: `POST /api/sesion`, igual que en la guía del profesor |
+| ¿El login se llama `/api/login` o `/api/sesion`? | Los dos: la guía del profesor usa `/api/sesion` y la metodología y el documento del módulo dicen `/api/login`. Las dos rutas llevan al mismo método (D77) |
+| ¿Las pantallas por tabla de la v2 corregida también quedan protegidas? | Sí: usan las mismas rutas de la API, que exigen `interfaz.docentes` (o la del catálogo) y `datos.modificar` para escribir. En el menú y en la página de inicio aparecen según el rol |

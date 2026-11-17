@@ -41,3 +41,12 @@
 - [ ] T7.2 Subir `rama-nicolas-v3`, PR a `main`, revisión del equipo
 - [ ] T7.3 Tag `v3` en `main`
 - [ ] T7.4 Sustentación: sábado 21 de noviembre de 2026
+
+## Fase 8 — Rehacer la v3 sobre la v2 corregida (17 de noviembre)
+- [x] T8.1 Rama nueva `rama-nicolas-v3` desde `rama-nicolas-v2-correcciones`, con los commits de la v3 llevados uno por uno
+- [x] T8.2 Menú y página de inicio: las 16 tablas, cada entrada según el rol (D78)
+- [x] T8.3 Las escrituras de `area_conocimiento` exigen `datos.modificar`
+- [x] T8.4 `POST /api/login` como alias de `POST /api/sesion` (D77)
+- [x] T8.5 Colección v3 regenerada desde la colección v2 corregida (carpetas 0 a 8 de regresión, 9 a 11 de acceso)
+- [ ] T8.6 Correr la colección y el quickstart con Docker (Nicolás)
+

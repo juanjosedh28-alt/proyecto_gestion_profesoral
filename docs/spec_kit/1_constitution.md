@@ -235,7 +235,7 @@ Al cerrar la v2 se vuelven a correr los criterios de la v1. Los ajustes a códig
 ## Artículo 18 — Sin token no se entra
 
 Toda ruta de la API exige un token válido (política de respaldo `RequireAuthenticatedUser`), **menos**
-`POST /api/sesion`, que no puede exigir lo que todavía no existe. Sin token o con token vencido o alterado → `401`.
+`POST /api/sesion` (y su alias `POST /api/login`), que no puede exigir lo que todavía no existe. Sin token o con token vencido o alterado → `401`.
 Token válido pero el rol no puede → `403`. Los dos con el formato `{ mensaje, detalle }` del Artículo 9.
 
 ## Artículo 19 — El permiso se consulta cuando se usa

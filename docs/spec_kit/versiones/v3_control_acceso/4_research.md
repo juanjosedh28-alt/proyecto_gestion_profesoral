@@ -16,6 +16,8 @@
 | **D74** | El menú se refresca en cada GET del front | Solo al iniciar sesión | Así un permiso quitado también desaparece del menú sin volver a entrar (coherente con D70) |
 | **D75** | Retirar un usuario o un rol es lógico (`activo = 0`); quitarle un rol a un usuario o un permiso a un rol es físico | Todo lógico | Usuarios y roles tienen historia y otras filas los nombran; las parejas de `rol_usuario` y `ruta_rol` no: si se vuelven a dar, se insertan de nuevo |
 | **D76** | Protecciones contra quedarse sin administrador en la base | En el servicio de C# | Es una regla de datos: si alguien llama al procedimiento por otro camino, igual se cumple |
+| **D77** | `POST /api/sesion` **y** `POST /api/login` llegan al mismo método (precisa D73) | Elegir uno solo | La guía del profesor (`FLUJO_CONTROL_DE_ACCESO.md`) usa `/api/sesion`; `0_METODOLOGIA.md` §6 y el documento del módulo dicen `/api/login`. Con los dos, cualquiera de las tres fuentes se cumple sin duplicar lógica |
+| **D78** | La v3 se reconstruyó sobre la v2 corregida (17 de noviembre) | Mantenerla sobre la v2 anterior | El profesor corrigió la v2 (todas las tablas en la ventana principal, CRUD del área). La regresión de la v3 tiene que correr sobre esa v2. El menú agrupa las 16 tablas y cada entrada aparece según el rol; las escrituras del área exigen `datos.modificar` |
 
 ## Referencias
 

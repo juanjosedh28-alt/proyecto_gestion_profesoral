@@ -25,7 +25,7 @@ Construye el control de acceso en este orden, un commit por paso:
 1. db/v3_control_acceso.sql (idempotente): tablas ruta y ruta_rol, roles Administrador/Editor/Consulta, las 11
    rutas de 5_data_model.md §2, permisos sembrados solo si ruta_rol está vacía, usuarios de prueba con HASH bcrypt
    (nunca la contraseña en claro) y los procedimientos de 3_plan.md §4. Agrégalo a db/init.sh.
-2. API: POST /api/sesion con bcrypt (mismo 401 para correo y contraseña) y token JWT con sub, name y role.
+2. API: POST /api/sesion (y el alias POST /api/login) con bcrypt (mismo 401 para correo y contraseña) y token JWT con sub, name y role.
    La clave sale de Jwt__Key (.env); si falta o mide menos de 32, la API no arranca.
 3. API: [ExigePermiso("ruta")] (IAsyncAuthorizationFilter) que llama a sp_verificar_acceso_ruta en cada
    petición. Ponlo en los 16 controladores (interfaz.x en la clase, datos.modificar en cada POST/PUT/DELETE).

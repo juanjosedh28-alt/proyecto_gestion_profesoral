@@ -16,7 +16,7 @@
 | API | `Program.cs` | Autenticación JWT, política de respaldo, botón «Authorize» de Swagger, registros |
 | API | `Autorizacion/ConfiguracionJwt.cs` | La configuración del token |
 | API | `Autorizacion/ExigePermisoAttribute.cs` | El filtro que pregunta a la base en cada petición |
-| API | `Controllers/SesionController.cs` | `POST /api/sesion` |
+| API | `Controllers/SesionController.cs` | `POST /api/sesion` y su alias `POST /api/login` (D77) |
 | API | `Controllers/PermisosController.cs` | `GET /api/permisos/mios` |
 | API | `Controllers/UsuarioController.cs`, `RolController.cs` | Administración (usuario, rol-usuario, rol, ruta, ruta-rol) |
 | API | `Servicios/ServicioSesion.cs` | Verifica la contraseña con bcrypt y arma el token |
@@ -30,7 +30,7 @@
 | Front | `Infraestructura/ManejadorAcceso.cs`, `ExcepcionesAcceso.cs` | `401` → borra la sesión y lleva a iniciar; `403` → página «No tiene permiso» |
 | Front | `Clientes/ClienteApiBase.cs`, `ClientesAcceso.cs` | Traduce 401/403; clientes de sesión, usuario, rol y permiso |
 | Front | `Pages/Sesion/Iniciar`, `Salir`, `Pages/Error` | Inicio y cierre de sesión; errores 403 y 404 |
-| Front | `Pages/Shared/_Layout.cshtml`, `Pages/Index.cshtml` | Menú y tarjetas según las rutas; modo consulta |
+| Front | `Pages/Shared/_Layout.cshtml`, `Pages/Index.cshtml` | Las 16 tablas de la v2 corregida en el menú (Catálogos, Docentes, Información del docente, Relaciones) y en 16 tarjetas, más Administración; cada entrada según las rutas del rol; modo consulta |
 | Front | `Pages/Usuarios`, `Pages/Roles`, `Pages/Permisos` | Administración |
 | Pruebas | `postman/gestion_profesoral_v3.postman_collection.json` | Sesión, regresión v2 con token, 401/403, criterio 7, administración |
 
@@ -116,5 +116,5 @@ Los errores usan los códigos de la v2 (`50001` padre inexistente → 409, `5000
 | 8 y enmiendas (seguridad, SQL solo en la base) | Sí: hash bcrypt; claves en `.env`; ningún SQL en C# |
 | 9 (contrato HTTP) | Sí: 401 y 403 con `{ mensaje, detalle }` |
 | 14 (nunca 500 previsible) | Sí: reglas de usuario y rol con 409/422/404 |
-| 17 (regresión) | Sí: carpetas 0 a 6 de la colección v3 |
+| 17 (regresión) | Sí: carpetas 0 a 8 de la colección v3 |
 | 18 a 21 (nuevos) | Sí: ver `2_spec.md` RF17 a RF22 |
