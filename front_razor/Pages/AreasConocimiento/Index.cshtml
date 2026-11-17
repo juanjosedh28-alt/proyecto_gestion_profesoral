@@ -2,7 +2,10 @@
 @model front_razor.Pages.AreasConocimiento.IndexModel
 @{ ViewData["Title"] = "Áreas de conocimiento"; }
 
-<h1 class="h3 mb-3">Áreas de conocimiento</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Áreas de conocimiento</h1>
+    <a class="btn btn-primary" asp-page="Crear">Nueva</a>
+</div>
 
 <form method="get" class="row g-2 mb-3">
     <div class="col-auto"><input name="buscar" value="@Model.Buscar" class="form-control" placeholder="Buscar..." /></div>
@@ -22,13 +25,20 @@ else
     <p class="text-muted">@Model.Items.Count registro(s).</p>
     <div class="table-responsive">
     <table class="table table-striped align-middle">
-        <thead><tr><th>Id</th><th>Gran área</th><th>Área</th><th>Disciplina</th><th></th></tr></thead>
+        <thead><tr><th>Código</th><th>Gran área</th><th>Área</th><th>Disciplina</th><th></th></tr></thead>
         <tbody>
         @foreach (var x in Model.Items)
         {
             <tr>
                 <td>@x.Id</td><td>@x.GranArea</td><td>@x.Area</td><td>@x.Disciplina</td>
-                <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-page="Detalle" asp-route-id="@x.Id">Ver</a></td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="Detalle" asp-route-id="@x.Id">Ver</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Editar" asp-route-id="@x.Id">Editar</a>
+                    <form method="post" asp-page-handler="Eliminar" asp-route-id="@x.Id" class="d-inline"
+                          onsubmit="return confirm('¿Eliminar esta área de conocimiento?')">
+                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                    </form>
+                </td>
             </tr>
         }
         </tbody>
