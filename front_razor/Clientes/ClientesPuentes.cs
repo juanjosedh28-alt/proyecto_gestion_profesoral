@@ -2,10 +2,18 @@ using front_razor.Modelos;
 
 namespace front_razor.Clientes;
 
+// ===================================================================
+// Clientes HTTP de las TABLAS PUENTE y del detalle 1:1 del estudio.
+// En las puentes, la clave son DOS valores: por eso Obtener, Reemplazar y
+// Eliminar reciben las dos (por ejemplo, docente y programa).
+// ===================================================================
+
+/// <summary>Cliente HTTP de <c>/api/docente-departamento</c> (docente ↔ programa).</summary>
 public class ClienteDocenteDepartamento : ClienteApiBase
 {
     public ClienteDocenteDepartamento(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<DocenteDepartamentoVista>> ListarAsync() => GetAsync<List<DocenteDepartamentoVista>>("api/docente-departamento");
 
     public Task<List<DocenteDepartamentoVista>> ListarPorDocenteAsync(int cedula) =>
@@ -23,10 +31,12 @@ public class ClienteDocenteDepartamento : ClienteApiBase
         DeleteAsync($"api/docente-departamento/{Escapar(docente)}/{Escapar(departamento)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/red-docente</c> (red ↔ docente).</summary>
 public class ClienteRedDocente : ClienteApiBase
 {
     public ClienteRedDocente(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<RedDocenteVista>> ListarAsync() => GetAsync<List<RedDocenteVista>>("api/red-docente");
 
     public Task<List<RedDocenteVista>> ListarPorDocenteAsync(int cedula) =>
@@ -44,10 +54,12 @@ public class ClienteRedDocente : ClienteApiBase
         DeleteAsync($"api/red-docente/{Escapar(red)}/{Escapar(docente)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/intereses-futuros</c> (docente ↔ término clave). Sin editar: puente puro.</summary>
 public class ClienteInteresFuturo : ClienteApiBase
 {
     public ClienteInteresFuturo(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<InteresFuturoVista>> ListarAsync() => GetAsync<List<InteresFuturoVista>>("api/intereses-futuros");
 
     public Task<List<InteresFuturoVista>> ListarPorDocenteAsync(int cedula) =>
@@ -55,14 +67,17 @@ public class ClienteInteresFuturo : ClienteApiBase
 
     public Task CrearAsync(InteresFuturoFormulario formulario) => PostAsync("api/intereses-futuros", formulario);
 
+    // El término es texto: Escapar evita que un espacio o una tilde rompan la ruta.
     public Task EliminarAsync(int docente, string termino) =>
         DeleteAsync($"api/intereses-futuros/{Escapar(docente)}/{Escapar(termino)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/estudio-ac</c> (estudio ↔ área de conocimiento). Sin editar: puente puro.</summary>
 public class ClienteEstudioAc : ClienteApiBase
 {
     public ClienteEstudioAc(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<EstudioAcVista>> ListarAsync() => GetAsync<List<EstudioAcVista>>("api/estudio-ac");
 
     public Task<List<EstudioAcVista>> ListarPorEstudioAsync(int estudio) =>
@@ -74,12 +89,15 @@ public class ClienteEstudioAc : ClienteApiBase
         DeleteAsync($"api/estudio-ac/{Escapar(estudio)}/{Escapar(area)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/apoyo-profesoral</c> (1:1 con el estudio).</summary>
 public class ClienteApoyoProfesoral : ClienteApiBase
 {
     public ClienteApoyoProfesoral(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<ApoyoProfesoralVista>> ListarAsync() => GetAsync<List<ApoyoProfesoralVista>>("api/apoyo-profesoral");
 
+    /// <summary>null si el estudio todavía no tiene apoyo (la API responde 404).</summary>
     public Task<ApoyoProfesoralVista?> ObtenerAsync(int estudios) =>
         GetOpcionalAsync<ApoyoProfesoralVista>($"api/apoyo-profesoral/{Escapar(estudios)}");
 
@@ -91,12 +109,15 @@ public class ClienteApoyoProfesoral : ClienteApiBase
     public Task EliminarAsync(int estudios) => DeleteAsync($"api/apoyo-profesoral/{Escapar(estudios)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/beca</c> (1:1 con el estudio).</summary>
 public class ClienteBeca : ClienteApiBase
 {
     public ClienteBeca(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<BecaVista>> ListarAsync() => GetAsync<List<BecaVista>>("api/beca");
 
+    /// <summary>null si el estudio todavía no tiene beca (la API responde 404).</summary>
     public Task<BecaVista?> ObtenerAsync(int estudios) => GetOpcionalAsync<BecaVista>($"api/beca/{Escapar(estudios)}");
 
     public Task CrearAsync(BecaFormulario formulario) => PostAsync("api/beca", formulario);
