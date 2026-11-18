@@ -75,6 +75,10 @@ Cliente<ClientePermiso>();
 
 var app = builder.Build();
 
+// Red de seguridad: un error que ninguna página atendió (por ejemplo, la API apagada al
+// abrir un formulario que carga sus listas) muestra /Error con un aviso en castellano y
+// código 500, en vez de la página técnica de ASP.NET.
+app.UseExceptionHandler("/Error");
 app.UseStaticFiles();
 
 // (v3) Una respuesta 403/404 sin cuerpo se vuelve a ejecutar como /Error/403,
