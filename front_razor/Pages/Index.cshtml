@@ -9,54 +9,56 @@
     var Accion = Puede("datos.modificar") ? "Crear, editar y eliminar" : "Solo consulta";
 }
 
-<h1 class="h3 mb-1">Gestión Profesoral — las 16 tablas del módulo</h1>
-<p class="text-muted mb-3">Bienvenido, @SesionUsuario.Nombre(HttpContext.Session).</p>
+<section class="gp-portada">
+    <h1 class="h3 mb-1">Hola, @SesionUsuario.Nombre(HttpContext.Session)</h1>
+    <p>Las 16 tablas del módulo de Gestión Profesoral · Su rol: <strong>@SesionUsuario.Roles(HttpContext.Session)</strong> · @Accion</p>
+</section>
 
-<h2 class="h5 text-primary mt-4 mb-3">1. Catálogos (no dependen de otra tabla)</h2>
-<div class="row g-3">
+<h2 class="h5 gp-grupo gp-catalogos"><span class="gp-punto"></span>Catálogos <small class="text-muted fw-normal">· no dependen de otra tabla</small></h2>
+<div class="row g-3 gp-tarjetas gp-catalogos">
     @if (Puede("interfaz.areas")) {
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/AreasConocimiento"><div class="card-body"><h3 class="h6 mb-1">1. Áreas de conocimiento</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/AreasConocimiento"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">1</span>Áreas de conocimiento</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
     }
     @if (Puede("interfaz.terminos")) {
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/TerminosClave"><div class="card-body"><h3 class="h6 mb-1">2. Términos clave</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/TerminosClave"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">2</span>Términos clave</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
     }
     @if (Puede("interfaz.lineas")) {
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/LineasInvestigacion"><div class="card-body"><h3 class="h6 mb-1">3. Líneas de investigación</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/LineasInvestigacion"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">3</span>Líneas de investigación</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
     }
     @if (Puede("interfaz.programas")) {
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Programas"><div class="card-body"><h3 class="h6 mb-1">4. Programas</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Programas"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">4</span>Programas</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
     }
     @if (Puede("interfaz.redes")) {
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Redes"><div class="card-body"><h3 class="h6 mb-1">5. Redes</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Redes"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">5</span>Redes</h3><p class="text-muted small mb-0">@Accion</p></div></a></div>
     }
 </div>
 
 @if (Puede("interfaz.docentes"))
 {
-<h2 class="h5 text-primary mt-4 mb-3">2. Docentes y su información</h2>
-<div class="row g-3">
-    <div class="col-md-4"><a class="card h-100 text-decoration-none border-primary" href="/Docentes"><div class="card-body"><h3 class="h6 mb-1">6. Docentes (maestro)</h3><p class="text-muted small mb-0">@Accion · en «Detalle» está toda su información</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosRealizados"><div class="card-body"><h3 class="h6 mb-1">7. Estudios realizados</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EvaluacionesDocente"><div class="card-body"><h3 class="h6 mb-1">8. Evaluaciones docente</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Reconocimientos"><div class="card-body"><h3 class="h6 mb-1">9. Reconocimientos</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Experiencias"><div class="card-body"><h3 class="h6 mb-1">10. Experiencias</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/ApoyosProfesorales"><div class="card-body"><h3 class="h6 mb-1">11. Apoyo profesoral</h3><p class="text-muted small mb-0">Uno por estudio · @accion</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Becas"><div class="card-body"><h3 class="h6 mb-1">12. Becas</h3><p class="text-muted small mb-0">Uno por estudio · @accion</p></div></a></div>
+<h2 class="h5 gp-grupo gp-docentes"><span class="gp-punto"></span>Docentes y su información</h2>
+<div class="row g-3 gp-tarjetas gp-docentes">
+    <div class="col-md-4"><a class="card h-100 text-decoration-none gp-maestro" href="/Docentes"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">6</span>Docentes (maestro)</h3><p class="text-muted small mb-0">@Accion · en «Detalle» está toda su información</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosRealizados"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">7</span>Estudios realizados</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EvaluacionesDocente"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">8</span>Evaluaciones docente</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Reconocimientos"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">9</span>Reconocimientos</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Experiencias"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">10</span>Experiencias</h3><p class="text-muted small mb-0">Pertenece a un docente · @accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/ApoyosProfesorales"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">11</span>Apoyo profesoral</h3><p class="text-muted small mb-0">Uno por estudio · @accion</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Becas"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">12</span>Becas</h3><p class="text-muted small mb-0">Uno por estudio · @accion</p></div></a></div>
 </div>
 
-<h2 class="h5 text-primary mt-4 mb-3">3. Relaciones (une dos tablas)</h2>
-<div class="row g-3 mb-4">
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/DocentesDepartamentos"><div class="card-body"><h3 class="h6 mb-1">13. Docente — Departamento</h3><p class="text-muted small mb-0">Docente ↔ programa</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/InteresesFuturos"><div class="card-body"><h3 class="h6 mb-1">14. Intereses futuros</h3><p class="text-muted small mb-0">Docente ↔ término clave</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/RedesDocentes"><div class="card-body"><h3 class="h6 mb-1">15. Red — Docente</h3><p class="text-muted small mb-0">Red ↔ docente</p></div></a></div>
-    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosAc"><div class="card-body"><h3 class="h6 mb-1">16. Estudio — Área de conocimiento</h3><p class="text-muted small mb-0">Estudio ↔ área de conocimiento</p></div></a></div>
+<h2 class="h5 gp-grupo gp-relaciones"><span class="gp-punto"></span>Relaciones <small class="text-muted fw-normal">· unen dos tablas</small></h2>
+<div class="row g-3 mb-4 gp-tarjetas gp-relaciones">
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/DocentesDepartamentos"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">13</span>Docente — Departamento</h3><p class="text-muted small mb-0">Docente ↔ programa</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/InteresesFuturos"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">14</span>Intereses futuros</h3><p class="text-muted small mb-0">Docente ↔ término clave</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/RedesDocentes"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">15</span>Red — Docente</h3><p class="text-muted small mb-0">Red ↔ docente</p></div></a></div>
+    <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/EstudiosAc"><div class="card-body"><h3 class="h6 mb-1"><span class="gp-num">16</span>Estudio — Área de conocimiento</h3><p class="text-muted small mb-0">Estudio ↔ área de conocimiento</p></div></a></div>
 </div>
 }
 
 @if (Puede("interfaz.usuarios") || Puede("interfaz.roles") || Puede("interfaz.permisos"))
 {
-<h2 class="h5 text-primary mt-4 mb-3">4. Control de acceso</h2>
-<div class="row g-3 mb-4">
+<h2 class="h5 gp-grupo gp-acceso"><span class="gp-punto"></span>Control de acceso</h2>
+<div class="row g-3 mb-4 gp-tarjetas gp-acceso">
     @if (Puede("interfaz.usuarios")) {
     <div class="col-md-4"><a class="card h-100 text-decoration-none" href="/Usuarios"><div class="card-body"><h3 class="h6 mb-1">Usuarios</h3><p class="text-muted small mb-0">Cuentas de acceso y sus roles</p></div></a></div>
     }

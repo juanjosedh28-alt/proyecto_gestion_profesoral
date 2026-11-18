@@ -2,10 +2,12 @@
 @model front_razor.Pages.Sesion.IniciarModel
 @{ ViewData["Title"] = "Iniciar sesión"; }
 
-<div class="row justify-content-center">
-    <div class="col-md-5 col-lg-4">
-        <h1 class="h3 mb-3">Iniciar sesión</h1>
-
+<div class="gp-entrada">
+    <div class="gp-entrada-cabeza">
+        <h1 class="h4">Bienvenido</h1>
+        <div class="small opacity-75">Inicie sesión para entrar a Gestión Profesoral</div>
+    </div>
+    <div class="gp-entrada-cuerpo">
         @if (Model.Aviso != null)
         {
             <div class="alert alert-warning">@Model.Aviso</div>
@@ -22,7 +24,7 @@
                 <label asp-for="Formulario.Contrasena" class="form-label"></label>
                 <input asp-for="Formulario.Contrasena" class="form-control" autocomplete="current-password" />
             </div>
-            <button class="btn btn-primary w-100">Entrar</button>
+            <button class="btn btn-primary w-100 py-2">Entrar</button>
         </form>
     </div>
 </div>
