@@ -88,11 +88,14 @@ simulada con las mismas reglas de acceso; la API y la base se siguen probando co
 | 6 | La ruta `interfaz.areas` decía «(consulta)», pero el área tiene CRUD desde la v2 corregida | Semilla corregida, con un `UPDATE` para una base ya sembrada |
 | 7 | Faltaba escribir lo que la lista del profesor pide: los cinco tropiezos, por qué aquí sí hay `DelegatingHandler`, lo que queda fuera, las direcciones abiertas, la matriz de los tres roles | `3_plan.md` §7 a §9, `6_contracts.md`, `9_checklist.md` (secciones A a G), `7_quickstart.md` §7 |
 | 8 | El quickstart decía `docker compose logs api`, pero el servicio se llama `api-gestion` | Corregido |
+| 9 | `SesionController` tenía `[AllowAnonymous]` en la clase: es el error que la guía de IA del profesor anuncia para esta versión (anula cualquier `[Authorize]` de un método nuevo) | `[Authorize]` en la clase y `[AllowAnonymous]` solo en el método de entrar (D87) |
+| 10 | La página de error mostraba el número (403, 404, 500) en grande, y algunos textos decían «token» o «hash bcrypt»: la regla del idioma dice que en pantalla no hay jerga | Solo palabras en pantalla; el 403 sigue en la respuesta (D88) |
 
 **Lo que se comprobó y estaba bien:** los 16 controladores del módulo tienen `[Authorize]` y `[ExigePermiso]` en la
 clase, y las 50 acciones que escriben exigen `datos.modificar`; ningún repositorio tiene SQL (criterio 6, el `grep` no
 imprime nada); los nombres de las rutas coinciden en la API, el front y la semilla; los tres hashes de la semilla
-verifican con sus contraseñas; `sp_verificar_acceso_ruta` falla cerrado.
+verifican con sus contraseñas; `sp_verificar_acceso_ruta` falla cerrado; el token lleva el correo y los nombres de los
+roles (como en el paso 9 de `FLUJO`) y ningún permiso, y la API nunca autoriza con esos roles.
 
 ---
 

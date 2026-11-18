@@ -135,7 +135,7 @@ Usa `sp_rutas_permitidas`. **No protege nada**: es para el menú.
 - Sin `datos.modificar`: no se muestran «Nuevo», «Editar», «Retirar» ni formularios de escritura, y aparece el aviso «modo consulta».
 - **Ninguna página revisa permisos por su cuenta.** Si alguien escribe una dirección a mano, la página le pide los datos
   a la API, la API responde `403` y el front muestra «No tiene permiso» con código `403`: el aviso de la API, el permiso
-  que faltó («permiso requerido: interfaz.usuarios»), la dirección pedida y ningún dato (D84).
+  que faltó («permiso requerido: interfaz.usuarios»), la dirección pedida y ningún dato (D84). En pantalla no sale ningún número de error (D88).
 
 ### RF23 — Pantallas de administración
 

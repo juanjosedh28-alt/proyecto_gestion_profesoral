@@ -138,6 +138,10 @@ El plan de la v3 del profesor (§5) nombra cinco errores que **compilan y arranc
 
 **Los que dejan el sistema menos seguro de lo que parece son el 1, el 3 y el 5:** funcionan, y por eso nadie los mira.
 
+Y uno más, de las guías de IA del profesor: **`[AllowAnonymous]` en la clase anula los `[Authorize]` de sus métodos**
+(el aviso ASP0026, que nadie lee). Aquí `SesionController` lleva `[Authorize]` en la clase y `[AllowAnonymous]` solo en el
+método de entrar: cerrado por defecto, abierto por excepción (D87). Se comprueba con el `grep` del quickstart §5.
+
 ## 8. Dos decisiones del front del profesor que aquí son distintas, y por qué
 
 El front del profesor es **Blazor Server**; el nuestro es **Razor Pages**. Dos de sus decisiones dependen de eso:

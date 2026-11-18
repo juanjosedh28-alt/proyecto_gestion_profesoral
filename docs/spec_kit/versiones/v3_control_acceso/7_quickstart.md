@@ -83,9 +83,9 @@ docker compose exec sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U s
 1. Abra http://localhost:8010 → lo lleva a **Iniciar sesión**.
 2. Entre como **consulta**: el menú NO tiene «Administración»; las tablas se ven sin «Nuevo», «Editar» ni «Retirar» y
    arriba sale «modo consulta» (CA-V3-08 y 11).
-3. **CA-V3-09:** escriba a mano `http://localhost:8010/Usuarios` → «No tiene permiso» (código 403), con el menú, el
-   aviso de la API «Su rol no tiene permiso para esta operación», la línea «permiso requerido: interfaz.usuarios» y
-   **cero datos**. La página no revisa nada: le pidió la lista a la API y fue la API la que respondió 403. Lo mismo con
+3. **CA-V3-09:** escriba a mano `http://localhost:8010/Usuarios` → «No tiene permiso», con el menú, el aviso de la API
+   «Su rol no tiene permiso para esta operación», la línea «permiso requerido: interfaz.usuarios» y **cero datos**. La
+   respuesta es un **403** de verdad: se ve con F12 → Red; en la pantalla no sale ningún número (D88). La página no revisa nada: le pidió la lista a la API y fue la API la que respondió 403. Lo mismo con
    `/Roles`, `/Roles/Crear` y `/Permisos`.
 4. Abra otra ventana **de incógnito**, entre como **admin** → Administración → **Permisos por rol** → elija **Consulta**
    → **Quitar** en `interfaz.redes`.
@@ -111,6 +111,9 @@ grep -n "sp_verificar_acceso_ruta" api_gestion/Repositorios/RepositorioAcceso.cs
 
 # Cada controlador del módulo exige permiso para entrar y para escribir
 grep -c "ExigePermiso" api_gestion/Controllers/*.cs
+
+# Ninguna clase con [AllowAnonymous]: todos deben dar 0 (solo el método de entrar lo lleva, D87)
+grep -c "^\[AllowAnonymous\]" api_gestion/Controllers/*.cs
 ```
 
 ---

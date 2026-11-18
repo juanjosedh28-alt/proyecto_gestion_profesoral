@@ -93,6 +93,7 @@ Revisó: ______________________  Fecha: ____/____/________
 - [ ] Está escrito por qué aquí **sí** se usa un `DelegatingHandler`, que el plan del profesor evita en Blazor
       (`3_plan.md` §8).
 - [ ] Está escrito por qué el `@rendermode` **no aplica**: el front es Razor Pages (`3_plan.md` §8).
+- [ ] Ninguna clase lleva `[AllowAnonymous]`: solo el método de entrar (D87; `grep` del quickstart §5 en 0).
 
 ### F. Las tareas son verificables
 

@@ -63,4 +63,7 @@
 - [x] T9.8 Spec kit: los cinco tropiezos, el `DelegatingHandler`, lo que queda fuera (`3_plan.md` §7 a §9); direcciones
       abiertas y matriz de roles (`6_contracts.md`); la lista A a G del profesor (`9_checklist.md`); «Si algo falla»
       (`7_quickstart.md` §7)
-- [ ] T9.9 Docker + colección v3 completa + quickstart §4 en el navegador (Nicolás)
+- [x] T9.9 `SesionController`: `[Authorize]` en la clase y `[AllowAnonymous]` solo en el método (D87)
+- [x] T9.10 Sin números de error ni jerga en pantalla (D88)
+- [x] T9.11 La API (sin los 5 archivos que dependen de paquetes NuGet) compilada en el entorno de la IA: 0 errores
+- [ ] T9.12 Docker + colección v3 completa + quickstart §4 en el navegador (Nicolás)
