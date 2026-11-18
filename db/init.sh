@@ -11,6 +11,8 @@
 #      disparadores). Es idempotente: se puede correr las veces que sea.
 #   4. SIEMPRE aplica v3_control_acceso.sql (control de acceso), también
 #      idempotente.
+#   5. SIEMPRE aplica datos_demo.sql: datos de ejemplo en las 15 tablas que
+#      venían vacías. Solo inserta lo que falta, así que no duplica nada.
 #
 # Opciones de sqlcmd:
 #   -b        si el script falla, sqlcmd termina con error y el contenedor
@@ -48,5 +50,9 @@ ejecutar_sql -d gestion_local -i /scripts/v2_procedimientos.sql
 #    si falta, así que un permiso que el administrador quitó no vuelve.
 echo "Aplicando el control de acceso (v3)..."
 ejecutar_sql -d gestion_local -i /scripts/v3_control_acceso.sql
+
+# 5. Datos de ejemplo (docentes, estudios, programas, redes...). Idempotente.
+echo "Cargando datos de ejemplo..."
+ejecutar_sql -d gestion_local -i /scripts/datos_demo.sql
 
 echo "Inicialización completada con éxito."
