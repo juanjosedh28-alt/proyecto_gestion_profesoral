@@ -58,6 +58,6 @@ else if (Model.RolId is not null)
     </div>
     <p class="small text-muted">
         El cambio surte efecto en la <strong>siguiente acción</strong> de los usuarios de este rol, sin que tengan que volver a iniciar sesión:
-        la API revisa el permiso en la base en cada petición (el token solo dice quién es, no qué puede hacer).
+        el permiso se revisa en cada acción, no solo al entrar.
     </p>
 }

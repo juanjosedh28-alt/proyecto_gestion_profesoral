@@ -7,7 +7,8 @@ namespace front_razor.Pages;
 
 /// <summary>
 /// (v3) Página de error. La muestra UseStatusCodePagesWithReExecute cuando una
-/// respuesta sale con 403 o 404 sin cuerpo, CONSERVANDO el código.
+/// respuesta sale con 403 o 404 sin cuerpo, CONSERVANDO el código HTTP. En la
+/// pantalla no sale ningún número: la persona lee «No tiene permiso», no «403».
 ///
 /// El caso importante es el 403: alguien escribió a mano la dirección de una
 /// pantalla que su rol no puede abrir; la página le pidió los datos a la API,
@@ -41,9 +42,9 @@ public class ErrorModel : PageModel
     /// <summary>La dirección que se había pedido (la que alguien escribió a mano).</summary>
     private string? Direccion => HttpContext.Features.Get<IStatusCodeReExecuteFeature>()?.OriginalPath;
 
-    /// <summary>(403) «La API respondió 403 a /Usuarios · permiso requerido: interfaz.usuarios · no se muestra ningún dato.»</summary>
+    /// <summary>(403) «Dirección pedida: /Usuarios · permiso requerido: interfaz.usuarios · no se muestra ningún dato.»</summary>
     public string Explicacion403 => string.Join(" · ",
-        new[] { "La API respondió 403" + (Direccion is null ? "" : " a " + Direccion) }
+        (Direccion is null ? Array.Empty<string>() : new[] { "Dirección pedida: " + Direccion })
             .Concat(DetalleApi)
             .Append("no se muestra ningún dato."));
 

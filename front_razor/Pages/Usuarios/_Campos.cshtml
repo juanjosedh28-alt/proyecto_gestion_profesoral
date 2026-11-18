@@ -24,7 +24,7 @@
         <label asp-for="Contrasena" class="form-label"></label>
         <input asp-for="Contrasena" class="form-control" autocomplete="new-password" />
         <div class="form-text">
-            @(editando ? "Déjela vacía para no cambiarla." : "Mínimo 8 caracteres.") Se guarda solo su huella (hash bcrypt).
+            @(editando ? "Déjela vacía para no cambiarla." : "Mínimo 8 caracteres.") Se guarda solo su huella: nadie la puede leer, ni siquiera el administrador.
         </div>
         <span asp-validation-for="Contrasena" class="text-danger"></span>
     </div>

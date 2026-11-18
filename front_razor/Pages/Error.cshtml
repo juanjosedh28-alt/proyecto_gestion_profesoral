@@ -2,8 +2,8 @@
 @model front_razor.Pages.ErrorModel
 @{ ViewData["Title"] = Model.Titulo; }
 
+@* El código HTTP (403, 404, 500) va en la respuesta, no en la pantalla: la persona lee palabras, no números. *@
 <div class="text-center py-5">
-    <div class="display-4 text-muted mb-2">@Model.Codigo</div>
     <h1 class="h3">@Model.Titulo</h1>
     <p class="text-muted">@Model.Texto</p>
     @if (Model.Codigo == 403)
