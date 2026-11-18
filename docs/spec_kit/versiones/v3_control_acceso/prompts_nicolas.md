@@ -97,6 +97,18 @@ imprime nada); los nombres de las rutas coinciden en la API, el front y la semil
 verifican con sus contraseñas; `sp_verificar_acceso_ruta` falla cerrado; el token lleva el correo y los nombres de los
 roles (como en el paso 9 de `FLUJO`) y ningún permiso, y la API nunca autoriza con esos roles.
 
+## Prompt 4 — Darle personalidad a la interfaz
+
+> puedes añadirle un poco mas de color a la pagina, esta muy blanco y quisiera como algo mas de personalidad siendo ya
+> esta la ultima entrega
+
+**Resultado:** un archivo de estilos propio, `front_razor/wwwroot/css/tema.css`, que va después de Bootstrap y solo
+cambia la apariencia: barra azul noche con borde dorado, portada de bienvenida con el nombre y el rol, un color por
+grupo de tablas (catálogos, docentes, relaciones, control de acceso) que se repite en las tarjetas de inicio, tablas en
+tarjetas blancas con encabezado oscuro, inicio de sesión y avisos («No tiene permiso») en una tarjeta con ícono, y un
+pie de página. No se tocó ninguna regla: el modo consulta, el menú por rol y los avisos funcionan igual (las 40 pruebas
+del front pasaron otra vez). La imagen corporativa completa es de la v4; esto la adelanta.
+
 ---
 
 ## Lo que hubo que corregir durante la construcción
