@@ -19,6 +19,9 @@ docker compose up -d --build
 docker compose ps -a        # sqlserver-init en «Exited (0)», api y front en «Up»
 ```
 
+La base arranca con **datos de ejemplo** (`db/datos_demo.sql`): 8 docentes inventados con sus estudios, evaluaciones,
+reconocimientos, experiencias, programas, redes e intereses. Sus claves no chocan con las que crea la colección de Postman.
+
 | Qué | Dirección |
 |---|---|
 | Front | http://localhost:8010 |

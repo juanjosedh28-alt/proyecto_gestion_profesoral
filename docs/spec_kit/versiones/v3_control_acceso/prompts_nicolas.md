@@ -122,6 +122,15 @@ Profesoral» en grande y las 16 tablas como un índice (el grupo a la izquierda,
 grupo con su color); el inicio de sesión a dos columnas. Un solo movimiento automático (el titular al cargar, y no se
 mueve si el sistema pide reducir movimiento). Las 40 pruebas del front pasaron otra vez.
 
+## Prompt 6 — Datos de ejemplo
+
+> listo ya esta corriendo, puedes crear algunos datos para que no este tan vacio ?
+
+**Resultado:** `db/datos_demo.sql`, que `db/init.sh` aplica en cada arranque (paso 5). Llena las 15 tablas que venían
+vacías: 8 docentes inventados, 14 estudios, 13 evaluaciones, 7 reconocimientos, 9 experiencias, 5 programas, 5 redes,
+6 líneas, 10 términos, y sus relaciones. Solo inserta lo que falta (no duplica) y sus claves se eligieron para no chocar
+con las de la colección de Postman (que prueba, por ejemplo, que el docente 1 y el programa 1 no existan).
+
 ---
 
 ## Lo que hubo que corregir durante la construcción
