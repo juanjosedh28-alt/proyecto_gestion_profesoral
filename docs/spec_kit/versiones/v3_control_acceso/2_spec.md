@@ -125,14 +125,17 @@ Usa `sp_rutas_permitidas`. **No protege nada**: es para el menú.
 - Sin sesión, cualquier página lleva a `/Sesion/Iniciar` y, al entrar, vuelve a la que se pidió.
 - Si la API responde `401` (sesión vencida), se borra la sesión y se lleva al inicio de sesión con un aviso.
 - «Salir» borra la sesión.
+- Si la API no contesta, el front lo dice en castellano («No se pudo conectar con la API de gestión») y no muestra una
+  página técnica (D83).
 
 ### RF22 — El menú según el rol
 
 - El menú y las tarjetas de inicio se arman con `GET /api/permisos/mios`, que se vuelve a pedir **en cada página** (así un
   permiso quitado desaparece del menú sin volver a entrar).
 - Sin `datos.modificar`: no se muestran «Nuevo», «Editar», «Retirar» ni formularios de escritura, y aparece el aviso «modo consulta».
-- **Ninguna página revisa permisos por su cuenta.** Si alguien escribe una dirección a mano, la API responde `403` y el
-  front muestra la página «No tiene permiso» con código `403`.
+- **Ninguna página revisa permisos por su cuenta.** Si alguien escribe una dirección a mano, la página le pide los datos
+  a la API, la API responde `403` y el front muestra «No tiene permiso» con código `403`: el aviso de la API, el permiso
+  que faltó («permiso requerido: interfaz.usuarios»), la dirección pedida y ningún dato (D84).
 
 ### RF23 — Pantallas de administración
 
