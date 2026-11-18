@@ -45,6 +45,9 @@ public class IniciarModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid) return Page();
+        // Entrar empieza una sesión NUEVA: se olvida la anterior (si había otra pestaña con
+        // sesión), para que su token no viaje en esta petición.
+        SesionUsuario.Cerrar(HttpContext.Session);
         try
         {
             var sesion = await _cliente.IniciarAsync(Formulario.Email.Trim(), Formulario.Contrasena);
@@ -54,8 +57,9 @@ public class IniciarModel : PageModel
             var permisos = await _cliente.MisPermisosAsync();
             SesionUsuario.GuardarRutas(HttpContext.Session, permisos.Rutas);
 
-            // Solo se vuelve a una dirección de ESTE sitio (empieza por "/"), nunca a otro dominio.
-            return Redirect(!string.IsNullOrEmpty(Volver) && Volver.StartsWith('/') && !Volver.StartsWith("//") ? Volver : "/");
+            // Solo se vuelve a una dirección de ESTE sitio, nunca a otro dominio: Url.IsLocalUrl
+            // rechaza «//otro.com» y también «/\otro.com», que el navegador lee como otro sitio.
+            return Redirect(Url.IsLocalUrl(Volver) ? Volver : "/");
         }
         catch (ErrorApiException ex)
         {
