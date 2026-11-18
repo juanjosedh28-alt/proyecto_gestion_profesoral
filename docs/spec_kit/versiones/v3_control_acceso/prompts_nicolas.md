@@ -18,8 +18,9 @@
 2. **La v3 va encima de una v2 que funciona.** Cuando el profesor corrigió la v2, no seguí con la v3 vieja:
    primero se cerró la v2 corregida y después se rehízo la v3 sobre ella (D81), para que la regresión con token
    corra sobre la v2 que se va a entregar.
-3. **Todo se prueba fuera del chat.** La IA no puede compilar ni levantar el proyecto: cada versión la levanté con
-   Docker, revisé los logs y corrí la colección de Postman.
+3. **Todo se prueba fuera del chat.** Cada versión la levanté con Docker, revisé los logs y corrí la colección de
+   Postman. En la revisión final (prompt 3) la IA además compiló el front y lo probó contra una API simulada; la API
+   y la base solo se prueban con Docker.
 4. **Commits propios y pequeños.** Un commit por cambio, en mi rama, con mensajes que dicen qué y por qué.
 
 ---
@@ -66,6 +67,32 @@ verificación con Swagger y Postman, `0_METODOLOGIA.md` y el documento del módu
 | 5 | Los `curl` de la regresión de la v1 ya no servían sin token (criterio 10) | Quickstart §2.1: cómo sacar el token y repetirlos con `Authorization: Bearer` |
 | 6 | La colección v3 venía de la colección v2 anterior | Se regeneró desde la v2 corregida: carpetas 0 a 8 de regresión con token y 9 a 11 de acceso, con pruebas nuevas (Consulta no crea áreas ni retira becas, `/api/login`) |
 | 7 | Las decisiones de la v3 empezaban en D65, el mismo número que usó después la v2 corregida | Se renumeraron D68 a D81 |
+
+## Prompt 3 — Revisión final antes de la sustentación
+
+> estas seguro de que todo esta completo de la parte 3 ? no puede haber errores de igual forma puedes darle una ultima
+> revisada que si este cumpliendo con todo correctamente
+
+**Resultado:** se revisó otra vez todo el código de la v3 (base, API y front) y, además de `CONCEPTOS` y `FLUJO`, se
+comparó contra el **plan**, los **contratos**, el **quickstart** y la **lista de chequeo** de la v3 del profesor. Esta
+vez el front se compiló con .NET 10 en el entorno de la IA (0 advertencias, 0 errores) y se probó contra una API
+simulada con las mismas reglas de acceso; la API y la base se siguen probando con Docker.
+
+| # | Hallazgo | Qué se hizo |
+|---|---|---|
+| 1 | `ClockSkew` estaba en un minuto: un token vencido seguía entrando ese minuto. El plan del profesor lo pide en cero (tropiezo 1) | `ClockSkew = TimeSpan.Zero` (D82) |
+| 2 | Con la API apagada, **todas** las páginas del front daban error 500 con la página técnica: el filtro pide las rutas antes que la página, y su error no lo atendía nadie. En la v2 salía el aviso «No se pudo conectar con la API» | El filtro conserva el menú y deja que la página avise; lo imprevisto lo recoge `UseExceptionHandler` con una página en castellano (D83). Probado: 20 listados con aviso, 12 formularios con la página de error, ninguna página técnica |
+| 3 | La página 403 decía un texto propio, no lo que respondió la API | Muestra el aviso de la API, el permiso que faltó y la dirección pedida, sin datos (D84) |
+| 4 | `/Roles/Crear` escrito a mano por un Editor mostraba el formulario (la página no le pedía nada a la API) | Ahora pide los roles que ya existen: la API responde 403 (D85) |
+| 5 | Volver después de entrar aceptaba `/\otro.com`, que el navegador lee como otro sitio; y con dos pestañas el token viejo viajaba en el inicio de sesión | `Url.IsLocalUrl` y sesión anterior descartada (D86) |
+| 6 | La ruta `interfaz.areas` decía «(consulta)», pero el área tiene CRUD desde la v2 corregida | Semilla corregida, con un `UPDATE` para una base ya sembrada |
+| 7 | Faltaba escribir lo que la lista del profesor pide: los cinco tropiezos, por qué aquí sí hay `DelegatingHandler`, lo que queda fuera, las direcciones abiertas, la matriz de los tres roles | `3_plan.md` §7 a §9, `6_contracts.md`, `9_checklist.md` (secciones A a G), `7_quickstart.md` §7 |
+| 8 | El quickstart decía `docker compose logs api`, pero el servicio se llama `api-gestion` | Corregido |
+
+**Lo que se comprobó y estaba bien:** los 16 controladores del módulo tienen `[Authorize]` y `[ExigePermiso]` en la
+clase, y las 50 acciones que escriben exigen `datos.modificar`; ningún repositorio tiene SQL (criterio 6, el `grep` no
+imprime nada); los nombres de las rutas coinciden en la API, el front y la semilla; los tres hashes de la semilla
+verifican con sus contraseñas; `sp_verificar_acceso_ruta` falla cerrado.
 
 ---
 

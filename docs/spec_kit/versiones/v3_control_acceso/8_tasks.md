@@ -50,3 +50,17 @@
 - [x] T8.5 Colección v3 regenerada desde la colección v2 corregida (carpetas 0 a 8 de regresión, 9 a 11 de acceso)
 - [ ] T8.6 Correr la colección y el quickstart con Docker (Nicolás)
 
+
+## Fase 9 — Revisión final contra la lista del profesor (17 de noviembre)
+- [x] T9.1 `ClockSkew = TimeSpan.Zero`: un token vencido ya no entra (tropiezo 1, D82)
+- [x] T9.2 Con la API apagada el front avisa y no se cae: `FiltroSesion` y `UseExceptionHandler` (D83)
+- [x] T9.3 La página 403 muestra el aviso de la API, el permiso que faltó y la dirección, sin datos (D84)
+- [x] T9.4 «Nuevo rol» le pregunta a la API al abrirse: `/Roles/Crear` a mano también da 403 (D85)
+- [x] T9.5 Inicio de sesión: `Url.IsLocalUrl` y sesión anterior descartada (D86)
+- [x] T9.6 La ruta `interfaz.areas` ya no dice «(consulta)» (también en una base ya sembrada)
+- [x] T9.7 Front compilado con .NET 10 (0 advertencias, 0 errores) y probado contra una API simulada: 401, 403 al
+      escribir la dirección, criterio 7 desde «Permisos por rol», modo consulta, sesión vencida y API apagada
+- [x] T9.8 Spec kit: los cinco tropiezos, el `DelegatingHandler`, lo que queda fuera (`3_plan.md` §7 a §9); direcciones
+      abiertas y matriz de roles (`6_contracts.md`); la lista A a G del profesor (`9_checklist.md`); «Si algo falla»
+      (`7_quickstart.md` §7)
+- [ ] T9.9 Docker + colección v3 completa + quickstart §4 en el navegador (Nicolás)
