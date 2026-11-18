@@ -109,6 +109,19 @@ tarjetas blancas con encabezado oscuro, inicio de sesión y avisos («No tiene p
 pie de página. No se tocó ninguna regla: el modo consulta, el menú por rol y los avisos funcionan igual (las 40 pruebas
 del front pasaron otra vez). La imagen corporativa completa es de la v4; esto la adelanta.
 
+## Prompt 5 — Una referencia visual
+
+> podrias inspirarte en algo como esto ?
+>
+> https://www.awwwards.com/sites/auge-experience
+
+**Resultado:** la página de la referencia no se dejó leer de forma automática; se tomó de Awwwards su paleta (arena,
+paja y oro oliva) y el estilo de esos sitios: tipografía grande en lugar de cajas. Quedó así: fondo arena, texto en tinta
+oliva oscura, resaltado paja; titulares en Bricolage Grotesque y texto en Instrument Sans; en el inicio, «Gestión
+Profesoral» en grande y las 16 tablas como un índice (el grupo a la izquierda, sus tablas numeradas a la derecha, cada
+grupo con su color); el inicio de sesión a dos columnas. Un solo movimiento automático (el titular al cargar, y no se
+mueve si el sistema pide reducir movimiento). Las 40 pruebas del front pasaron otra vez.
+
 ---
 
 ## Lo que hubo que corregir durante la construcción
