@@ -12,8 +12,11 @@ namespace ApiGestion.Controllers;
 /// metodología y el documento del módulo dicen /api/login. Las dos rutas
 /// llegan al MISMO método, así que no hay dos lógicas que mantener.
 ///
-/// [AllowAnonymous]: es el ÚNICO endpoint del módulo que no pide token,
-/// porque quien está entrando todavía no tiene uno.
+/// Cerrado por defecto, abierto por excepción: [Authorize] en la CLASE y
+/// [AllowAnonymous] solo en el MÉTODO de entrar, el único endpoint del módulo
+/// que no pide token (quien entra todavía no tiene uno). Al revés, con
+/// [AllowAnonymous] en la clase, cualquier método que se agregue después
+/// quedaría abierto aunque lleve [Authorize] (el aviso ASP0026).
 ///
 /// Respuestas:
 ///   200 → { token, email, nombre_completo, roles, expira }
@@ -23,13 +26,14 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/sesion")]
-[AllowAnonymous]
+[Authorize]
 public class SesionController : ControllerBase
 {
     private readonly IServicioSesion _servicio;
 
     public SesionController(IServicioSesion servicio) => _servicio = servicio;
 
+    [AllowAnonymous]           // la excepción: quien entra todavía no tiene token
     [HttpPost]
     [HttpPost("/api/login")]   // ruta absoluta: no se le antepone «api/sesion»
     public async Task<ActionResult<Sesion>> Iniciar([FromBody] InicioSesion peticion)
