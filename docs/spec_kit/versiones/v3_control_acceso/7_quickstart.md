@@ -33,7 +33,7 @@ docker compose ps -a        # sqlserver-init en «Exited (0)», api y front en �
 | `editor@gestion.edu.co` | `editor123` | Editor | El módulo, y puede crear, editar y retirar |
 | `consulta@gestion.edu.co` | `consulta123` | Consulta | El módulo, solo para mirar |
 
-**CA-V3-15:** quite `JWT_KEY` del `.env`, `docker compose up -d api` y `docker compose logs api` → dice que falta la clave.
+**CA-V3-15:** quite `JWT_KEY` del `.env`, `docker compose up -d api-gestion` y `docker compose logs api-gestion` → dice que falta la clave.
 Vuelva a ponerla.
 
 ---
@@ -83,14 +83,20 @@ docker compose exec sqlserver /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U s
 1. Abra http://localhost:8010 → lo lleva a **Iniciar sesión**.
 2. Entre como **consulta**: el menú NO tiene «Administración»; las tablas se ven sin «Nuevo», «Editar» ni «Retirar» y
    arriba sale «modo consulta» (CA-V3-08 y 11).
-3. **CA-V3-09:** escriba a mano `http://localhost:8010/Usuarios` → «No tiene permiso» (código 403). La página no
-   revisa nada: fue la API la que respondió 403.
+3. **CA-V3-09:** escriba a mano `http://localhost:8010/Usuarios` → «No tiene permiso» (código 403), con el menú, el
+   aviso de la API «Su rol no tiene permiso para esta operación», la línea «permiso requerido: interfaz.usuarios» y
+   **cero datos**. La página no revisa nada: le pidió la lista a la API y fue la API la que respondió 403. Lo mismo con
+   `/Roles`, `/Roles/Crear` y `/Permisos`.
 4. Abra otra ventana **de incógnito**, entre como **admin** → Administración → **Permisos por rol** → elija **Consulta**
    → **Quitar** en `interfaz.redes`.
 5. **CA-V3-07:** vuelva a la ventana de consulta **sin cerrar sesión** y recargue: «Redes» ya no está en el menú, y si
    escribe `/Redes` a mano → «No tiene permiso». Devuélvale el permiso desde la ventana del admin.
 6. Entre como **editor**: ve el módulo con los botones de escritura, pero no «Administración».
 7. Clic en **Salir** → vuelve a «Iniciar sesión». Escriba `http://localhost:8010/Docentes` → lo lleva a iniciar sesión.
+8. **La API apagada:** con sesión iniciada, `docker compose stop api-gestion` y abra **Programas** → la página sale con
+   el aviso «No se pudo conectar con la API de gestión.». Abra **Estudios realizados → Nuevo** (un formulario que
+   carga la lista de docentes) → página «Sin conexión con la API», en castellano, nunca la página técnica.
+   `docker compose start api-gestion` y todo vuelve.
 
 ---
 
@@ -117,3 +123,19 @@ grep -c "ExigePermiso" api_gestion/Controllers/*.cs
 4. Repita 1 y 2 con **consulta** → `GET /api/usuario` → `403` «Su rol no tiene permiso…».
 5. **Authorize** → **Logout** → `GET /api/usuario` → `401` «Debe iniciar sesión…».
 6. Pegue el token en https://jwt.io: se lee el correo y los roles (está **firmado, no cifrado**), y **no** hay permisos.
+
+---
+
+## 7. Si algo falla
+
+| Síntoma | Qué pasa |
+|---|---|
+| Iniciar sesión responde 401 con las contraseñas de la tabla | La base no tiene los usuarios con hash: `docker compose down -v` y `docker compose up -d --build` |
+| La API arranca y se apaga sola | Falta `JWT_KEY` en el `.env` o tiene menos de 32 caracteres; `docker compose logs api-gestion` lo dice |
+| Todo responde 401, incluso con un token bueno | En Postman/`curl` falta la palabra `Bearer` y el espacio antes del token (en Swagger, al revés: se pega **solo** el token). O en `api_gestion/Program.cs` quedó `UseAuthorization()` antes de `UseAuthentication()`: la autorización no sabe quién pregunta |
+| Todo responde 200, incluso sin token | Faltan `[Authorize]` y la política de respaldo (`FallbackPolicy`) de `api_gestion/Program.cs` (D74) |
+| Un token vencido sigue entrando unos minutos | Falta `ClockSkew = TimeSpan.Zero` (D82) |
+| El 401 llega con el cuerpo vacío | Falta el `OnChallenge` |
+| Un rol sin permiso recibe 200 | Falta `[ExigePermiso]` en ese controlador: `grep -c "ExigePermiso" api_gestion/Controllers/*.cs` |
+| Todo responde 403, incluso el administrador | El nombre de la ruta del atributo no está en la tabla `ruta`: `SELECT nombre FROM ruta` |
+| El front muestra «No se pudo conectar con la API de gestión» | La API está apagada o reiniciando: `docker compose ps -a` y `docker compose logs api-gestion` |
