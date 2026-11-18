@@ -48,8 +48,17 @@ public class FiltroSesion : IAsyncPageFilter
 
         if (HttpMethods.IsGet(contexto.HttpContext.Request.Method))
         {
-            var permisos = await _cliente.MisPermisosAsync();   // 401 aquí = sesión vencida → ManejadorAcceso
-            SesionUsuario.GuardarRutas(sesion, permisos.Rutas);
+            try
+            {
+                var permisos = await _cliente.MisPermisosAsync();   // 401 aquí = sesión vencida → ManejadorAcceso
+                SesionUsuario.GuardarRutas(sesion, permisos.Rutas);
+            }
+            catch (ErrorApiException)
+            {
+                // La API no contestó (apagada o con error): se deja el menú que ya había y la
+                // página sigue; ella misma pide sus datos y muestra «No se pudo conectar con la API».
+                // (La sesión vencida no cae aquí: SesionVencidaException no es ErrorApiException.)
+            }
         }
 
         await siguiente();
