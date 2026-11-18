@@ -2,134 +2,132 @@
    Tema visual de Gestión Profesoral.
    Solo cambia la apariencia: no esconde ni muestra nada (el modo consulta
    sigue en _Layout.cshtml). Va DESPUÉS de Bootstrap para poder ajustarlo.
-   Colores: azul noche (institucional), dorado (acento) y un color por grupo
-   de tablas, el mismo en el menú y en la página de inicio.
+
+   Idea: una página cálida, de arena y paja, con tipografía grande en vez de
+   cajas. Cada grupo de tablas tiene su color, el mismo en todo el sitio.
    ===================================================================== */
 :root {
-    --gp-noche: #16224a;
-    --gp-indigo: #2f3f8f;
-    --gp-dorado: #f2b230;
-    --gp-fondo: #f3f5fb;
-    --gp-texto: #1f2937;
-    --gp-catalogos: #0f8b8d;   /* verde azulado */
-    --gp-docentes: #3b5bdb;    /* azul */
-    --gp-relaciones: #8b5cf6;  /* violeta */
-    --gp-acceso: #e8590c;      /* naranja */
-    --bs-primary: #2f3f8f;
-    --bs-primary-rgb: 47, 63, 143;
-    --bs-link-color: #2f3f8f;
-    --bs-link-hover-color: #16224a;
-    --bs-body-font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --gp-arena: #ede4c8;     /* fondo */
+    --gp-papel: #faf6e9;     /* superficies: tablas, formularios */
+    --gp-paja: #e3cb7a;      /* resaltado */
+    --gp-oliva: #4f5d23;     /* acción principal */
+    --gp-tinta: #22241b;     /* texto */
+    --gp-linea: rgba(34, 36, 27, .16);
+    --gp-catalogos: #4f5d23; /* oliva */
+    --gp-docentes: #2c5552;  /* pino */
+    --gp-relaciones: #8a6420;/* ocre */
+    --gp-acceso: #6a3b57;    /* ciruela */
+    --gp-display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+
+    --bs-body-font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --bs-body-color: var(--gp-tinta);
+    --bs-body-bg: var(--gp-arena);
+    --bs-primary: var(--gp-oliva);
+    --bs-primary-rgb: 79, 93, 35;
+    --bs-link-color: var(--gp-oliva);
+    --bs-link-color-rgb: 79, 93, 35;
+    --bs-link-hover-color: var(--gp-tinta);
+    --bs-border-color: var(--gp-linea);
+    --bs-secondary-color: #5d5b4c;
 }
 
-body {
-    background: var(--gp-fondo);
-    color: var(--gp-texto);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
+body { min-height: 100vh; display: flex; flex-direction: column; }
 main { flex: 1; }
+::selection { background: var(--gp-paja); color: var(--gp-tinta); }
+:focus-visible { outline: 3px solid var(--gp-oliva); outline-offset: 2px; }
 
-/* ---------- Barra superior ---------- */
-.gp-barra {
-    background: linear-gradient(110deg, var(--gp-noche) 0%, var(--gp-indigo) 100%);
-    border-bottom: 4px solid var(--gp-dorado);
-    box-shadow: 0 4px 18px rgba(22, 34, 74, .25);
+h1, h2, h3, .h1, .h2, .h3, .h4 { font-family: var(--gp-display); letter-spacing: -.02em; color: var(--gp-tinta); }
+main h1.h3 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 1.25rem !important; }
+
+/* ---------- Barra superior: arena, con una línea de tinta ---------- */
+.gp-barra { background: var(--gp-arena); border-bottom: 1px solid var(--gp-tinta); }
+.gp-barra .navbar-brand { font-family: var(--gp-display); font-weight: 800; letter-spacing: -.02em; color: var(--gp-tinta); display: flex; align-items: center; gap: .5rem; }
+.gp-barra .navbar-brand .gp-logo { width: 32px; height: 32px; border-radius: 50%; background: var(--gp-tinta); color: var(--gp-paja); display: inline-flex; align-items: center; justify-content: center; }
+.gp-barra .nav-link { color: var(--gp-tinta) !important; font-weight: 500; }
+.gp-barra .nav-link:hover, .gp-barra .nav-link.show { text-decoration: underline; text-decoration-color: var(--gp-oliva); text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.gp-barra .dropdown-menu { background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .25rem; box-shadow: 4px 4px 0 var(--gp-tinta); padding: .35rem; }
+.gp-barra .dropdown-item { border-radius: .2rem; color: var(--gp-tinta); }
+.gp-barra .dropdown-item:hover, .gp-barra .dropdown-item:focus { background: var(--gp-paja); }
+.gp-usuario { gap: .75rem !important; }
+.gp-rol { background: var(--gp-tinta); color: var(--gp-paja); font-weight: 600; border-radius: 999px; padding: .1rem .6rem; font-size: .75rem; margin-left: .25rem; }
+.gp-usuario .btn-outline-light { --bs-btn-color: var(--gp-tinta); --bs-btn-border-color: var(--gp-tinta); --bs-btn-hover-bg: var(--gp-tinta); --bs-btn-hover-color: var(--gp-arena); --bs-btn-hover-border-color: var(--gp-tinta); }
+
+/* ---------- Portada: el nombre del módulo en grande ---------- */
+.gp-portada { padding: 2.5rem 0 3rem; border-bottom: 1px solid var(--gp-tinta); margin-bottom: 1rem; }
+.gp-titular { font-family: var(--gp-display); font-weight: 800; line-height: .86; letter-spacing: -.055em; margin: 0; font-size: clamp(3.5rem, 11vw, 9.5rem); color: var(--gp-tinta); }
+.gp-titular span { display: block; }
+.gp-titular span + span { color: var(--gp-oliva); padding-left: .55em; }
+.gp-saludo { max-width: 46ch; font-size: 1.15rem; margin: 1.75rem 0 0; }
+.gp-saludo strong { background: var(--gp-paja); padding: 0 .25rem; }
+
+/* El único movimiento sin que la persona haga nada: el titular entra al cargar. */
+@media (prefers-reduced-motion: no-preference) {
+    .gp-titular span { animation: gp-entra .9s cubic-bezier(.2, .7, .2, 1) both; }
+    .gp-titular span + span { animation-delay: .12s; }
+    @keyframes gp-entra { from { opacity: 0; transform: translateY(.35em); } to { opacity: 1; transform: none; } }
 }
-.gp-barra .navbar-brand { font-weight: 800; letter-spacing: .3px; display: flex; align-items: center; gap: .5rem; }
-.gp-barra .navbar-brand .gp-logo {
-    width: 34px; height: 34px; border-radius: 10px;
-    background: var(--gp-dorado); color: var(--gp-noche);
-    display: inline-flex; align-items: center; justify-content: center;
-}
-.gp-barra .nav-link { color: rgba(255, 255, 255, .85) !important; font-weight: 500; border-radius: .5rem; }
-.gp-barra .nav-link:hover, .gp-barra .nav-link.show { color: #fff !important; background: rgba(255, 255, 255, .12); }
-.gp-barra .dropdown-menu { border: 0; border-radius: .75rem; box-shadow: 0 12px 30px rgba(22, 34, 74, .18); padding: .4rem; }
-.gp-barra .dropdown-item { border-radius: .5rem; }
-.gp-barra .dropdown-item:hover { background: #eef1fb; color: var(--gp-noche); }
-.gp-usuario { background: rgba(255, 255, 255, .12); border-radius: 999px; padding: .25rem .4rem .25rem .8rem; }
-.gp-rol { background: var(--gp-dorado); color: var(--gp-noche); font-weight: 700; border-radius: 999px; padding: .1rem .55rem; font-size: .75rem; }
 
-/* ---------- Títulos y contenido ---------- */
-main h1, main .h3 { font-weight: 800; color: var(--gp-noche); }
-main > h1, main > .d-flex > h1, main > div > h1.h3 { border-left: 6px solid var(--gp-dorado); padding-left: .65rem; }
-
-.table-responsive, main > form, .gp-panel {
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 6px 20px rgba(22, 34, 74, .07);
-    padding: 1rem 1.25rem;
-}
-.table { margin-bottom: 0; }
-.table thead th {
-    background: var(--gp-noche); color: #fff; font-weight: 600;
-    border: 0; white-space: nowrap;
-}
-.table thead th:first-child { border-top-left-radius: .6rem; }
-.table thead th:last-child { border-top-right-radius: .6rem; }
-.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-striped-bg: #f6f8fd; }
-.table-hover > tbody > tr:hover > *, .table > tbody > tr:hover > * { background-color: #eef2ff; }
-
-.btn { border-radius: .6rem; font-weight: 600; }
-.btn-primary { background: var(--gp-indigo); border-color: var(--gp-indigo); }
-.btn-primary:hover, .btn-primary:focus { background: var(--gp-noche); border-color: var(--gp-noche); }
-.form-control:focus, .form-select:focus { border-color: var(--gp-indigo); box-shadow: 0 0 0 .2rem rgba(47, 63, 143, .18); }
-.alert { border: 0; border-radius: .8rem; box-shadow: 0 3px 10px rgba(0, 0, 0, .04); }
-.alert-info { background: #fff6dd; color: #7a5200; border-left: 5px solid var(--gp-dorado); }
-
-/* ---------- Página de inicio ---------- */
-.gp-portada {
-    background: linear-gradient(120deg, var(--gp-noche), var(--gp-indigo) 60%, #4c63c7);
-    color: #fff; border-radius: 1.25rem; padding: 2rem 2.25rem; margin-bottom: 1.5rem;
-    position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(22, 34, 74, .25);
-}
-.gp-portada::after {   /* círculos dorados de fondo */
-    content: ""; position: absolute; right: -60px; top: -60px; width: 240px; height: 240px;
-    border-radius: 50%; border: 40px solid rgba(242, 178, 48, .25);
-}
-.gp-portada h1 { color: #fff; font-weight: 800; border: 0; padding: 0; }
-.gp-portada p { color: rgba(255, 255, 255, .85); margin: 0; }
-
-.gp-grupo { display: flex; align-items: center; gap: .6rem; margin: 1.75rem 0 1rem; font-weight: 800; color: var(--gp-noche); }
-.gp-grupo .gp-punto { width: 14px; height: 14px; border-radius: 50%; background: var(--gp-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gp-color) 25%, transparent); }
-
+/* ---------- Índice de tablas: grupo a la izquierda, tablas a la derecha ---------- */
+.gp-indice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 1rem 3rem; padding: 2.25rem 0; }
+.gp-indice header h2 { font-size: 1.9rem; font-weight: 800; margin: 0 0 .35rem; color: var(--gp-color); }
+.gp-indice header p { color: var(--bs-secondary-color); margin: 0; max-width: 30ch; }
 .gp-catalogos { --gp-color: var(--gp-catalogos); }
 .gp-docentes { --gp-color: var(--gp-docentes); }
 .gp-relaciones { --gp-color: var(--gp-relaciones); }
 .gp-acceso { --gp-color: var(--gp-acceso); }
 
-.gp-tarjetas .card {
-    border: 0; border-radius: 1rem; border-top: 5px solid var(--gp-color);
-    box-shadow: 0 6px 18px rgba(22, 34, 74, .08);
-    transition: transform .15s ease, box-shadow .15s ease;
+.gp-lista { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--gp-tinta); }
+.gp-lista li { border-bottom: 1px solid var(--gp-linea); }
+.gp-lista a {
+    display: grid; grid-template-columns: 2.5rem 1fr auto; align-items: baseline; gap: 1rem;
+    padding: .85rem .5rem; color: var(--gp-tinta); text-decoration: none;
+    background: linear-gradient(var(--gp-paja), var(--gp-paja)) no-repeat 0 100% / 0 100%;
+    transition: background-size .25s ease;
 }
-.gp-tarjetas .card:hover { transform: translateY(-4px); box-shadow: 0 14px 28px rgba(22, 34, 74, .16); }
-.gp-tarjetas .card h3 { color: var(--gp-noche); font-weight: 700; }
-.gp-tarjetas .card .gp-num {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 8px; margin-right: .45rem;
-    background: color-mix(in srgb, var(--gp-color) 15%, #fff); color: var(--gp-color); font-weight: 800; font-size: .85rem;
+.gp-acceso .gp-lista a { grid-template-columns: 1fr auto; }
+.gp-lista a:hover, .gp-lista a:focus-visible { background-size: 100% 100%; }
+.gp-num { font-family: var(--gp-display); font-weight: 700; color: var(--gp-color); font-variant-numeric: tabular-nums; }
+.gp-nombre { font-family: var(--gp-display); font-weight: 600; font-size: clamp(1.15rem, 2vw, 1.45rem); letter-spacing: -.01em; }
+.gp-nota { color: var(--bs-secondary-color); font-size: .9rem; text-align: right; }
+.gp-maestro .gp-nombre { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; }
+
+@media (max-width: 767.98px) {
+    .gp-indice { grid-template-columns: 1fr; }
+    .gp-lista a { grid-template-columns: 2rem 1fr; }
+    .gp-lista a { row-gap: .1rem; }
+    .gp-nota { grid-column: 2; text-align: left; }
 }
-.gp-tarjetas .card.gp-maestro { background: linear-gradient(135deg, #fff 60%, color-mix(in srgb, var(--gp-color) 10%, #fff)); }
 
-/* ---------- Iniciar sesión ---------- */
-.gp-entrada { max-width: 420px; margin: 2rem auto; background: #fff; border-radius: 1.25rem; overflow: hidden; box-shadow: 0 16px 40px rgba(22, 34, 74, .18); }
-.gp-entrada-cabeza { background: linear-gradient(120deg, var(--gp-noche), var(--gp-indigo)); color: #fff; padding: 1.75rem 2rem; border-bottom: 4px solid var(--gp-dorado); }
-.gp-entrada-cabeza h1 { color: #fff; border: 0; padding: 0; margin: 0; }
-.gp-entrada-cuerpo { padding: 1.75rem 2rem 2rem; }
+/* ---------- Tablas y formularios: papel sobre arena ---------- */
+.table-responsive, main > form, .gp-panel { background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .35rem; padding: 1rem 1.25rem; }
+.table { --bs-table-bg: transparent; margin-bottom: 0; }
+.table thead th { background: transparent; color: var(--gp-tinta); font-family: var(--gp-display); font-weight: 700; border-bottom: 2px solid var(--gp-tinta); white-space: nowrap; }
+.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-striped-bg: rgba(227, 203, 122, .18); }
+.table > tbody > tr:hover > * { background-color: rgba(227, 203, 122, .35); }
+.form-control, .form-select { background-color: #fff; border-color: rgba(34, 36, 27, .35); }
+.form-control:focus, .form-select:focus { background-color: #fff; border-color: var(--gp-oliva); box-shadow: 0 0 0 .2rem rgba(79, 93, 35, .2); }
 
-/* ---------- Páginas de aviso (sin permiso, no encontrada, sin conexión) ---------- */
-.gp-aviso { max-width: 560px; margin: 2rem auto; background: #fff; border-radius: 1.25rem; padding: 2.5rem 2rem; text-align: center; box-shadow: 0 10px 30px rgba(22, 34, 74, .1); }
-.gp-aviso .gp-icono { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; background: #fff1e6; color: var(--gp-acceso); }
+.btn { border-radius: .3rem; font-weight: 600; }
+.btn-primary { --bs-btn-bg: var(--gp-oliva); --bs-btn-border-color: var(--gp-oliva); --bs-btn-hover-bg: var(--gp-tinta); --bs-btn-hover-border-color: var(--gp-tinta); --bs-btn-active-bg: var(--gp-tinta); }
+.btn-outline-primary { --bs-btn-color: var(--gp-oliva); --bs-btn-border-color: var(--gp-oliva); --bs-btn-hover-bg: var(--gp-oliva); --bs-btn-hover-border-color: var(--gp-oliva); --bs-btn-active-bg: var(--gp-tinta); }
+.btn-secondary { --bs-btn-bg: transparent; --bs-btn-color: var(--gp-tinta); --bs-btn-border-color: var(--gp-tinta); --bs-btn-hover-bg: var(--gp-tinta); --bs-btn-hover-border-color: var(--gp-tinta); }
+.badge.bg-success { background: var(--gp-oliva) !important; }
+main code { color: var(--gp-tinta); background: rgba(227, 203, 122, .45); padding: .05rem .35rem; border-radius: .2rem; }
+
+.alert { border-radius: .3rem; border: 1px solid currentColor; }
+.alert-info { background: var(--gp-paja); color: var(--gp-tinta); border-color: var(--gp-tinta); }
+
+/* ---------- Iniciar sesión: el nombre grande a un lado, el formulario al otro ---------- */
+.gp-entrada { display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem; align-items: end; padding: 2rem 0 3rem; }
+.gp-entrada-marca p { max-width: 34ch; font-size: 1.1rem; margin-top: 1.5rem; }
+.gp-entrada-cuerpo { background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .35rem; box-shadow: 8px 8px 0 var(--gp-tinta); padding: 2rem; }
+.gp-entrada-cuerpo h2 { font-weight: 800; margin-bottom: 1.25rem; }
+@media (max-width: 767.98px) { .gp-entrada { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+/* ---------- Avisos: sin permiso, no encontrada, sin conexión ---------- */
+.gp-aviso { max-width: 560px; margin: 2rem auto; background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .35rem; box-shadow: 8px 8px 0 var(--gp-tinta); padding: 2.5rem 2rem; text-align: center; }
+.gp-aviso h1 { font-weight: 800; }
+.gp-aviso .gp-icono { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; background: var(--gp-paja); color: var(--gp-tinta); }
 
 /* ---------- Pie ---------- */
-.gp-pie { background: var(--gp-noche); color: rgba(255, 255, 255, .7); font-size: .85rem; padding: 1rem 0; border-top: 3px solid var(--gp-dorado); }
-
-/* ---------- Ajustes finos ---------- */
-.gp-aviso h1, .gp-entrada-cabeza h1 { border: 0 !important; padding: 0 !important; font-weight: 800; }
-.gp-usuario { border-radius: 1rem; }
-.btn-outline-primary { --bs-btn-color: var(--gp-indigo); --bs-btn-border-color: var(--gp-indigo); --bs-btn-hover-bg: var(--gp-indigo); --bs-btn-hover-border-color: var(--gp-indigo); --bs-btn-active-bg: var(--gp-noche); }
-.badge.bg-success { background: var(--gp-catalogos) !important; }
-
-main code { color: var(--gp-indigo); background: #eef1fb; padding: .1rem .35rem; border-radius: .35rem; }
+.gp-pie { border-top: 1px solid var(--gp-tinta); color: var(--bs-secondary-color); font-size: .85rem; padding: 1.25rem 0; }

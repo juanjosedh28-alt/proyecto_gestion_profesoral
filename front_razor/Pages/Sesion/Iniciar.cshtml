@@ -2,12 +2,14 @@
 @model front_razor.Pages.Sesion.IniciarModel
 @{ ViewData["Title"] = "Iniciar sesión"; }
 
+@* A la izquierda el nombre del módulo en grande; a la derecha, el formulario. *@
 <div class="gp-entrada">
-    <div class="gp-entrada-cabeza">
-        <h1 class="h4">Bienvenido</h1>
-        <div class="small opacity-75">Inicie sesión para entrar a Gestión Profesoral</div>
+    <div class="gp-entrada-marca">
+        <h1 class="gp-titular"><span>Gestión</span><span>Profesoral</span></h1>
+        <p>Docentes, sus estudios, sus redes y sus reconocimientos, en un solo lugar.</p>
     </div>
     <div class="gp-entrada-cuerpo">
+        <h2 class="h4">Iniciar sesión</h2>
         @if (Model.Aviso != null)
         {
             <div class="alert alert-warning">@Model.Aviso</div>
