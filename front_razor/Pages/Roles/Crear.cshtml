@@ -9,6 +9,10 @@
     <button class="btn btn-primary">Guardar</button>
     <a class="btn btn-secondary" asp-page="Index">Cancelar</a>
 </form>
+@if (Model.Existentes.Count > 0)
+{
+    <p class="small text-muted mt-3 mb-1">Ya existen: @string.Join(", ", Model.Existentes.Select(r => r.Nombre)).</p>
+}
+<p class="small text-muted">Un rol nuevo nace sin permisos. Después de crearlo, vaya a «Permisos por rol» para decidir qué puede ver y hacer.</p>
 
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }
-<p class="small text-muted mt-3">Un rol nuevo nace sin permisos. Después de crearlo, vaya a «Permisos por rol» para decidir qué puede ver y hacer.</p>
