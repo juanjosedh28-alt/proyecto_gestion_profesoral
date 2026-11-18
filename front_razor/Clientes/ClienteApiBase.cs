@@ -80,7 +80,7 @@ public abstract class ClienteApiBase
             throw new SesionVencidaException(error?.Mensaje ?? "La sesión venció.");
         // (v3) 403 = la API sabe quién es y su rol no tiene el permiso.
         if (respuesta.StatusCode == System.Net.HttpStatusCode.Forbidden)
-            throw new AccesoDenegadoException(error?.Mensaje ?? "Su rol no tiene permiso para esta operación.");
+            throw new AccesoDenegadoException(error?.Mensaje ?? "Su rol no tiene permiso para esta operación.", error?.Detalle);
         throw new ErrorApiException((int)respuesta.StatusCode, error?.Mensaje is { Length: > 0 } m ? m : "Ocurrió un error inesperado. Intente de nuevo.", error?.Detalle);
     }
 }

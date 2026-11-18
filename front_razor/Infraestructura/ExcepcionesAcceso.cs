@@ -18,8 +18,12 @@ public class SesionVencidaException : Exception
 /// (v3) La API respondió 403: se sabe quién es la persona, y su rol no tiene
 /// permiso. El middleware ManejadorAcceso muestra la página «No tiene permiso»
 /// con código 403. Tampoco hereda de ErrorApiException, por la misma razón.
+/// Lleva el mensaje y el detalle de la API («permiso requerido: interfaz.x»).
 /// </summary>
 public class AccesoDenegadoException : Exception
 {
-    public AccesoDenegadoException(string mensaje) : base(mensaje) { }
+    public List<string> Detalle { get; }
+
+    public AccesoDenegadoException(string mensaje, List<string>? detalle = null) : base(mensaje) =>
+        Detalle = detalle ?? new List<string>();
 }
