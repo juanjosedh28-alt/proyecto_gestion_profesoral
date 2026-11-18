@@ -41,3 +41,85 @@ Revisó: ______________________  Fecha: ____/____/________
 | [ ] | 3 Sin token → 401 | [ ] | 8 Menú según el rol |
 | [ ] | 4 Token alterado → 401 | [ ] | 9 Dirección a mano → 403 |
 | [ ] | 5 Sin permiso → 403, y se explica | [ ] | 10 Regresión v1 y v2 con token |
+
+---
+
+## La lista del profesor (A a G), aplicada a este proyecto
+
+> Son las casillas del `9_checklist.md` de la v3 del profesor. Donde nuestro proyecto es distinto (Razor Pages en vez
+> de Blazor, SQL Server, dos tablas nuevas), la casilla dice dónde está escrita la diferencia.
+
+### A. La especificación está completa
+
+- [ ] No queda ningún `[NECESITA ACLARACIÓN: …]` en `2_spec.md`.
+- [ ] Los **diez** criterios son verificables: cada uno dice qué hacer y qué tiene que pasar (`2_spec.md` §7).
+- [ ] Está escrito **cuál de los diez no se puede simular** (el 9) y por qué (`2_spec.md`, al final de §7).
+
+### B. Los conceptos están entendidos, no solo leídos
+
+- [ ] Se puede explicar la diferencia entre **401 y 403** sin mirar.
+- [ ] Se puede explicar por qué **SHA-256 no sirve** para contraseñas: es **demasiado rápido** (D71).
+- [ ] Se puede explicar qué es el **salt** y qué problema resuelve.
+- [ ] Se puede explicar que un JWT está **firmado y NO cifrado**, y qué significa para lo que lleva adentro.
+- [ ] Se puede explicar por qué **los permisos no van en el token** (D73).
+- [ ] Se puede explicar por qué **esconder una entrada del menú no protege nada**.
+
+### C. El alcance está cerrado
+
+- [ ] Está escrito que la v3 **agrega dos tablas**, `ruta` y `ruta_rol`, y por qué: el módulo no traía tabla de
+      permisos (D68). En el proyecto del profesor ya existían; aquí no.
+- [ ] Está escrito que el CRUD de `usuario`, `rol` y `rol_usuario` llega en esta versión porque el mapa de versiones
+      del módulo lo pone aquí (`2_spec.md` §1).
+- [ ] Está escrito que **un token no se puede revocar**, y que por eso dura 60 minutos (`3_plan.md` §9).
+- [ ] Está escrito qué queda fuera: refrescar el token, recuperar la contraseña, segundo factor, permisos por
+      operación (`3_plan.md` §9).
+
+### D. El contrato es exacto
+
+- [ ] `6_contracts.md` nombra `POST /api/sesion` con su cuerpo (y el alias `/api/login`, D80).
+- [ ] Está dicho que el **401 responde lo mismo** para el correo inexistente y la contraseña equivocada, y por qué (D75).
+- [ ] Están nombradas **las dos** direcciones abiertas, y solo dos: `GET /` (Swagger) y `POST /api/sesion`
+      (`6_contracts.md` §1).
+- [ ] Está la **matriz de los tres roles** contra los recursos (`6_contracts.md` §4.1).
+- [ ] Están el **cuerpo** del 401 y el del 403 (`6_contracts.md` §1).
+
+### E. El plan no anticipa, y nombra los tropiezos
+
+- [ ] Los paquetes nuevos son `Microsoft.AspNetCore.Authentication.JwtBearer` **10.0.0** (la que corresponde a
+      `net10.0`) y `BCrypt.Net-Next` **4.0.3** (aquí no existía antes; en el proyecto del profesor sí). Los dos
+      compilan en Docker.
+- [ ] Están escritos los **cinco tropiezos** y cuáles dejan el sistema menos seguro de lo que parece: 1, 3 y 5
+      (`3_plan.md` §7).
+- [ ] Está escrito por qué aquí **sí** se usa un `DelegatingHandler`, que el plan del profesor evita en Blazor
+      (`3_plan.md` §8).
+- [ ] Está escrito por qué el `@rendermode` **no aplica**: el front es Razor Pages (`3_plan.md` §8).
+
+### F. Las tareas son verificables
+
+- [ ] Cada fase de `8_tasks.md` tiene su verificación (quickstart o colección).
+- [ ] El orden **contraseña → sesión → permiso → interfaz** está justificado (`2_spec.md` §1).
+- [ ] Cada tarea es **un commit** en `rama-nicolas-v3`.
+- [ ] La prueba del **criterio 9 en el navegador** está en la lista (`7_quickstart.md` §4, paso 3).
+
+### G. El entorno está listo
+
+- [ ] La v2 corregida **arranca y su colección pasa**.
+- [ ] Se sabe que la primera vez conviene `docker compose down -v`: borra la base y la vuelve a crear con los usuarios
+      sembrados con hash. (Aquí `db/init.sh` aplica el script de la v3 en cada arranque, pero la semilla de usuarios y
+      de permisos solo entra si no existen.)
+- [ ] `sp_verificar_acceso_ruta` **existe** en la base: se comprobó con
+      `SELECT name FROM sys.procedures WHERE name = 'sp_verificar_acceso_ruta'`, no se supuso.
+- [ ] Las **11 rutas** y los **3 roles** están sembrados: se comprobó con `SELECT nombre FROM ruta` y
+      `SELECT nombre FROM rol`.
+
+---
+
+## Firma
+
+| | |
+|---|---|
+| **Quién revisó** | |
+| **Fecha** | |
+| **Casillas sin marcar, y por qué** | |
+
+> Si queda una casilla sin marcar, se escribe aquí por qué. Una lista con huecos sin explicar es peor que no tenerla.
