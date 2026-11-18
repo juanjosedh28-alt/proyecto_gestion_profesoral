@@ -24,7 +24,7 @@ PERSONA  ──►  ROL  ──►  PERMISO      (RBAC: el permiso se le da al r
 | Ruta | Qué permite | Administrador | Editor | Consulta |
 |---|---|:-:|:-:|:-:|
 | `interfaz.inicio` | Página de inicio | ✔ | ✔ | ✔ |
-| `interfaz.areas` | Áreas de conocimiento (consulta) | ✔ | ✔ | ✔ |
+| `interfaz.areas` | Áreas de conocimiento | ✔ | ✔ | ✔ |
 | `interfaz.terminos` | Términos clave | ✔ | ✔ | ✔ |
 | `interfaz.lineas` | Líneas de investigación | ✔ | ✔ | ✔ |
 | `interfaz.programas` | Programas | ✔ | ✔ | ✔ |

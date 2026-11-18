@@ -83,7 +83,7 @@ GO
 DECLARE @rutas TABLE (nombre VARCHAR(60), descripcion VARCHAR(200));
 INSERT INTO @rutas VALUES
     ('interfaz.inicio',    'Página de inicio'),
-    ('interfaz.areas',     'Áreas de conocimiento (consulta)'),
+    ('interfaz.areas',     'Áreas de conocimiento'),
     ('interfaz.terminos',  'Términos clave'),
     ('interfaz.lineas',    'Líneas de investigación'),
     ('interfaz.programas', 'Programas'),
@@ -99,6 +99,11 @@ INSERT INTO ruta (nombre, descripcion)
 OUTPUT INSERTED.id INTO @nuevas
 SELECT n.nombre, n.descripcion FROM @rutas n
 WHERE NOT EXISTS (SELECT 1 FROM ruta r WHERE r.nombre = n.nombre);
+
+-- La v2 corregida le dio CRUD al área: en una base ya sembrada, la descripción
+-- deja de decir «(consulta)». Solo cambia ese texto exacto (idempotente).
+UPDATE ruta SET descripcion = 'Áreas de conocimiento'
+WHERE nombre = 'interfaz.areas' AND descripcion = 'Áreas de conocimiento (consulta)';
 
 -- Solo si ya había permisos sembrados (si no, lo hace el punto 2.3).
 IF EXISTS (SELECT 1 FROM ruta_rol)
