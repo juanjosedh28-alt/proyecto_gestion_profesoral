@@ -18,6 +18,11 @@
 | **D79** | Protecciones contra quedarse sin administrador en la base | En el servicio de C# | Es una regla de datos: si alguien llama al procedimiento por otro camino, igual se cumple |
 | **D80** | `POST /api/sesion` **y** `POST /api/login` llegan al mismo método (precisa D76) | Elegir uno solo | La guía del profesor (`FLUJO_CONTROL_DE_ACCESO.md`) usa `/api/sesion`; `0_METODOLOGIA.md` §6 y el documento del módulo dicen `/api/login`. Con los dos, cualquiera de las tres fuentes se cumple sin duplicar lógica |
 | **D81** | La v3 se reconstruyó sobre la v2 corregida (17 de noviembre) | Mantenerla sobre la v2 anterior | El profesor corrigió la v2 (todas las tablas en la ventana principal, CRUD del área). La regresión de la v3 tiene que correr sobre esa v2. El menú agrupa las 16 tablas y cada entrada aparece según el rol; las escrituras del área exigen `datos.modificar` |
+| **D82** | `ClockSkew = TimeSpan.Zero` | El valor por defecto (5 minutos) o un minuto | El token lo firma y lo valida el mismo servidor: no hay dos relojes que compensar. Con tolerancia, un token vencido sigue entrando y parece que el código está mal (tropiezo 1 del plan del profesor) |
+| **D83** | Si la API no contesta, el front lo dice y no se cae: `FiltroSesion` conserva el menú y `UseExceptionHandler("/Error")` atiende lo que ninguna página atendió | Un `try/catch` más en cada una de las 65 páginas | La v2 ya mostraba «No se pudo conectar con la API»; la v3 lo había roto, porque el filtro pide las rutas **antes** que la página. Un solo sitio para lo imprevisto, en castellano y sin la página técnica |
+| **D84** | La página 403 muestra el aviso de la API, el permiso que faltó y la dirección pedida, con código HTTP 403 y sin datos | Mostrar la pantalla pedida vacía con un aviso (como el front Blazor del profesor) | La pantalla sí se ejecuta y le pide los datos a la API; lo que se muestra es exactamente lo que la API respondió («Su rol no tiene permiso para esta operación» · «permiso requerido: interfaz.usuarios»). En Razor Pages la respuesta puede llevar el 403 de verdad, y se ve en las herramientas del navegador |
+| **D85** | Toda pantalla de administración le pide algo a la API al abrirse («Nuevo rol» pide los roles que ya existen) | Formulario que se abre sin preguntar | Así cualquier dirección de administración escrita a mano recibe el 403 de la API, también `/Roles/Crear` (criterio 9) |
+| **D86** | Al iniciar sesión: se descarta la sesión anterior y se vuelve solo a direcciones locales (`Url.IsLocalUrl`) | Comparar a mano que empiece por «/» | Con dos pestañas, el token viejo no viaja en el inicio de sesión (un 401 de credenciales no se confunde con una sesión vencida); `Url.IsLocalUrl` también rechaza `/\otro.com`, que el navegador lee como otro sitio |
 
 ## Referencias
 
@@ -28,3 +33,5 @@
 5. NIST SP 800-63B — *Digital Identity Guidelines*, §5.1.1.
 6. OWASP Top Ten 2021 — A01 *Broken Access Control*.
 7. `docs/conceptos/CONCEPTOS_CONTROL_DE_ACCESO.md` y `FLUJO_CONTROL_DE_ACCESO.md` del proyecto del profesor.
+8. `docs/spec_kit/versiones/v3_control_acceso/3_plan.md` del proyecto del profesor: los cinco tropiezos (§5), el
+   `DelegatingHandler` (§4.2) y lo que queda fuera (§6). Aquí: `3_plan.md` §7 a §9.
