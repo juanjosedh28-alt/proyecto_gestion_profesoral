@@ -85,7 +85,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,   // la FIRMA: un token alterado no pasa
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuracionJwt.Key)),
             ValidateLifetime = true,           // un token vencido no pasa
-            ClockSkew = TimeSpan.FromMinutes(1),
+            ClockSkew = TimeSpan.Zero,         // sin tolerancia: por defecto ASP.NET acepta 5 minutos un token ya vencido
             NameClaimType = "name",            // User.Identity.Name = el correo
             RoleClaimType = "role"
         };
