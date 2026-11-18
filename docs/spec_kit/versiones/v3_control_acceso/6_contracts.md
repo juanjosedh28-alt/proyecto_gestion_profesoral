@@ -13,6 +13,19 @@ Cada petición lleva la cabecera `Authorization: Bearer <token>`.
 | `401` `{ "mensaje": "La sesión venció. Inicie sesión de nuevo.", "detalle": [] }` | Token vencido |
 | `403` `{ "mensaje": "Su rol no tiene permiso para esta operación.", "detalle": ["permiso requerido: interfaz.usuarios"] }` | Token válido, rol sin la ruta |
 
+El `detalle` del 403 dice **qué permiso faltó**, a propósito: sin eso, un 403 es una pared sin cartel. El front lo muestra
+tal cual en su página «No tiene permiso».
+
+### Las direcciones ABIERTAS (sin token), y son solo dos
+
+| | Por qué |
+|---|---|
+| `GET /` | Swagger: la documentación de la API (solo en `Development`). Si abre, la API está viva. No es un endpoint de datos |
+| `POST /api/sesion` (y su alias `POST /api/login`, la misma acción, D80) | **No puede exigir lo que todavía no existe:** quien entra todavía no tiene token |
+
+**Todo lo demás exige token:** las 16 tablas de la v1 y la v2, la administración y `GET /api/permisos/mios`. Si alguien
+agrega un controlador y olvida `[Authorize]`, la política de respaldo lo cierra igual (D74).
+
 ## 2. Sesión
 
 ### `POST /api/sesion` (o `POST /api/login`) — sin token
@@ -72,6 +85,28 @@ El token decodificado (cualquiera lo puede leer en jwt.io: está **firmado, no c
 | `/api/programa` | `interfaz.programas` | `datos.modificar` |
 | `/api/red` | `interfaz.redes` | `datos.modificar` |
 | `/api/docente` y las 10 de su detalle | `interfaz.docentes` | `datos.modificar` |
+
+## 4.1 Lo que responde cada rol — la matriz
+
+Con los permisos sembrados (`5_data_model.md` §2). La carpeta **9** de la colección v3 prueba las celdas marcadas con ✓;
+las demás se comprueban igual en Swagger, token por token.
+
+| Petición | Administrador | Editor | Consulta |
+|---|:-:|:-:|:-:|
+| `GET` de las 16 tablas (`/api/programa`, `/api/docente`…) | 200 | 200 | 200 ✓ |
+| `POST` en las 16 tablas | 201 | 201 ✓ | **403** ✓ (`datos.modificar`) |
+| `PUT` (las 14 tablas que lo tienen) | 200 | 200 | **403** (`datos.modificar`) |
+| `DELETE` en las 16 tablas | 204 | 204 ✓ | **403** ✓ (`datos.modificar`) |
+| `GET /api/usuario` | 200 ✓ | **403** ✓ | **403** ✓ |
+| `GET /api/rol` | 200 | **403** | **403** |
+| `GET /api/ruta`, `GET /api/ruta-rol/{rolId}` | 200 | **403** | **403** |
+| `GET /api/permisos/mios` | 200 (11 rutas) ✓ | 200 (8 rutas) | 200 (7 rutas) ✓ |
+
+Y **sin token**, o con uno alterado o vencido, cualquier petición responde **401** antes de llegar al permiso ✓.
+
+> **Editor y Consulta ven lo mismo y se diferencian en una sola ruta** (`datos.modificar`). Y un rol nuevo nace sin
+> ninguna: no es una escalera de «niveles de usuario», es una matriz rol × ruta que el Administrador cambia en
+> «Permisos por rol» — eso es RBAC.
 
 ## 5. Swagger
 
