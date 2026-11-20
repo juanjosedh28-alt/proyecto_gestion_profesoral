@@ -1,3 +1,18 @@
+@using front_razor.Infraestructura
+@{
+    // (v3) El menú se arma con las rutas que la API dijo que esta persona puede
+    // abrir (las refresca FiltroSesion en cada página). Esto es COMODIDAD: no
+    // mostrarle a alguien lo que no va a poder usar. La PROTECCIÓN está en la
+    // API: si escribe la dirección a mano, la API responde 403.
+    var sesion = Context.Session;
+    var conSesion = SesionUsuario.Iniciada(sesion);
+    bool Puede(string ruta) => SesionUsuario.Tiene(sesion, ruta);
+
+    // Sin «datos.modificar» (rol Consulta) se esconden los botones de crear,
+    // editar y retirar. También es comodidad: si alguien manda el formulario
+    // igual, la API responde 403.
+    var soloLectura = conSesion && !Puede("datos.modificar");
+}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,53 +20,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Gestión Profesoral</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" />
+    @* El tema visual (colores, tarjetas, tablas): va después de Bootstrap para ajustarlo. *@
+    <link rel="stylesheet" href="~/css/tema.css" asp-append-version="true" />
+    <style>
+        /* (v3) Modo consulta: se esconden los controles que escriben.
+           El botón «Salir» (clase no-ocultar) y los formularios de solo lectura se respetan. */
+        body.solo-lectura main form[method="post"]:not(.no-ocultar),
+        body.solo-lectura main a[href*="/Crear"],
+        body.solo-lectura main a[href*="/Editar"],
+        body.solo-lectura main [data-agregar] { display: none !important; }
+    </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<body class="@(soloLectura ? "solo-lectura" : "")">
+    <nav class="navbar navbar-expand-lg navbar-light gp-barra mb-4">
         <div class="container">
-            <a class="navbar-brand" href="/">Gestión Profesoral</a>
-            @* Todas las tablas del módulo están en el menú, en tres grupos (las mismas tres secciones de la página de inicio). *@
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Catálogos</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/AreasConocimiento">Áreas de conocimiento</a></li>
-                        <li><a class="dropdown-item" href="/TerminosClave">Términos clave</a></li>
-                        <li><a class="dropdown-item" href="/LineasInvestigacion">Líneas de investigación</a></li>
-                        <li><a class="dropdown-item" href="/Programas">Programas</a></li>
-                        <li><a class="dropdown-item" href="/Redes">Redes</a></li>
+            <a class="navbar-brand" href="/">
+                <span class="gp-logo" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3Zm-6.5 9.7V16c0 1.7 2.9 3.5 6.5 3.5s6.5-1.8 6.5-3.5v-3.3L12 16.3l-6.5-3.6Z"/></svg>
+                </span>
+                Gestión Profesoral
+            </a>
+            @if (conSesion)
+            {
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-label="Menú">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="menu">
+                    <ul class="navbar-nav me-auto">
+                        @* Las 16 tablas en tres grupos (los mismos de la página de inicio). Cada
+                           entrada aparece solo si el rol tiene su ruta. *@
+                        @if (Puede("interfaz.areas") || Puede("interfaz.terminos") || Puede("interfaz.lineas") || Puede("interfaz.programas") || Puede("interfaz.redes"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Catálogos</a>
+                                <ul class="dropdown-menu">
+                                    @if (Puede("interfaz.areas")) { <li><a class="dropdown-item" href="/AreasConocimiento">Áreas de conocimiento</a></li> }
+                                    @if (Puede("interfaz.terminos")) { <li><a class="dropdown-item" href="/TerminosClave">Términos clave</a></li> }
+                                    @if (Puede("interfaz.lineas")) { <li><a class="dropdown-item" href="/LineasInvestigacion">Líneas de investigación</a></li> }
+                                    @if (Puede("interfaz.programas")) { <li><a class="dropdown-item" href="/Programas">Programas</a></li> }
+                                    @if (Puede("interfaz.redes")) { <li><a class="dropdown-item" href="/Redes">Redes</a></li> }
+                                </ul>
+                            </li>
+                        }
+                        @if (Puede("interfaz.docentes"))
+                        {
+                            <li class="nav-item"><a class="nav-link fw-semibold" href="/Docentes">Docentes</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Información del docente</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/EstudiosRealizados">Estudios realizados</a></li>
+                                    <li><a class="dropdown-item" href="/EvaluacionesDocente">Evaluaciones docente</a></li>
+                                    <li><a class="dropdown-item" href="/Reconocimientos">Reconocimientos</a></li>
+                                    <li><a class="dropdown-item" href="/Experiencias">Experiencias</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" href="/ApoyosProfesorales">Apoyo profesoral</a></li>
+                                    <li><a class="dropdown-item" href="/Becas">Becas</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Relaciones</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="/DocentesDepartamentos">Docente — Departamento</a></li>
+                                    <li><a class="dropdown-item" href="/InteresesFuturos">Intereses futuros</a></li>
+                                    <li><a class="dropdown-item" href="/RedesDocentes">Red — Docente</a></li>
+                                    <li><a class="dropdown-item" href="/EstudiosAc">Estudio — Área de conocimiento</a></li>
+                                </ul>
+                            </li>
+                        }
+                        @if (Puede("interfaz.usuarios") || Puede("interfaz.roles") || Puede("interfaz.permisos"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Administración</a>
+                                <ul class="dropdown-menu">
+                                    @if (Puede("interfaz.usuarios")) { <li><a class="dropdown-item" href="/Usuarios">Usuarios</a></li> }
+                                    @if (Puede("interfaz.roles")) { <li><a class="dropdown-item" href="/Roles">Roles</a></li> }
+                                    @if (Puede("interfaz.permisos")) { <li><a class="dropdown-item" href="/Permisos">Permisos por rol</a></li> }
+                                </ul>
+                            </li>
+                        }
                     </ul>
-                </li>
-                <li class="nav-item"><a class="nav-link fw-semibold" href="/Docentes">Docentes</a></li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Información del docente</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/EstudiosRealizados">Estudios realizados</a></li>
-                        <li><a class="dropdown-item" href="/EvaluacionesDocente">Evaluaciones docente</a></li>
-                        <li><a class="dropdown-item" href="/Reconocimientos">Reconocimientos</a></li>
-                        <li><a class="dropdown-item" href="/Experiencias">Experiencias</a></li>
-                        <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="/ApoyosProfesorales">Apoyo profesoral</a></li>
-                        <li><a class="dropdown-item" href="/Becas">Becas</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Relaciones</a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="/DocentesDepartamentos">Docente — Departamento</a></li>
-                        <li><a class="dropdown-item" href="/InteresesFuturos">Intereses futuros</a></li>
-                        <li><a class="dropdown-item" href="/RedesDocentes">Red — Docente</a></li>
-                        <li><a class="dropdown-item" href="/EstudiosAc">Estudio — Área de conocimiento</a></li>
-                    </ul>
-                </li>
-            </ul>
+                    <div class="d-flex align-items-center gap-2 small gp-usuario">
+                        <span title="@SesionUsuario.Email(sesion)">@SesionUsuario.Nombre(sesion) <span class="gp-rol">@SesionUsuario.Roles(sesion)</span></span>
+                        <form method="post" action="/Sesion/Salir" class="no-ocultar m-0">
+                            @Html.AntiForgeryToken()
+                            <button class="btn btn-sm btn-outline-light">Salir</button>
+                        </form>
+                    </div>
+                </div>
+            }
         </div>
     </nav>
     <main class="container pb-5">
+        @if (soloLectura)
+        {
+            <div class="alert alert-info py-2 small">Está en <strong>modo consulta</strong>: puede ver la información, pero no crear, editar ni retirar.</div>
+        }
         @if (TempData["Exito"] is string exito) { <div class="alert alert-success">@exito</div> }
         @if (TempData["Error"] is string error) { <div class="alert alert-danger">@error</div> }
         @RenderBody()
     </main>
+    <footer class="gp-pie">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>Gestión Profesoral</span>
+            <span>Proyecto de Aplicaciones y Servicios Web, 2026</span>
+        </div>
+    </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

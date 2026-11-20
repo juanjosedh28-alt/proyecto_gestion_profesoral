@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -12,6 +14,8 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/reconocimiento")]
+[Authorize]
+[ExigePermiso("interfaz.docentes")]
 public class ReconocimientoController : ControllerBase
 {
     private readonly IServicioReconocimiento _servicio;
@@ -24,6 +28,7 @@ public class ReconocimientoController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Reconocimiento>> Obtener(int id) => Ok(await _servicio.ObtenerAsync(id));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<Reconocimiento>> Crear([FromBody] ReconocimientoCrear peticion)
     {
@@ -31,10 +36,12 @@ public class ReconocimientoController : ControllerBase
         return Created($"/api/reconocimiento/{creado.Id}", creado);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<Reconocimiento>> Reemplazar(int id, [FromBody] ReconocimientoCrear peticion) =>
         Ok(await _servicio.ActualizarAsync(id, peticion));
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Eliminar(int id)
     {
@@ -49,6 +56,7 @@ public class ReconocimientoController : ControllerBase
         Ok(await _servicio.ListarPorDocenteAsync(cedula));
 
     // Varios renglones en UN SOLO envío (una petición, una transacción).
+    [ExigePermiso("datos.modificar")]
     [HttpPost("/api/docente/{cedula:int}/reconocimiento")]
     public async Task<ActionResult<List<Reconocimiento>>> CrearVarios(int cedula, [FromBody] List<ReconocimientoRenglon> peticion)
     {

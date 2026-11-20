@@ -1,0 +1,4818 @@
+{
+  "info": {
+    "name": "Gestión Profesoral — v3 (control de acceso)",
+    "description": "Colección de la versión 3. Primero inicia sesión con los tres roles (carpeta A) y guarda sus tokens. Las carpetas 0 a 8 son la regresión de la v1 y la v2, ahora CON token de administrador (criterio 10). Las carpetas 9 a 11 prueban el control de acceso: 401 sin token o con token alterado, 403 sin permiso, quitar un permiso sin volver a entrar (criterio 7) y la contraseña con bcrypt. Ejecútela en orden con el Runner.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "codigoArea",
+      "value": ""
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8074"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "tokenEditor",
+      "value": ""
+    },
+    {
+      "key": "tokenConsulta",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "A. Iniciar sesión (v3)",
+      "item": [
+        {
+          "name": "Iniciar sesión como administrador — CA-V3-02",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Devuelve un token\", () => pm.expect(r.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"Trae el rol Administrador\", () => pm.expect(r.roles).to.include(\"Administrador\"));",
+                  "pm.test(\"No devuelve la contraseña ni su hash\", () => { pm.expect(r).to.not.have.property(\"password\"); pm.expect(r).to.not.have.property(\"hash\"); pm.expect(r).to.not.have.property(\"contrasena\"); });",
+                  "pm.collectionVariables.set(\"tokenAdmin\", r.token);",
+                  "pm.collectionVariables.set(\"token\", r.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "No lleva token: quien inicia sesión todavía no tiene uno ([AllowAnonymous]).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gestion.edu.co\",\n  \"contrasena\": \"admin123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Iniciar sesión como editor — CA-V3-02",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Devuelve un token\", () => pm.expect(r.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"Trae el rol Editor\", () => pm.expect(r.roles).to.include(\"Editor\"));",
+                  "pm.test(\"No devuelve la contraseña ni su hash\", () => { pm.expect(r).to.not.have.property(\"password\"); pm.expect(r).to.not.have.property(\"hash\"); pm.expect(r).to.not.have.property(\"contrasena\"); });",
+                  "pm.collectionVariables.set(\"tokenEditor\", r.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "No lleva token: quien inicia sesión todavía no tiene uno ([AllowAnonymous]).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"editor@gestion.edu.co\",\n  \"contrasena\": \"editor123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Iniciar sesión como consulta — CA-V3-02",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Devuelve un token\", () => pm.expect(r.token).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"Trae el rol Consulta\", () => pm.expect(r.roles).to.include(\"Consulta\"));",
+                  "pm.test(\"No devuelve la contraseña ni su hash\", () => { pm.expect(r).to.not.have.property(\"password\"); pm.expect(r).to.not.have.property(\"hash\"); pm.expect(r).to.not.have.property(\"contrasena\"); });",
+                  "pm.collectionVariables.set(\"tokenConsulta\", r.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "No lleva token: quien inicia sesión todavía no tiene uno ([AllowAnonymous]).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"consulta@gestion.edu.co\",\n  \"contrasena\": \"consulta123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "También responde en POST /api/login (nombre del documento del módulo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Devuelve un token\", () => pm.expect(pm.response.json().token).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "login"
+              ]
+            },
+            "description": "La guía del profesor usa POST /api/sesion; la metodología y el documento del módulo dicen POST /api/login. Las dos rutas llevan al mismo método.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"consulta@gestion.edu.co\",\n  \"contrasena\": \"consulta123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "FALLA: contraseña equivocada → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);",
+                  "pm.collectionVariables.set(\"mensajeMalo\", pm.response.json().mensaje);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gestion.edu.co\",\n  \"contrasena\": \"noEsLaClave\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "FALLA: correo que no existe → 401 con el MISMO mensaje — CA-V3-02",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"El mensaje es idéntico al de la contraseña equivocada\", () => pm.expect(pm.response.json().mensaje).to.eql(pm.collectionVariables.get(\"mensajeMalo\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "Si dijera «ese correo no existe», le confirmaría a un desconocido qué correos sí existen.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nadie@gestion.edu.co\",\n  \"contrasena\": \"noEsLaClave\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "FALLA: sin contraseña → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gestion.edu.co\",\n  \"contrasena\": \"\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "0. Preparar datos (padres de la v1)",
+      "description": "Crea los padres que necesitan los desplegables de la v2. Las claves son aleatorias para poder correr la colección varias veces.",
+      "item": [
+        {
+          "name": "Generar claves aleatorias",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const n = Math.floor(Math.random() * 800000) + 100000;",
+                  "pm.collectionVariables.set('cedula', n);",
+                  "pm.collectionVariables.set('cedulaSinLinea', n + 1);",
+                  "pm.collectionVariables.set('programaId', n);",
+                  "pm.collectionVariables.set('redId', n);",
+                  "pm.collectionVariables.set('estudio1', n * 10 + 1);",
+                  "pm.collectionVariables.set('estudio2', n * 10 + 2);",
+                  "pm.collectionVariables.set('estudio3', n * 10 + 3);",
+                  "pm.collectionVariables.set('termino', 'IA ' + n);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa"
+              ]
+            },
+            "description": "Solo prepara variables; además comprueba que la API responde."
+          }
+        },
+        {
+          "name": "Crear línea de investigación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('lineaId', pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/linea-investigacion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "linea-investigacion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ingeniería de software\",\n  \"descripcion\": \"Línea de prueba de la colección v2.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear programa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{programaId}},\n  \"nombre\": \"Ingeniería de Sistemas\",\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2000-01-15\",\n  \"fecha_cierre\": null,\n  \"numero_cohortes\": \"40\",\n  \"cant_graduados\": \"1200\",\n  \"ciudad\": \"Medellín\",\n  \"facultad\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear red",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idr\": {{redId}},\n  \"nombre\": \"Red de prueba\",\n  \"url\": \"https://red.example.org\",\n  \"pais\": \"Colombia\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear término clave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/termino-clave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "termino-clave"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"termino\": \"{{termino}}\",\n  \"termino_ingles\": \"AI\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Docente (maestro)",
+      "description": "CRUD de docente, la clave foránea opcional y los errores que deben dar 409/404.",
+      "item": [
+        {
+          "name": "Crear docente con línea principal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"total_estudios empieza en 0 (no lo envía el cliente)\", () => pm.expect(pm.response.json().total_estudios).to.eql(0));",
+                  "pm.test(\"Trae el nombre de la línea\", () => pm.expect(pm.response.json().linea_investigacion_principal_nombre).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedula}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": {{lineaId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Crear docente SIN línea (opcional = null) — CA-V2-06",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"La línea quedó en null\", () => pm.expect(pm.response.json().linea_investigacion_principal).to.eql(null));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: cédula repetida → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedula}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: línea de investigación inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}}9,\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": 999999\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: correo con formato malo → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}}8,\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"esto-no-es-correo\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar docentes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Es una lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Consultar docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: docente inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "1"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Actualizar docente (el sello de fecha lo pone el disparador)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedula}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora asociada\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": {{lineaId}}\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: cédula de la ruta distinta a la del cuerpo → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cedula\": {{cedulaSinLinea}},\n  \"nombres\": \"Ana\",\n  \"apellidos\": \"Torres Gómez\",\n  \"genero\": \"Femenino\",\n  \"cargo\": \"Profesora titular\",\n  \"fecha_nacimiento\": \"1985-04-12\",\n  \"correo\": \"ana.torres@universidad.edu.co\",\n  \"telefono\": \"3001234567\",\n  \"url_cvlac\": \"https://scienti.minciencias.gov.co/cvlac/1\",\n  \"escalafon\": \"Titular\",\n  \"perfil\": \"Investigadora en ingeniería de software.\",\n  \"cat_minciencia\": null,\n  \"conv_minciencia\": \"Convocatoria 894 de 2021\",\n  \"nacionalidaad\": \"Colombiana\",\n  \"linea_investigacion_principal\": null\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Estudios: envío múltiple y disparador",
+      "description": "Tres renglones en UNA petición; el contador total_estudios lo mantiene trg_contar_estudios.",
+      "item": [
+        {
+          "name": "Agregar 3 estudios en un solo envío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Devuelve las 3 filas guardadas\", () => pm.expect(pm.response.json().length).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": {{estudio1}},\n    \"titulo\": \"Ingeniería de Sistemas\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2008-06-20\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio2}},\n    \"titulo\": \"Maestría en Ingeniería\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2012-12-15\",\n    \"tipo\": \"Maestría\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio3}},\n    \"titulo\": \"Doctorado en Informática\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2018-09-30\",\n    \"tipo\": \"Doctorado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "El disparador contó 3 estudios — CA-V2-04",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"total_estudios = 3 sin que la API lo enviara\", () => pm.expect(pm.response.json().total_estudios).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: id repetido DENTRO del envío → 409 y no se guarda nada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"El mensaje dice el renglón\", () => pm.expect(pm.response.json().mensaje).to.include(\"renglón 2\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": {{estudio1}}7,\n    \"titulo\": \"A\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2001-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio1}}7,\n    \"titulo\": \"B\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2002-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: el renglón 3 tiene una fecha que no existe → 422 (todo o nada)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": {{estudio1}}4,\n    \"titulo\": \"A\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2001-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio1}}5,\n    \"titulo\": \"B\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2002-01-01\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  },\n  {\n    \"id\": {{estudio1}}6,\n    \"titulo\": \"C\",\n    \"universidad\": \"Universidad de Antioquia\",\n    \"fecha\": \"2024-13-45\",\n    \"tipo\": \"Pregrado\",\n    \"ciudad\": \"Medellín\",\n    \"ins_acreditada\": 1,\n    \"metodologia\": \"Presencial\",\n    \"perfil_egresado\": \"Profesional en sistemas.\",\n    \"pais\": \"Colombia\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "Ninguno de esos renglones se guardó",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Sigue en 3\", () => pm.expect(pm.response.json().total_estudios).to.eql(3));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: lista vacía → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: estudio para un docente inexistente → 409 — CA-V2-07",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{estudio1}}9,\n  \"titulo\": \"Huérfano\",\n  \"universidad\": \"Universidad de Antioquia\",\n  \"fecha\": \"2010-01-01\",\n  \"tipo\": \"Pregrado\",\n  \"ciudad\": \"Medellín\",\n  \"ins_acreditada\": 1,\n  \"metodologia\": \"Presencial\",\n  \"perfil_egresado\": \"Profesional en sistemas.\",\n  \"pais\": \"Colombia\",\n  \"docente\": 99\n}"
+            }
+          }
+        },
+        {
+          "name": "Retirar el estudio 3 (es un UPDATE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio3}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio3}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "El disparador también oyó el retiro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"total_estudios bajó a 2\", () => pm.expect(pm.response.json().total_estudios).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "El listado ya no muestra el retirado — CA-V2-10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Quedan 2\", () => pm.expect(pm.response.json().length).to.eql(2));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: consultar el estudio retirado → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio3}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio3}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: retirar un docente con detalle activo → 409 (regla R2) — CA-V2-14",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Evaluaciones, experiencias y reconocimientos",
+      "description": "El resto del detalle directo del docente.",
+      "item": [
+        {
+          "name": "Agregar 2 evaluaciones en un envío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "evaluacion-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"calificacion\": 4.5,\n    \"semestre\": \"2025-2\"\n  },\n  {\n    \"calificacion\": 4.8,\n    \"semestre\": \"2026-1\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: calificación 7 → 422 (regla R4)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evaluacion-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calificacion\": 7,\n  \"semestre\": \"2026-1\",\n  \"docente\": {{cedula}}\n}"
+            }
+          }
+        },
+        {
+          "name": "Agregar experiencia (fecha de fin opcional)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/experiecia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "experiecia"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"nombre_cargo\": \"Docente de cátedra\",\n    \"institucion\": \"ITM\",\n    \"tipo\": \"Docencia\",\n    \"fecha_inicio\": \"2015-02-01\",\n    \"fecha_fin\": null\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "FALLA: fin anterior al inicio → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/experiecia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "experiecia"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"nombre_cargo\": \"Coordinador\",\n    \"institucion\": \"ITM\",\n    \"tipo\": \"Gestión\",\n    \"fecha_inicio\": \"2020-01-01\",\n    \"fecha_fin\": \"2019-01-01\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "Agregar reconocimiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/reconocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "reconocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"tipo\": \"Premio\",\n    \"fecha\": \"2022-11-10\",\n    \"institucion\": \"Minciencias\",\n    \"nombre\": \"Investigadora del año\",\n    \"ambito\": \"Nacional\"\n  }\n]"
+            }
+          }
+        },
+        {
+          "name": "Listar evaluaciones del docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "evaluacion-docente"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Tablas puente",
+      "description": "Se asignan y se retiran con sus DOS claves; repetir la pareja da 409 — CA-V2-08.",
+      "item": [
+        {
+          "name": "Asignar programa al docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Trae el nombre del programa\", () => pm.expect(pm.response.json().departamento_nombre).to.eql(\"Ingeniería de Sistemas\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Tiempo completo\",\n  \"modalidad\": \"Presencial\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: repetir la misma pareja → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Tiempo completo\",\n  \"modalidad\": \"Presencial\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: programa inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": 1,\n  \"dedicacion\": \"Cátedra\",\n  \"modalidad\": \"Virtual\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Editar solo los atributos de la pareja",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento/{{cedula}}/{{programaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento",
+                "{{cedula}}",
+                "{{programaId}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Medio tiempo\",\n  \"modalidad\": \"Presencial\",\n  \"fecha_ingreso\": \"2015-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Retirar la pareja (con sus dos claves)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento/{{cedula}}/{{programaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento",
+                "{{cedula}}",
+                "{{programaId}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Volver a asignarla la reactiva (regla R3)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"departamento\": {{programaId}},\n  \"dedicacion\": \"Cátedra\",\n  \"modalidad\": \"Virtual\",\n  \"fecha_ingreso\": \"2016-02-01\",\n  \"fecha_salida\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Asignar red al docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"red\": {{redId}},\n  \"docente\": {{cedula}},\n  \"fecha_inicio\": \"2018-03-10\",\n  \"fecha_fin\": null,\n  \"act_destacadas\": \"Coordinación de eventos.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: repetir la red → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red-docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"red\": {{redId}},\n  \"docente\": {{cedula}},\n  \"fecha_inicio\": \"2018-03-10\",\n  \"fecha_fin\": null,\n  \"act_destacadas\": \"Otra vez.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Agregar interés (puente puro)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"termino_clave\": \"{{termino}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: repetir el interés → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"termino_clave\": \"{{termino}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: término inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente\": {{cedula}},\n  \"termino_clave\": \"no existe zz\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar intereses del docente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Tiene 1\", () => pm.expect(pm.response.json().length).to.eql(1));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/{{cedula}}/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "{{cedula}}",
+                "intereses-futuros"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Detalle del estudio: apoyo, beca y áreas",
+      "description": "apoyo_profesoral y beca son 1:1 con el estudio; estudio_ac es puente puro.",
+      "item": [
+        {
+          "name": "Registrar apoyo profesoral",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/apoyo-profesoral",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apoyo-profesoral"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"con_apoyo\": 1,\n  \"institucion\": \"Colciencias\",\n  \"tipo\": \"Parcial\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: segundo apoyo para el mismo estudio → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/apoyo-profesoral",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apoyo-profesoral"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"con_apoyo\": 1,\n  \"institucion\": \"Otra\",\n  \"tipo\": \"Total\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: beca con fin anterior al inicio → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/beca",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beca"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"tipo\": \"Posgrado\",\n  \"institucion\": \"Fulbright\",\n  \"fecha_inicio\": \"2011-01-01\",\n  \"fecha_fin\": \"2010-01-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Registrar beca",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/beca",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beca"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudios\": {{estudio2}},\n  \"tipo\": \"Posgrado\",\n  \"institucion\": \"Fulbright\",\n  \"fecha_inicio\": \"2010-08-01\",\n  \"fecha_fin\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "Asignar área de conocimiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudio-ac"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudio\": {{estudio2}},\n  \"area_conocimiento\": \"1B01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: área inexistente → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudio-ac"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estudio\": {{estudio2}},\n  \"area_conocimiento\": \"ZZ99\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Listar áreas del estudio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio2}}/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio2}}",
+                "estudio-ac"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: retirar un estudio que tiene apoyo, beca o áreas → 409 (R2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados/{{estudio2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados",
+                "{{estudio2}}"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Errores generales",
+      "description": "Ningún error previsible responde 500.",
+      "item": [
+        {
+          "name": "FALLA: JSON mal escrito → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"cedula\": 1, \"nombres\": "
+            }
+          }
+        },
+        {
+          "name": "FALLA: ruta de un docente inexistente para el detalle → lista vacía",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Lista vacía\", () => pm.expect(pm.response.json()).to.eql([]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente/1/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente",
+                "1",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Área de conocimiento: CRUD completo (desde la v2, criterio 1)",
+      "item": [
+        {
+          "name": "Crear un área de conocimiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const a = pm.response.json();",
+                  "pm.test(\"Devuelve la fila como quedó guardada (código en mayúsculas)\", () => pm.expect(a.id).to.eql(pm.collectionVariables.get(\"codigoArea\").toUpperCase()));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Código al azar (letra Q + 5 cifras) para poder repetir la colección: el código no se reutiliza.",
+                  "pm.collectionVariables.set(\"codigoArea\", \"q\" + (Math.floor(Math.random() * 90000) + 10000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{codigoArea}}\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Prueba de la colección\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: código repetido → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{codigoArea}}\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Otra\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: código con guion → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"1A-01\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Código inválido\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Editar la disciplina",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Cambió la disciplina\", () => pm.expect(pm.response.json().disciplina).to.eql(\"Prueba editada\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{codigoArea}}\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Prueba editada\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: código de la ruta distinto al del cuerpo → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"1A01\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"No coincide\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Retirar el área (borrado lógico)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: consultar el área retirada → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "El listado ya no la muestra — CA-V2-10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const cod = pm.collectionVariables.get(\"codigoArea\").toUpperCase();",
+                  "pm.test(\"El área retirada no está en el listado\", () => pm.expect(pm.response.json().map(a => a.id)).to.not.include(cod));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Listado de cada tabla (las pantallas propias del menú)",
+      "item": [
+        {
+          "name": "Estudios realizados: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.id))).to.include(String(pm.collectionVariables.get(\"estudio1\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Estudios realizados: el retirado no aparece — CA-V2-10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"No trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.id))).to.not.include(String(pm.collectionVariables.get(\"estudio3\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Evaluaciones docentes: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evaluacion-docente"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Experiencias: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/experiecia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "experiecia"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Reconocimientos: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reconocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reconocimiento"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Apoyos profesorales: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.estudios))).to.include(String(pm.collectionVariables.get(\"estudio2\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/apoyo-profesoral",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apoyo-profesoral"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Becas: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.estudios))).to.include(String(pm.collectionVariables.get(\"estudio2\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/beca",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beca"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Docente — Departamento: todas las vinculaciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Red — Docente: todas las participaciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red-docente"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Intereses futuros: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Estudio — Área de conocimiento: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.estudio))).to.include(String(pm.collectionVariables.get(\"estudio2\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudio-ac"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Control de acceso (v3)",
+      "item": [
+        {
+          "name": "Mis permisos como administrador (arma el menú)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"Tiene interfaz.usuarios\", () => pm.expect(r.rutas).to.include(\"interfaz.usuarios\"));",
+                  "pm.test(\"Tiene datos.modificar\", () => pm.expect(r.rutas).to.include(\"datos.modificar\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/permisos/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permisos",
+                "mios"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mis permisos como consulta: sin administración ni escritura — CA-V3-08",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test(\"NO tiene interfaz.usuarios\", () => pm.expect(r.rutas).to.not.include(\"interfaz.usuarios\"));",
+                  "pm.test(\"NO tiene datos.modificar\", () => pm.expect(r.rutas).to.not.include(\"datos.modificar\"));",
+                  "pm.test(\"Sí tiene interfaz.docentes\", () => pm.expect(r.rutas).to.include(\"interfaz.docentes\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/permisos/mios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "permisos",
+                "mios"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: listar usuarios SIN token → 401 — CA-V3-03",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "FALLA: listar programas SIN token → 401 — CA-V3-03",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "FALLA: token ALTERADO → 401 — CA-V3-04",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Toma el token de CONSULTA y le cambia el correo por el del administrador,",
+                  "// sin poder firmarlo de nuevo (no conoce la clave). Si la API no revisara la firma, entraría como admin.",
+                  "const [h, p, s] = pm.collectionVariables.get(\"tokenConsulta\").split(\".\");",
+                  "let b64 = p.replace(/-/g, \"+\").replace(/_/g, \"/\"); while (b64.length % 4) b64 += \"=\";",
+                  "const datos = JSON.parse(CryptoJS.enc.Base64.parse(b64).toString(CryptoJS.enc.Utf8));",
+                  "datos.name = \"admin@gestion.edu.co\"; datos.sub = \"admin@gestion.edu.co\";",
+                  "const nuevo = CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(JSON.stringify(datos))).replace(/\\+/g, \"-\").replace(/\\//g, \"_\").replace(/=+$/, \"\");",
+                  "pm.collectionVariables.set(\"tokenAlterado\", h + \".\" + nuevo + \".\" + s);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "El token de consulta con el correo cambiado por el del administrador. La firma ya no coincide.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAlterado}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: algo que no es un token → 401 — CA-V3-04",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"tokenBasura\", \"esto.no.esuntoken\");"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenBasura}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: consulta abre /api/usuario «a mano» → 403 — CA-V3-05 y CA-V3-09",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);",
+                  "pm.test(\"No trae datos de usuarios\", () => pm.expect(pm.response.json()).to.not.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "401 = no sé quién es usted. 403 = sé quién es (el token es válido) y su rol no puede. El menú no le muestra Usuarios, pero la protección está aquí, en la API.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consulta SÍ puede leer docentes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: consulta intenta CREAR un programa → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"programaConsulta\", Math.floor(Math.random() * 800000) + 100000);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa"
+              ]
+            },
+            "description": "Consulta tiene interfaz.programas pero no datos.modificar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{programaConsulta}},\n  \"nombre\": \"Programa de prueba v3\",\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2010-01-15\",\n  \"fecha_cierre\": null,\n  \"numero_cohortes\": \"10\",\n  \"cant_graduados\": \"100\",\n  \"ciudad\": \"Medellín\",\n  \"facultad\": 1\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: consulta intenta crear un área de conocimiento → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": "Las áreas también exigen datos.modificar para escribir desde la v3.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"Q99999\",\n  \"gran_area\": \"Prueba\",\n  \"area\": \"Prueba\",\n  \"disciplina\": \"Prueba\"\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Consulta SÍ ve la pantalla propia de estudios (lista completa)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: consulta intenta retirar una beca → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/beca/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beca",
+                "1"
+              ]
+            },
+            "description": "Ni siquiera llega a buscar la beca: el filtro corta antes (403, no 404).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: editor abre /api/usuario → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEditor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editor SÍ puede crear un programa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"programaEditor\", Math.floor(Math.random() * 800000) + 100000);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{programaEditor}},\n  \"nombre\": \"Programa de prueba v3\",\n  \"tipo\": \"Pregrado\",\n  \"nivel\": \"Profesional\",\n  \"fecha_creacion\": \"2010-01-15\",\n  \"fecha_cierre\": null,\n  \"numero_cohortes\": \"10\",\n  \"cant_graduados\": \"100\",\n  \"ciudad\": \"Medellín\",\n  \"facultad\": 1\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEditor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Editor SÍ puede borrar ese programa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 2xx\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/programa/{{programaEditor}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "programa",
+                "{{programaEditor}}"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenEditor}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar usuarios como administrador: sin contraseña — CA-V3-01 (RF15)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Hay usuarios\", () => pm.expect(lista.length).to.be.above(0));",
+                  "pm.test(\"Ninguno trae password, hash ni contrasena\", () => lista.forEach(u => { pm.expect(u).to.not.have.property(\"password\"); pm.expect(u).to.not.have.property(\"hash\"); pm.expect(u).to.not.have.property(\"contrasena\"); }));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Quitar un permiso surte efecto SIN volver a iniciar sesión — CA-V3-07",
+      "item": [
+        {
+          "name": "Antes: consulta lee redes → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar el id del rol Consulta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const rol = pm.response.json().find(r => r.nombre === \"Consulta\");",
+                  "pm.test(\"Existe el rol Consulta\", () => pm.expect(rol).to.not.be.undefined);",
+                  "pm.collectionVariables.set(\"rolConsulta\", rol.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rol"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Buscar el id de la ruta interfaz.redes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const ruta = pm.response.json().find(r => r.nombre === \"interfaz.redes\");",
+                  "pm.test(\"Existe la ruta interfaz.redes\", () => pm.expect(ruta).to.not.be.undefined);",
+                  "pm.collectionVariables.set(\"rutaRedes\", ruta.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ruta",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ruta"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "El administrador le QUITA interfaz.redes al rol Consulta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ruta-rol/{{rutaRedes}}/{{rolConsulta}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ruta-rol",
+                "{{rutaRedes}}",
+                "{{rolConsulta}}"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: el MISMO token de consulta, sin volver a entrar → 403",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red"
+              ]
+            },
+            "description": "El token no cambió: dice lo mismo que hace un minuto. Lo que cambió es la base de datos, y la API la consulta en cada petición (sp_verificar_acceso_ruta).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "El administrador se lo DEVUELVE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ruta-rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ruta-rol"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ruta_id\": {{rutaRedes}},\n  \"rol_id\": {{rolConsulta}}\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Después: consulta vuelve a leer redes → 200",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenConsulta}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Administración de usuarios (contraseña con bcrypt)",
+      "item": [
+        {
+          "name": "Crear un usuario con rol Consulta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const u = pm.response.json();",
+                  "pm.test(\"No devuelve la contraseña\", () => { pm.expect(u).to.not.have.property(\"password\"); pm.expect(u).to.not.have.property(\"contrasena\"); });",
+                  "pm.collectionVariables.set(\"usuarioNuevo\", u.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set(\"sufijo\", Math.floor(Math.random() * 800000) + 100000);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"prueba{{sufijo}}\",\n  \"email\": \"prueba{{sufijo}}@gestion.edu.co\",\n  \"nombre_completo\": \"Usuario de prueba\",\n  \"contrasena\": \"clave12345\",\n  \"rol_ids\": [{{rolConsulta}}]\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: crear sin contraseña → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"otro{{sufijo}}\",\n  \"email\": \"otro{{sufijo}}@gestion.edu.co\",\n  \"contrasena\": \"\",\n  \"rol_ids\": [{{rolConsulta}}]\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: correo repetido → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"copia{{sufijo}}\",\n  \"email\": \"prueba{{sufijo}}@gestion.edu.co\",\n  \"contrasena\": \"clave12345\",\n  \"rol_ids\": [{{rolConsulta}}]\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "El usuario nuevo inicia sesión (la API comparó contra el hash)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"prueba{{sufijo}}@gestion.edu.co\",\n  \"contrasena\": \"clave12345\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Editar SIN contraseña: la clave no cambia (RF15)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 2xx\", () => pm.expect(pm.response.code).to.be.within(200, 299));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario/{{usuarioNuevo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario",
+                "{{usuarioNuevo}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"prueba{{sufijo}}\",\n  \"email\": \"prueba{{sufijo}}@gestion.edu.co\",\n  \"nombre_completo\": \"Usuario de prueba editado\",\n  \"contrasena\": \"\",\n  \"rol_ids\": [{{rolConsulta}}]\n}"
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sigue entrando con la MISMA contraseña",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"prueba{{sufijo}}@gestion.edu.co\",\n  \"contrasena\": \"clave12345\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Retirar el usuario",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/usuario/{{usuarioNuevo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuario",
+                "{{usuarioNuevo}}"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: el usuario retirado ya no entra → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesion"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"prueba{{sufijo}}@gestion.edu.co\",\n  \"contrasena\": \"clave12345\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Buscar el id del rol Administrador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const rol = pm.response.json().find(r => r.nombre === \"Administrador\");",
+                  "pm.collectionVariables.set(\"rolAdmin\", rol.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/rol",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rol"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "FALLA: eliminar el rol Administrador → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/rol/{{rolAdmin}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rol",
+                "{{rolAdmin}}"
+              ]
+            },
+            "description": "Protección: nadie puede dejar el sistema sin administrador.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

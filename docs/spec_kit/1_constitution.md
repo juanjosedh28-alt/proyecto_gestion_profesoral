@@ -216,3 +216,43 @@ commits de lo que entrega y registra sus prompts, con lo que tuvo que corregirle
 
 Al cerrar la v2 se vuelven a correr los criterios de la v1. Los ajustes a código de la v1 que la v2 necesite
 (por ejemplo, pasar sus repositorios a procedimientos) se hacen en la v2 y quedan escritos en su spec.
+
+---
+
+# Enmiendas de la versión 3
+
+> Igual que las de la v2: no reemplazan la constitución, la corrigen donde la v3 lo exige
+> (`docs/conceptos/CONCEPTOS_CONTROL_DE_ACCESO.md` y `FLUJO_CONTROL_DE_ACCESO.md` del proyecto del profesor).
+> Fecha: noviembre de 2026.
+
+## Enmienda al Artículo 8 — La contraseña nunca en claro
+
+- La columna `usuario.password` guarda **solo el hash bcrypt** (costo 12, con salt). Ninguna fila tiene texto legible.
+- La API convierte la contraseña en hash **antes** de mandarla al procedimiento: la base nunca la ve.
+- Ni la contraseña ni el hash salen en un JSON. Las vistas y procedimientos de listado no traen esa columna.
+- La clave de firma del token (`JWT_KEY`, 32 caracteres o más) vive en `.env`, igual que la contraseña de `sa`.
+
+## Artículo 18 — Sin token no se entra
+
+Toda ruta de la API exige un token válido (política de respaldo `RequireAuthenticatedUser`), **menos**
+`POST /api/sesion` (y su alias `POST /api/login`), que no puede exigir lo que todavía no existe. Sin token o con token vencido o alterado → `401`.
+Token válido pero el rol no puede → `403`. Los dos con el formato `{ mensaje, detalle }` del Artículo 9.
+
+## Artículo 19 — El permiso se consulta cuando se usa
+
+- El token dice **quién es** (correo y roles), **nunca qué puede hacer**.
+- Cada controlador lleva `[ExigePermiso("<ruta>")]`, que en **cada** petición llama a `sp_verificar_acceso_ruta`.
+  No hay un `JOIN` de permisos escrito en C#.
+- Por eso quitarle un permiso a un rol surte efecto en la siguiente petición, sin volver a iniciar sesión.
+
+## Artículo 20 — El menú es comodidad, la API es la protección
+
+El front arma el menú con `GET /api/permisos/mios` y esconde los botones de escritura a quien no tiene
+`datos.modificar`, pero **ninguna página revisa permisos por su cuenta**: si alguien escribe la dirección a mano,
+la API responde `403` y el front muestra «No tiene permiso».
+
+## Artículo 21 — Nadie se queda por fuera
+
+La base impide dejar el sistema sin administrador: no se retira el último administrador activo, no se elimina ni se
+renombra el rol Administrador y a ese rol no se le quitan `interfaz.usuarios`, `interfaz.roles` ni `interfaz.permisos`.
+Un usuario tampoco puede retirarse a sí mismo.

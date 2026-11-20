@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -12,6 +14,8 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/beca")]
+[Authorize]
+[ExigePermiso("interfaz.docentes")]
 public class BecaController : ControllerBase
 {
     private readonly IServicioBeca _servicio;
@@ -24,6 +28,7 @@ public class BecaController : ControllerBase
     [HttpGet("{estudios:int}")]
     public async Task<ActionResult<Beca>> Obtener(int estudios) => Ok(await _servicio.ObtenerAsync(estudios));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<Beca>> Crear([FromBody] BecaCrear peticion)
     {
@@ -31,10 +36,12 @@ public class BecaController : ControllerBase
         return Created($"/api/beca/{creado.Estudios}", creado);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpPut("{estudios:int}")]
     public async Task<ActionResult<Beca>> Reemplazar(int estudios, [FromBody] BecaCrear peticion) =>
         Ok(await _servicio.ActualizarAsync(estudios, peticion));
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{estudios:int}")]
     public async Task<IActionResult> Eliminar(int estudios)
     {

@@ -1,0 +1,43 @@
+@model front_razor.Modelos.UsuarioFormulario
+@{
+    var roles = ViewData["Roles"] as List<RolVista> ?? new();
+    var editando = ViewData["Editando"] is true;
+}
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" type="email" autocomplete="off" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="NombreCompleto" class="form-label"></label>
+        <input asp-for="NombreCompleto" class="form-control" />
+        <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Contrasena" class="form-label"></label>
+        <input asp-for="Contrasena" class="form-control" autocomplete="new-password" />
+        <div class="form-text">
+            @(editando ? "Déjela vacía para no cambiarla." : "Mínimo 8 caracteres.") Se guarda solo su huella: nadie la puede leer, ni siquiera el administrador.
+        </div>
+        <span asp-validation-for="Contrasena" class="text-danger"></span>
+    </div>
+    <div class="col-md-8 mb-3">
+        <label class="form-label d-block">Roles</label>
+        @* Los roles salen de la API (GET /api/rol). Se marcan con casillas: se envían sus ids. *@
+        @foreach (var r in roles)
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="RolIds" value="@r.Id" id="rol-@r.Id"
+                       checked="@Model.RolIds.Contains(r.Id)" />
+                <label class="form-check-label" for="rol-@r.Id" title="@r.Descripcion">@r.Nombre</label>
+            </div>
+        }
+    </div>
+</div>

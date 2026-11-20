@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -12,6 +14,8 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/docente")]
+[Authorize]
+[ExigePermiso("interfaz.docentes")]
 public class DocenteController : ControllerBase
 {
     private readonly IServicioDocente _servicio;
@@ -24,6 +28,7 @@ public class DocenteController : ControllerBase
     [HttpGet("{cedula:int}")]
     public async Task<ActionResult<Docente>> Obtener(int cedula) => Ok(await _servicio.ObtenerAsync(cedula));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<Docente>> Crear([FromBody] DocenteCrear peticion)
     {
@@ -31,10 +36,12 @@ public class DocenteController : ControllerBase
         return Created($"/api/docente/{creado.Cedula}", creado);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpPut("{cedula:int}")]
     public async Task<ActionResult<Docente>> Reemplazar(int cedula, [FromBody] DocenteCrear peticion) =>
         Ok(await _servicio.ActualizarAsync(cedula, peticion));
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{cedula:int}")]
     public async Task<IActionResult> Eliminar(int cedula)
     {

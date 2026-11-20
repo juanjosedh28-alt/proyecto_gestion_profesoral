@@ -1,0 +1,40 @@
+@page
+@model front_razor.Pages.Roles.IndexModel
+@{ ViewData["Title"] = "Roles"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Roles</h1>
+    <a class="btn btn-primary" asp-page="Crear">Nuevo rol</a>
+</div>
+
+@if (Model.MensajeError != null)
+{
+    <div class="alert alert-danger">@Model.MensajeError</div>
+}
+else
+{
+    <div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead><tr><th>Nombre</th><th>Descripción</th><th>Usuarios activos</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var x in Model.Items)
+        {
+            <tr>
+                <td>@x.Nombre</td>
+                <td>@x.Descripcion</td>
+                <td>@x.TotalUsuarios</td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-secondary" asp-page="/Permisos/Index" asp-route-rolId="@x.Id">Permisos</a>
+                    <a class="btn btn-sm btn-outline-primary" asp-page="Editar" asp-route-id="@x.Id">Editar</a>
+                    <form method="post" asp-page-handler="Eliminar" asp-route-id="@x.Id" class="d-inline"
+                          onsubmit="return confirm('¿Eliminar este rol?')">
+                        <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    </div>
+    <p class="small text-muted">El rol Administrador no se puede eliminar ni renombrar, y un rol con usuarios activos tampoco se puede eliminar: así nadie queda por fuera del sistema.</p>
+}

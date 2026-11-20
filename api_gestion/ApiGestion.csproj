@@ -12,6 +12,11 @@
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <!-- v3: control de acceso -->
+    <!-- BCrypt: el hash lento y con salt de las contraseñas -->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <!-- JwtBearer: valida el token (firma, vencimiento, emisor) en cada petición -->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
   </ItemGroup>
 
 </Project>

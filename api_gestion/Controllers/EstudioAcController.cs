@@ -1,3 +1,5 @@
+using ApiGestion.Autorizacion;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApiGestion.Modelos;
 using ApiGestion.Peticiones;
@@ -13,6 +15,8 @@ namespace ApiGestion.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/estudio-ac")]
+[Authorize]
+[ExigePermiso("interfaz.docentes")]
 public class EstudioAcController : ControllerBase
 {
     private readonly IServicioEstudioAc _servicio;
@@ -25,6 +29,7 @@ public class EstudioAcController : ControllerBase
     [HttpGet("{estudio:int}/{areaConocimiento}")]
     public async Task<ActionResult<EstudioAc>> Obtener(int estudio, string areaConocimiento) => Ok(await _servicio.ObtenerAsync(estudio, areaConocimiento));
 
+    [ExigePermiso("datos.modificar")]
     [HttpPost]
     public async Task<ActionResult<EstudioAc>> Crear([FromBody] EstudioAcCrear peticion)
     {
@@ -32,6 +37,7 @@ public class EstudioAcController : ControllerBase
         return Created($"/api/estudio-ac/{creado.Estudio}/{Uri.EscapeDataString(creado.AreaConocimiento)}", creado);
     }
 
+    [ExigePermiso("datos.modificar")]
     [HttpDelete("{estudio:int}/{areaConocimiento}")]
     public async Task<IActionResult> Eliminar(int estudio, string areaConocimiento)
     {

@@ -1,0 +1,133 @@
+/* =====================================================================
+   Tema visual de Gestión Profesoral.
+   Solo cambia la apariencia: no esconde ni muestra nada (el modo consulta
+   sigue en _Layout.cshtml). Va DESPUÉS de Bootstrap para poder ajustarlo.
+
+   Idea: una página cálida, de arena y paja, con tipografía grande en vez de
+   cajas. Cada grupo de tablas tiene su color, el mismo en todo el sitio.
+   ===================================================================== */
+:root {
+    --gp-arena: #ede4c8;     /* fondo */
+    --gp-papel: #faf6e9;     /* superficies: tablas, formularios */
+    --gp-paja: #e3cb7a;      /* resaltado */
+    --gp-oliva: #4f5d23;     /* acción principal */
+    --gp-tinta: #22241b;     /* texto */
+    --gp-linea: rgba(34, 36, 27, .16);
+    --gp-catalogos: #4f5d23; /* oliva */
+    --gp-docentes: #2c5552;  /* pino */
+    --gp-relaciones: #8a6420;/* ocre */
+    --gp-acceso: #6a3b57;    /* ciruela */
+    --gp-display: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+
+    --bs-body-font-family: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --bs-body-color: var(--gp-tinta);
+    --bs-body-bg: var(--gp-arena);
+    --bs-primary: var(--gp-oliva);
+    --bs-primary-rgb: 79, 93, 35;
+    --bs-link-color: var(--gp-oliva);
+    --bs-link-color-rgb: 79, 93, 35;
+    --bs-link-hover-color: var(--gp-tinta);
+    --bs-border-color: var(--gp-linea);
+    --bs-secondary-color: #5d5b4c;
+}
+
+body { min-height: 100vh; display: flex; flex-direction: column; }
+main { flex: 1; }
+::selection { background: var(--gp-paja); color: var(--gp-tinta); }
+:focus-visible { outline: 3px solid var(--gp-oliva); outline-offset: 2px; }
+
+h1, h2, h3, .h1, .h2, .h3, .h4 { font-family: var(--gp-display); letter-spacing: -.02em; color: var(--gp-tinta); }
+main h1.h3 { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 800; margin-bottom: 1.25rem !important; }
+
+/* ---------- Barra superior: arena, con una línea de tinta ---------- */
+.gp-barra { background: var(--gp-arena); border-bottom: 1px solid var(--gp-tinta); }
+.gp-barra .navbar-brand { font-family: var(--gp-display); font-weight: 800; letter-spacing: -.02em; color: var(--gp-tinta); display: flex; align-items: center; gap: .5rem; }
+.gp-barra .navbar-brand .gp-logo { width: 32px; height: 32px; border-radius: 50%; background: var(--gp-tinta); color: var(--gp-paja); display: inline-flex; align-items: center; justify-content: center; }
+.gp-barra .nav-link { color: var(--gp-tinta) !important; font-weight: 500; }
+.gp-barra .nav-link:hover, .gp-barra .nav-link.show { text-decoration: underline; text-decoration-color: var(--gp-oliva); text-decoration-thickness: 2px; text-underline-offset: 6px; }
+.gp-barra .dropdown-menu { background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .25rem; box-shadow: 4px 4px 0 var(--gp-tinta); padding: .35rem; }
+.gp-barra .dropdown-item { border-radius: .2rem; color: var(--gp-tinta); }
+.gp-barra .dropdown-item:hover, .gp-barra .dropdown-item:focus { background: var(--gp-paja); }
+.gp-usuario { gap: .75rem !important; }
+.gp-rol { background: var(--gp-tinta); color: var(--gp-paja); font-weight: 600; border-radius: 999px; padding: .1rem .6rem; font-size: .75rem; margin-left: .25rem; }
+.gp-usuario .btn-outline-light { --bs-btn-color: var(--gp-tinta); --bs-btn-border-color: var(--gp-tinta); --bs-btn-hover-bg: var(--gp-tinta); --bs-btn-hover-color: var(--gp-arena); --bs-btn-hover-border-color: var(--gp-tinta); }
+
+/* ---------- Portada: el nombre del módulo en grande ---------- */
+.gp-portada { padding: 2.5rem 0 3rem; border-bottom: 1px solid var(--gp-tinta); margin-bottom: 1rem; }
+.gp-titular { font-family: var(--gp-display); font-weight: 800; line-height: .86; letter-spacing: -.055em; margin: 0; font-size: clamp(3.5rem, 11vw, 9.5rem); color: var(--gp-tinta); }
+.gp-titular span { display: block; }
+.gp-titular span + span { color: var(--gp-oliva); padding-left: .55em; }
+.gp-saludo { max-width: 46ch; font-size: 1.15rem; margin: 1.75rem 0 0; }
+.gp-saludo strong { background: var(--gp-paja); padding: 0 .25rem; }
+
+/* El único movimiento sin que la persona haga nada: el titular entra al cargar. */
+@media (prefers-reduced-motion: no-preference) {
+    .gp-titular span { animation: gp-entra .9s cubic-bezier(.2, .7, .2, 1) both; }
+    .gp-titular span + span { animation-delay: .12s; }
+    @keyframes gp-entra { from { opacity: 0; transform: translateY(.35em); } to { opacity: 1; transform: none; } }
+}
+
+/* ---------- Índice de tablas: grupo a la izquierda, tablas a la derecha ---------- */
+.gp-indice { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 1rem 3rem; padding: 2.25rem 0; }
+.gp-indice header h2 { font-size: 1.9rem; font-weight: 800; margin: 0 0 .35rem; color: var(--gp-color); }
+.gp-indice header p { color: var(--bs-secondary-color); margin: 0; max-width: 30ch; }
+.gp-catalogos { --gp-color: var(--gp-catalogos); }
+.gp-docentes { --gp-color: var(--gp-docentes); }
+.gp-relaciones { --gp-color: var(--gp-relaciones); }
+.gp-acceso { --gp-color: var(--gp-acceso); }
+
+.gp-lista { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--gp-tinta); }
+.gp-lista li { border-bottom: 1px solid var(--gp-linea); }
+.gp-lista a {
+    display: grid; grid-template-columns: 2.5rem 1fr auto; align-items: baseline; gap: 1rem;
+    padding: .85rem .5rem; color: var(--gp-tinta); text-decoration: none;
+    background: linear-gradient(var(--gp-paja), var(--gp-paja)) no-repeat 0 100% / 0 100%;
+    transition: background-size .25s ease;
+}
+.gp-acceso .gp-lista a { grid-template-columns: 1fr auto; }
+.gp-lista a:hover, .gp-lista a:focus-visible { background-size: 100% 100%; }
+.gp-num { font-family: var(--gp-display); font-weight: 700; color: var(--gp-color); font-variant-numeric: tabular-nums; }
+.gp-nombre { font-family: var(--gp-display); font-weight: 600; font-size: clamp(1.15rem, 2vw, 1.45rem); letter-spacing: -.01em; }
+.gp-nota { color: var(--bs-secondary-color); font-size: .9rem; text-align: right; }
+.gp-maestro .gp-nombre { font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800; }
+
+@media (max-width: 767.98px) {
+    .gp-indice { grid-template-columns: 1fr; }
+    .gp-lista a { grid-template-columns: 2rem 1fr; }
+    .gp-lista a { row-gap: .1rem; }
+    .gp-nota { grid-column: 2; text-align: left; }
+}
+
+/* ---------- Tablas y formularios: papel sobre arena ---------- */
+.table-responsive, main > form, .gp-panel { background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .35rem; padding: 1rem 1.25rem; }
+.table { --bs-table-bg: transparent; margin-bottom: 0; }
+.table thead th { background: transparent; color: var(--gp-tinta); font-family: var(--gp-display); font-weight: 700; border-bottom: 2px solid var(--gp-tinta); white-space: nowrap; }
+.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-striped-bg: rgba(227, 203, 122, .18); }
+.table > tbody > tr:hover > * { background-color: rgba(227, 203, 122, .35); }
+.form-control, .form-select { background-color: #fff; border-color: rgba(34, 36, 27, .35); }
+.form-control:focus, .form-select:focus { background-color: #fff; border-color: var(--gp-oliva); box-shadow: 0 0 0 .2rem rgba(79, 93, 35, .2); }
+
+.btn { border-radius: .3rem; font-weight: 600; }
+.btn-primary { --bs-btn-bg: var(--gp-oliva); --bs-btn-border-color: var(--gp-oliva); --bs-btn-hover-bg: var(--gp-tinta); --bs-btn-hover-border-color: var(--gp-tinta); --bs-btn-active-bg: var(--gp-tinta); }
+.btn-outline-primary { --bs-btn-color: var(--gp-oliva); --bs-btn-border-color: var(--gp-oliva); --bs-btn-hover-bg: var(--gp-oliva); --bs-btn-hover-border-color: var(--gp-oliva); --bs-btn-active-bg: var(--gp-tinta); }
+.btn-secondary { --bs-btn-bg: transparent; --bs-btn-color: var(--gp-tinta); --bs-btn-border-color: var(--gp-tinta); --bs-btn-hover-bg: var(--gp-tinta); --bs-btn-hover-border-color: var(--gp-tinta); }
+.badge.bg-success { background: var(--gp-oliva) !important; }
+main code { color: var(--gp-tinta); background: rgba(227, 203, 122, .45); padding: .05rem .35rem; border-radius: .2rem; }
+
+.alert { border-radius: .3rem; border: 1px solid currentColor; }
+.alert-info { background: var(--gp-paja); color: var(--gp-tinta); border-color: var(--gp-tinta); }
+
+/* ---------- Iniciar sesión: el nombre grande a un lado, el formulario al otro ---------- */
+.gp-entrada { display: grid; grid-template-columns: 1.3fr 1fr; gap: 3rem; align-items: end; padding: 2rem 0 3rem; }
+.gp-entrada-marca p { max-width: 34ch; font-size: 1.1rem; margin-top: 1.5rem; }
+.gp-entrada-cuerpo { background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .35rem; box-shadow: 8px 8px 0 var(--gp-tinta); padding: 2rem; }
+.gp-entrada-cuerpo h2 { font-weight: 800; margin-bottom: 1.25rem; }
+@media (max-width: 767.98px) { .gp-entrada { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+/* ---------- Avisos: sin permiso, no encontrada, sin conexión ---------- */
+.gp-aviso { max-width: 560px; margin: 2rem auto; background: var(--gp-papel); border: 1px solid var(--gp-tinta); border-radius: .35rem; box-shadow: 8px 8px 0 var(--gp-tinta); padding: 2.5rem 2rem; text-align: center; }
+.gp-aviso h1 { font-weight: 800; }
+.gp-aviso .gp-icono { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; background: var(--gp-paja); color: var(--gp-tinta); }
+
+/* ---------- Pie ---------- */
+.gp-pie { border-top: 1px solid var(--gp-tinta); color: var(--bs-secondary-color); font-size: .85rem; padding: 1.25rem 0; }
