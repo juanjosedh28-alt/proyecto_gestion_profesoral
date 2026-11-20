@@ -6,6 +6,12 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace front_razor.Pages.DocentesDepartamentos;
 
+/// <summary>
+/// Formulario para crear un registro de <c>docente_departamento</c>. La clave foránea (docente y programa (la pareja es la clave))
+/// se elige de un desplegable cargado desde la API: muestra el nombre y manda la clave
+/// (nunca se digita un código). Se manda con POST /api/docente-departamento.
+/// Si la API responde 409 o 422, el mensaje queda en el formulario (ErroresFormulario.Aplicar).
+/// </summary>
 public class CrearModel : PageModel
 {
     private readonly ClienteDocenteDepartamento _cliente;

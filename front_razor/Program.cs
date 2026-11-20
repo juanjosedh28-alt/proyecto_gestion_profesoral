@@ -2,7 +2,24 @@ using front_razor.Clientes;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
+// Los mensajes que pone ASP.NET cuando un dato no se puede convertir (por ejemplo,
+// un desplegable sin elegir en un campo numérico) vienen en inglés: «The value '' is
+// invalid.». Aquí se cambian por mensajes en castellano, para que ninguna pantalla
+// muestre texto técnico ni en otro idioma (criterio 11 de la v2).
+builder.Services.AddRazorPages().AddMvcOptions(o =>
+{
+    var m = o.ModelBindingMessageProvider;
+    m.SetValueMustNotBeNullAccessor(_ => "Este campo es obligatorio.");
+    m.SetMissingBindRequiredValueAccessor(_ => "Este campo es obligatorio.");
+    m.SetMissingKeyOrValueAccessor(() => "Este campo es obligatorio.");
+    m.SetAttemptedValueIsInvalidAccessor((valor, _) => $"El valor «{valor}» no es válido.");
+    m.SetNonPropertyAttemptedValueIsInvalidAccessor(valor => $"El valor «{valor}» no es válido.");
+    m.SetUnknownValueIsInvalidAccessor(_ => "El valor escrito no es válido.");
+    m.SetNonPropertyUnknownValueIsInvalidAccessor(() => "El valor escrito no es válido.");
+    m.SetValueIsInvalidAccessor(valor => $"El valor «{valor}» no es válido.");
+    m.SetValueMustBeANumberAccessor(_ => "Escriba un número.");
+    m.SetNonPropertyValueMustBeANumberAccessor(() => "Escriba un número.");
+});
 
 // El front llama a la API desde el servidor. En Docker: ApiGestion__BaseUrl=http://api-gestion:8074
 var urlApi = builder.Configuration["ApiGestion:BaseUrl"] ?? "http://localhost:8074";

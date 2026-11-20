@@ -3,6 +3,9 @@
 @{ ViewData["Title"] = "Asociar Área a Estudio"; }
 
 <h1 class="h4 mb-3">Asociar Área de Conocimiento a Estudio</h1>
+@* RF14.6: si un desplegable no tiene opciones, se dice en castellano y se enlaza a donde crear la primera. *@
+@if (!Model.Estudios.Any()) { <div class="alert alert-warning">Todavía no hay estudios realizados registrados. <a href="/EstudiosRealizados/Crear">Cree el primero</a> antes de continuar.</div> }
+@if (!Model.Areas.Any()) { <div class="alert alert-warning">Todavía no hay áreas de conocimiento registradas. <a href="/AreasConocimiento">Revise el catálogo</a>.</div> }
 <form method="post" class="col-md-6">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
     <div class="mb-3">

@@ -3,6 +3,8 @@
 @{ ViewData["Title"] = "Nuevo Apoyo Profesoral"; }
 
 <h1 class="h4 mb-3">Registrar Apoyo Profesoral</h1>
+@* RF14.6: si un desplegable no tiene opciones, se dice en castellano y se enlaza a donde crear la primera. *@
+@if (!Model.Estudios.Any()) { <div class="alert alert-warning">Todavía no hay estudios realizados registrados. <a href="/EstudiosRealizados/Crear">Cree el primero</a> antes de continuar.</div> }
 <form method="post" class="col-md-6">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
     <div class="mb-3">
@@ -15,7 +17,7 @@
     </div>
     <div class="mb-3">
         <label class="form-label">¿Con Apoyo?</label>
-        <select asp-for="Formulario.ConApoyo" class="form-select"><option value="1">Sí (1)</option><option value="0">No (0)</option></select>
+        <select asp-for="Formulario.ConApoyo" class="form-select"><option value="1">Sí</option><option value="0">No</option></select>
     </div>
     <div class="mb-3"><label class="form-label">Institución</label><input asp-for="Formulario.Institucion" class="form-control" /><span asp-validation-for="Formulario.Institucion" class="text-danger"></span></div>
     <div class="mb-3"><label class="form-label">Tipo</label><input asp-for="Formulario.Tipo" class="form-control" /><span asp-validation-for="Formulario.Tipo" class="text-danger"></span></div>

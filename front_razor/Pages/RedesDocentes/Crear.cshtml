@@ -3,6 +3,9 @@
 @{ ViewData["Title"] = "Nueva Vinculación Red-Docente"; }
 
 <h1 class="h4 mb-3">Vincular Docente a Red</h1>
+@* RF14.6: si un desplegable no tiene opciones, se dice en castellano y se enlaza a donde crear la primera. *@
+@if (!Model.Redes.Any()) { <div class="alert alert-warning">Todavía no hay redes registradas. <a href="/Redes/Crear">Cree la primera</a> antes de continuar.</div> }
+@if (!Model.Docentes.Any()) { <div class="alert alert-warning">Todavía no hay docentes registrados. <a href="/Docentes/Crear">Cree el primero</a> antes de continuar.</div> }
 <form method="post" class="col-md-6">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
     <div class="mb-3">
@@ -22,7 +25,7 @@
         <span asp-validation-for="Formulario.Docente" class="text-danger"></span>
     </div>
     <div class="mb-3"><label class="form-label">Fecha Inicio</label><input asp-for="Formulario.FechaInicio" type="date" class="form-control" /><span asp-validation-for="Formulario.FechaInicio" class="text-danger"></span></div>
-    <div class="mb-3"><label class="form-label">Fecha Fin (opcional)</label><input asp-for="Formulario.FechaFin" class="form-control" /></div>
+    <div class="mb-3"><label class="form-label">Fecha Fin (opcional)</label><input asp-for="Formulario.FechaFin" type="date" class="form-control" /></div>
     <div class="mb-3"><label class="form-label">Actividades Destacadas</label><textarea asp-for="Formulario.ActDestacadas" class="form-control" rows="3"></textarea><span asp-validation-for="Formulario.ActDestacadas" class="text-danger"></span></div>
     <button class="btn btn-primary">Guardar</button>
     <a class="btn btn-secondary" href="/RedesDocentes">Cancelar</a>

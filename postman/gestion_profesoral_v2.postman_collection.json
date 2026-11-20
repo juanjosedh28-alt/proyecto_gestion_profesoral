@@ -8,6 +8,10 @@
     {
       "key": "baseUrl",
       "value": "http://localhost:8074"
+    },
+    {
+      "key": "codigoArea",
+      "value": ""
     }
   ],
   "item": [
@@ -2163,6 +2167,738 @@
                 "docente",
                 "1",
                 "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Área de conocimiento: CRUD completo (desde la v2, criterio 1)",
+      "item": [
+        {
+          "name": "Crear un área de conocimiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "const a = pm.response.json();",
+                  "pm.test(\"Devuelve la fila como quedó guardada (código en mayúsculas)\", () => pm.expect(a.id).to.eql(pm.collectionVariables.get(\"codigoArea\").toUpperCase()));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Código al azar (letra Q + 5 cifras) para poder repetir la colección: el código no se reutiliza.",
+                  "pm.collectionVariables.set(\"codigoArea\", \"q\" + (Math.floor(Math.random() * 90000) + 10000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{codigoArea}}\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Prueba de la colección\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: código repetido → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{codigoArea}}\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Otra\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: código con guion → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"1A-01\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Código inválido\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Editar la disciplina",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Cambió la disciplina\", () => pm.expect(pm.response.json().disciplina).to.eql(\"Prueba editada\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{codigoArea}}\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"Prueba editada\"\n}"
+            }
+          }
+        },
+        {
+          "name": "FALLA: código de la ruta distinto al del cuerpo → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"1A01\",\n  \"gran_area\": \"Ciencias Naturales\",\n  \"area\": \"Ciencias de la computación\",\n  \"disciplina\": \"No coincide\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Retirar el área (borrado lógico)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "FALLA: consultar el área retirada → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Trae mensaje en castellano\", () => pm.expect(pm.response.json().mensaje).to.be.a(\"string\").and.not.empty);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento/{{codigoArea}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento",
+                "{{codigoArea}}"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "El listado ya no la muestra — CA-V2-10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const cod = pm.collectionVariables.get(\"codigoArea\").toUpperCase();",
+                  "pm.test(\"El área retirada no está en el listado\", () => pm.expect(pm.response.json().map(a => a.id)).to.not.include(cod));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/area-conocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "area-conocimiento"
+              ]
+            },
+            "description": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Listado de cada tabla (las pantallas propias del menú)",
+      "item": [
+        {
+          "name": "Estudios realizados: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.id))).to.include(String(pm.collectionVariables.get(\"estudio1\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Estudios realizados: el retirado no aparece — CA-V2-10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"No trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.id))).to.not.include(String(pm.collectionVariables.get(\"estudio3\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudios-realizados",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudios-realizados"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Evaluaciones docentes: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/evaluacion-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "evaluacion-docente"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Experiencias: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/experiecia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "experiecia"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Reconocimientos: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/reconocimiento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reconocimiento"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Apoyos profesorales: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.estudios))).to.include(String(pm.collectionVariables.get(\"estudio2\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/apoyo-profesoral",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "apoyo-profesoral"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Becas: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.estudios))).to.include(String(pm.collectionVariables.get(\"estudio2\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/beca",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "beca"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Docente — Departamento: todas las vinculaciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/docente-departamento",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "docente-departamento"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Red — Docente: todas las participaciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/red-docente",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "red-docente"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Intereses futuros: todos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.docente))).to.include(String(pm.collectionVariables.get(\"cedula\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/intereses-futuros",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "intereses-futuros"
+              ]
+            },
+            "description": ""
+          }
+        },
+        {
+          "name": "Estudio — Área de conocimiento: todas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "const lista = pm.response.json();",
+                  "pm.test(\"Es una lista plana\", () => pm.expect(lista).to.be.an(\"array\"));",
+                  "pm.test(\"Trae el registro de esta corrida\", () => pm.expect(lista.map(x => String(x.estudio))).to.include(String(pm.collectionVariables.get(\"estudio2\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estudio-ac",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estudio-ac"
               ]
             },
             "description": ""

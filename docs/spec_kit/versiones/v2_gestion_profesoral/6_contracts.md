@@ -50,6 +50,7 @@ Todos con prefijo `/api`. «Anidado» = ruta desde el maestro (lista y envío m�
 
 | Recurso | Clave en la ruta | Verbos de la colección y por clave | Anidado (desde el maestro) |
 |---|---|---|---|
+| `area-conocimiento` (v1, D65) | `{id}` (código, p. ej. `1A01`) | `GET` · `GET /{id}` · `POST` · `PUT /{id}` · `DELETE /{id}` | — |
 | `docente` | `{cedula:int}` | `GET` · `GET /{cedula}` · `POST` · `PUT /{cedula}` · `DELETE /{cedula}` | — |
 | `estudios-realizados` | `{id:int}` | ídem | `GET`, `POST` (lista) en `/docente/{cedula:int}/estudios-realizados` |
 | `evaluacion-docente` | `{id:int}` | ídem | `GET`, `POST` (lista) en `/docente/{cedula:int}/evaluacion-docente` |
@@ -185,6 +186,8 @@ Igual que la v1: el front consume la API **desde el servidor** (`HttpClient` tip
 | Editar la vinculación a un programa | `/Docentes/EditarPrograma/{cedula}/{departamento}` |
 | Editar una red | `/Docentes/EditarRed/{cedula}/{red}` |
 | **Detalle del estudio** (apoyo, beca, áreas) | `/EstudiosRealizados/Detalle/{id}` |
+| Área de conocimiento: crear y editar (D65) | `/AreasConocimiento/Crear` · `/AreasConocimiento/Editar?id={id}` |
+| **Pantalla propia de cada tabla** (D66): lista, crear y editar | `/EstudiosRealizados` · `/EvaluacionesDocente` · `/Experiencias` · `/Reconocimientos` · `/ApoyosProfesorales` · `/Becas` · `/DocentesDepartamentos` · `/RedesDocentes` · `/InteresesFuturos` · `/EstudiosAc` (cada una con `/Crear` y, si la tabla tiene `PUT`, `/Editar`) |
 
 Retirar: botón en cada fila con `onsubmit="return confirm('¿Retirar este registro?')"` que envía un `POST` al handler correspondiente. Las puentes puras (`intereses_futuros`, `estudio_ac`) **no tienen** botón de editar.
 

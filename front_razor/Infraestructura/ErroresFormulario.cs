@@ -27,4 +27,19 @@ public static class ErroresFormulario
         }
         return mensajes.Distinct().ToList();
     }
+
+    /// <summary>
+    /// Pasa el error de la API al formulario, para que lo muestre el
+    /// resumen de validación (asp-validation-summary="ModelOnly").
+    /// - 409 o 422 (dato repetido o inválido): un renglón por cada detalle que mandó la API.
+    /// - Cualquier otro código: el mensaje general.
+    /// El prefijo es el nombre de la propiedad del formulario en la página
+    /// (normalmente "Formulario"); se deja para que todas las páginas lo
+    /// llamen igual, aunque los mensajes van al resumen y no a un campo.
+    /// </summary>
+    public static void Aplicar(ModelStateDictionary estado, ErrorApiException ex, string prefijo)
+    {
+        var mensajes = ex.EsDeFormulario ? ex.Mensajes() : new[] { ex.Message };
+        foreach (var mensaje in mensajes) estado.AddModelError(string.Empty, mensaje);
+    }
 }

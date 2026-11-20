@@ -16,7 +16,9 @@ Operar desde el front **las 11 tablas con clave foránea** del módulo Gestión 
 - **maestro-detalle**: el detalle se ve y se agrega desde su maestro,
 - errores previsibles de la base de datos traducidos a **409/422**, nunca `500`.
 
-La v1 (5 tablas sin claves foráneas) conserva sus rutas, DTO y pantallas y **se vuelve a verificar completa**. Su único cambio es por dentro: sus repositorios pasan a llamar procedimientos almacenados (regla R9), porque la v2 exige que **las 16 tablas** pasen por procedimientos.
+La v1 (5 tablas sin claves foráneas) conserva sus rutas, DTO y pantallas y **se vuelve a verificar completa**. Sus cambios: por dentro, sus repositorios pasan a llamar procedimientos almacenados (regla R9), porque la v2 exige que **las 16 tablas** pasen por procedimientos; y `area_conocimiento`, que en la v1 era de solo lectura, recibe **crear, editar y retirar** (D65), porque el criterio 1 de la v2 pide CRUD completo en las tablas de la v1.
+
+> **Correcciones del profesor (17 de noviembre de 2026).** Pidió que **todas las tablas se vean en la ventana principal** y que se cumpla todo `VERSION_2.md`. Lo que cambió por eso está en §10.
 
 ---
 
@@ -40,7 +42,7 @@ La v1 (5 tablas sin claves foráneas) conserva sus rutas, DTO y pantallas y **se
 | `intereses_futuros` | `docente` ↔ `termino_clave` | no (puente puro) |
 | `estudio_ac` | `estudios_realizados` ↔ `area_conocimiento` | no (puente puro) |
 
-**Fuera de alcance:** inicio de sesión, contraseñas, tokens, roles y `rol`/`usuario`/`rol_usuario` (v3); consultas multitabla, dashboard con gráficos, imagen corporativa y publicación (v4); paginación en servidor; modo administrativo para ver inactivos; `PATCH` (la v2 no lo usa); cambiar el código o el esquema de las 5 tablas de la v1.
+**Fuera de alcance:** inicio de sesión, contraseñas, tokens, roles y `rol`/`usuario`/`rol_usuario` (v3); consultas multitabla, dashboard con gráficos, imagen corporativa y publicación (v4); paginación en servidor; modo administrativo para ver inactivos; `PATCH` (la v2 no lo usa); cambiar el esquema de las 5 tablas de la v1 o sus rutas existentes.
 
 ---
 
@@ -50,6 +52,7 @@ Rutas completas en `6_contracts.md`. (✔ existe · — no existe)
 
 | Tabla | Clave | GET lista | GET uno | POST | PUT | DELETE | Envío múltiple |
 |---|---|:-:|:-:|:-:|:-:|:-:|:-:|
+| `area_conocimiento` (de la v1, D65) | `id` (código oficial, p. ej. `1A01`) | ✔ | ✔ | ✔ | ✔ | ✔ | — |
 | `docente` | `cedula` | ✔ | ✔ | ✔ | ✔ | ✔ | — |
 | `estudios_realizados` | `id` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
 | `evaluacion_docente` | `id` | ✔ | ✔ | ✔ | ✔ | ✔ | ✔ |
@@ -135,7 +138,10 @@ CRUD según la matriz.
 
 ### RF14 — Front de las 11 tablas
 
-El front (puerto 8010) añade **un solo enlace** a la barra: **Docentes**. Desde ahí se opera todo el módulo.
+El front (puerto 8010) se opera de dos formas, las dos sobre las mismas rutas de la API:
+
+- **Maestro-detalle** (lo que pide `VERSION_2.md` §3): desde **Docentes → Detalle** se ve y se agrega todo lo del docente.
+- **Una pantalla por tabla** (corrección del profesor, RF14.10 y RF14.11): las 16 tablas aparecen en la página de inicio y en el menú.
 
 - **RF14.1 Docentes:** `Index` (lista con total de estudios, retirar con confirmación), `Crear`, `Editar` (la `cedula` aparece bloqueada).
 - **RF14.2 Detalle del docente** (`/Docentes/Detalle/{cedula}`): muestra los datos del docente y, **en la misma pantalla**, el detalle: estudios, evaluaciones, experiencias, reconocimientos, departamentos, intereses futuros y redes. Cada sección lista, agrega (uno o **varios renglones de una vez**), edita y retira sin salir del docente.
@@ -146,6 +152,10 @@ El front (puerto 8010) añade **un solo enlace** a la barra: **Docentes**. Desde
 - **RF14.7 Mensajes:** éxito (verde) y error (rojo) en castellano. `409`/`422` se muestran en el formulario; `404` redirige con aviso; si la API no responde: «No se pudo conectar con la API de gestión.» **Sin jerga** (nada de «PUT», «422», «FK», números de error).
 - **RF14.8 Puentes:** las puras no tienen botón de editar; las que tienen atributos editan solo los atributos.
 - **RF14.9 Un solo envío:** el formulario de varios renglones envía una única petición a la API.
+- **RF14.10 Todas las tablas en la ventana principal:** la página de inicio muestra **16 tarjetas** en tres grupos —catálogos (5), docentes y su información (7), relaciones (4)— y la barra tiene los mismos grupos: **Catálogos**, **Docentes**, **Información del docente** y **Relaciones**.
+- **RF14.11 Pantalla propia de cada tabla de detalle:** `EstudiosRealizados`, `EvaluacionesDocente`, `Experiencias`, `Reconocimientos`, `ApoyosProfesorales`, `Becas`, `DocentesDepartamentos`, `RedesDocentes`, `InteresesFuturos` y `EstudiosAc` listan **todos** los registros (con el nombre del padre), crean (el padre se elige de un desplegable), editan (las que tienen `PUT`) y retiran. Al editar, el padre se muestra con su nombre y no se cambia.
+- **RF14.12 Área de conocimiento:** además de buscar y ver, tiene **Nueva**, **Editar** (el código queda bloqueado) y **Eliminar** (D65).
+- **RF14.13 Mensajes de validación en castellano:** los que pone ASP.NET al no poder convertir un dato (por ejemplo, un desplegable sin elegir) se reemplazan por «Este campo es obligatorio.» y similares (D67).
 
 ---
 
@@ -198,7 +208,9 @@ Estas reglas no las impone la base de datos: las decide el equipo y viven en el 
 | CA-V2-12 | La regresión de la v1 pasa **completa** (`7_quickstart.md` §3). |
 | CA-V2-13 | Un envío de tres renglones es **una petición**; si el tercero es inválido, no se guarda ninguno. |
 | CA-V2-14 | Retirar un docente con detalle activo responde `409` (regla R2). |
-| CA-V2-15 | Los prompts y las correcciones a la IA están entregados (`GUIA_IA2.md` y un `prompts_<integrante>.md` por persona) y el tag `v2` apunta al commit que pasa los criterios anteriores. |
+| CA-V2-15 | Los prompts y las correcciones a la IA están entregados (`GUIA_IA2.md` y un `prompts_<integrante>.md` por persona) y el tag `v2` apunta al commit que pasa los demás criterios. |
+| CA-V2-16 | Las 16 tablas se abren desde la página de inicio y desde el menú, y cada una lista, crea, edita (si aplica) y retira (RF14.10 y RF14.11). |
+| CA-V2-17 | `area_conocimiento` se crea, se edita y se retira desde su pantalla; el código repetido da `409` y el retirado sale del listado (D65). |
 
 ---
 
@@ -216,4 +228,19 @@ Preguntas que dos personas del equipo podían leer distinto, y la respuesta que 
 | C5 | ¿En qué tablas hay envío múltiple? | En el detalle directo del docente: estudios, evaluaciones, reconocimientos y experiencias (D61). |
 | C6 | ¿La lista de la API va en un sobre `{tabla, total, datos}`? | **No**: lista plana `[]`, como la v1 (D51). |
 | C7 | ¿Cómo viajan las fechas? | Texto `aaaa-mm-dd` en el JSON; `DATE` en la base (D60). |
+| C9 | ¿Hay que mostrar todas las tablas en la ventana principal, o basta con el maestro-detalle? | **Las dos cosas** (corrección del profesor, 17 de noviembre): maestro-detalle desde Docentes y, además, una tarjeta y una entrada del menú por tabla (RF14.10, D66). |
+| C10 | ¿`area_conocimiento` sigue de solo lectura (D22 de la v1)? | **No**: `VERSION_2.md` criterio 1 pide crear, editar y retirar en las tablas de la v1, y el documento del módulo dice «CRUD completo de las 5 tablas sin FK» (D65). |
 | C8 | ¿Qué front? | **Razor Pages** (`front_razor`), el de la v1. La carpeta `front_blazor` es un intento anterior que no forma parte de la entrega. |
+
+---
+
+## 10. Correcciones del profesor (17 de noviembre de 2026)
+
+| Pidió | Qué se hizo | Dónde |
+|---|---|---|
+| Ver **todas las tablas** en la ventana principal | Página de inicio con 16 tarjetas en tres grupos y menú con las 16 tablas | RF14.10, D66 |
+| Que cada tabla se opere desde la interfaz | Pantalla propia (listar, crear, editar, retirar) para las 10 tablas de detalle y puentes, además del maestro-detalle | RF14.11 |
+| CRUD completo de las tablas de la v1 | `area_conocimiento` con crear, editar y retirar | RF14.12, D65 |
+| Interfaz sin jerga | Se quitaron «FK», «PK» y «CRUD» de la página de inicio y los mensajes en inglés de validación | RF14.7, RF14.13, D67 |
+| Claves foráneas con nombre, no con código | Al editar se muestra el nombre del docente, del estudio, del programa o de la red | RF14.4 |
+

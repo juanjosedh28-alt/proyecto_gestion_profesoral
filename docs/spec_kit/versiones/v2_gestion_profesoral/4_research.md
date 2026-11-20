@@ -139,3 +139,23 @@ los procedimientos de lote abren transacción y ninguno necesita `TRY/CATCH`: me
 ### D64 — La URL de `red` se limita a 45 caracteres
 La columna `red.url` es `VARCHAR(45)` y la API de la v1 aceptaba 200: un texto largo terminaba en `500`. Se ajusta
 la validación (API y front) a 45. Es un ajuste de la v1 hecho en la v2 (Artículo 17).
+
+### D65 — `area_conocimiento` con CRUD completo (reemplaza D22 de la v1)
+En la v1 se decidió dejarla de solo lectura para no corromper el catálogo oficial (D22). Pero `VERSION_2.md`
+criterio 1 revisa «crear, editar, retirar» en **cada** tabla de la v1, y el documento del módulo pide «CRUD
+completo de las 5 tablas sin FK». Como una versión cerrada no se reabre, el ajuste se hace en la v2. Para cuidar
+el catálogo: el código (`1A01`) solo admite letras y números, se guarda en mayúsculas, no se reutiliza aunque el
+área esté retirada (`409`) y retirar es lógico. Retirar un área que usa un estudio no se bloquea (igual que R7).
+
+### D66 — Una pantalla por tabla, además del maestro-detalle (ajusta RF14)
+La v2 se diseñó con un solo enlace (Docentes) porque `VERSION_2.md` §3 pide ver el detalle desde el maestro. El
+profesor pidió además ver **todas las tablas en la ventana principal**. Se conservan las dos entradas: el
+maestro-detalle (criterio 9) y una pantalla por tabla que usa los mismos endpoints (`GET /api/<tabla>` para la
+lista completa). En las pantallas propias, crear un hijo exige elegir su padre en un desplegable: nunca se crea
+«suelto» ni se digita el código.
+
+### D67 — Mensajes de ASP.NET en castellano
+Cuando un dato no se puede convertir (un desplegable sin elegir en un campo numérico, letras en un número),
+ASP.NET escribe «The value '' is invalid.». Se cambian todos esos mensajes en `Program.cs` del front con
+`ModelBindingMessageProvider`, para que ninguna pantalla hable en inglés ni en jerga (criterio 11).
+

@@ -2,10 +2,20 @@ using front_razor.Modelos;
 
 namespace front_razor.Clientes;
 
+// ===================================================================
+// Clientes HTTP del DETALLE del docente. Cada uno tiene:
+//   - ListarPorDocenteAsync: GET /api/docente/{cedula}/<detalle>  (el detalle se ve desde el maestro)
+//   - CrearVariosAsync:      POST /api/docente/{cedula}/<detalle> con una LISTA
+//                            -> varios renglones en UNA sola petición
+//   - Obtener / Reemplazar / Eliminar por su id.
+// ===================================================================
+
+/// <summary>Cliente HTTP de <c>/api/estudios-realizados</c>.</summary>
 public class ClienteEstudio : ClienteApiBase
 {
     public ClienteEstudio(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<EstudioVista>> ListarAsync() => GetAsync<List<EstudioVista>>("api/estudios-realizados");
 
     public Task<List<EstudioVista>> ListarPorDocenteAsync(int cedula) =>
@@ -21,10 +31,12 @@ public class ClienteEstudio : ClienteApiBase
     public Task EliminarAsync(int id) => DeleteAsync($"api/estudios-realizados/{Escapar(id)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/evaluacion-docente</c>.</summary>
 public class ClienteEvaluacion : ClienteApiBase
 {
     public ClienteEvaluacion(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<EvaluacionVista>> ListarAsync() => GetAsync<List<EvaluacionVista>>("api/evaluacion-docente");
 
     public Task<List<EvaluacionVista>> ListarPorDocenteAsync(int cedula) =>
@@ -40,10 +52,12 @@ public class ClienteEvaluacion : ClienteApiBase
     public Task EliminarAsync(int id) => DeleteAsync($"api/evaluacion-docente/{Escapar(id)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/experiecia</c> (la ruta conserva la errata del esquema).</summary>
 public class ClienteExperiencia : ClienteApiBase
 {
     public ClienteExperiencia(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<ExperienciaVista>> ListarAsync() => GetAsync<List<ExperienciaVista>>("api/experiecia");
 
     public Task<List<ExperienciaVista>> ListarPorDocenteAsync(int cedula) =>
@@ -59,10 +73,12 @@ public class ClienteExperiencia : ClienteApiBase
     public Task EliminarAsync(int id) => DeleteAsync($"api/experiecia/{Escapar(id)}");
 }
 
+/// <summary>Cliente HTTP de <c>/api/reconocimiento</c>.</summary>
 public class ClienteReconocimiento : ClienteApiBase
 {
     public ClienteReconocimiento(HttpClient http) : base(http) { }
 
+    /// <summary>Todos los registros, sin filtrar por maestro (para la pantalla de la tabla).</summary>
     public Task<List<ReconocimientoVista>> ListarAsync() => GetAsync<List<ReconocimientoVista>>("api/reconocimiento");
 
     public Task<List<ReconocimientoVista>> ListarPorDocenteAsync(int cedula) =>

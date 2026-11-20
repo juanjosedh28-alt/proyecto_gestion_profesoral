@@ -61,7 +61,7 @@ Las claves son aleatorias, así que la colección se puede correr varias veces s
 
 | # | Criterio | Cómo se comprueba | Esperado |
 |---|---|---|---|
-| 1 | Tablas de la v1 con CRUD e interfaz | Abrir Términos clave, Líneas de investigación, Programas y Redes: crear, editar, eliminar. Áreas de conocimiento: ver las 218 | Todo funciona como en la v1 |
+| 1 | Tablas de la v1 con CRUD e interfaz | Menú **Catálogos**: en las cinco tablas crear, editar y eliminar. En Áreas de conocimiento, además, buscar y ver las 218 | Todo funciona; el área nueva aparece y al eliminarla desaparece (D65) |
 | 2 | Tablas de la v2 con CRUD e interfaz | **Docentes** → Nuevo docente → Ver detalle; en cada sección agregar, editar y retirar. En un estudio, «Apoyo, beca y áreas» | Las 11 tablas se operan desde pantallas |
 | 3 | Todo por procedimientos | `grep -riw "select\|insert\|update\|delete" api_gestion/Repositorios` | Sin resultados |
 | 4 | Un disparador funciona | En el detalle de un docente, agregar 3 estudios en un envío; mirar «Estudios activos». Retirar uno | Sube a 3 y baja a 2 **sin que la API envíe el número** |
@@ -81,6 +81,9 @@ Pruebas adicionales de esta spec:
 | CA-V2-13 Todo o nada | En el detalle, tres renglones de estudios con la fecha del tercero vacía, o dos con el mismo id | No se guarda **ninguno** y el error dice el renglón |
 | CA-V2-14 Retiro bloqueado | Retirar un docente que tiene estudios | «No se puede retirar: tiene N registros activos en su detalle…» |
 | R3 Reactivación | Retirar una vinculación a programa y volver a asignarla | Vuelve a aparecer con los datos nuevos |
+| CA-V2-16 Todas las tablas en la ventana principal | Abrir http://localhost:8010: contar las tarjetas y abrir cada entrada de **Catálogos**, **Información del docente** y **Relaciones** | 16 tarjetas; cada pantalla lista, crea, edita (si aplica) y retira |
+| CA-V2-17 Área de conocimiento | Colección, carpeta 7; o en el front: Nueva con código `Q12345`, Editar, Eliminar | 201, 409 al repetir, 200, 204 y desaparece del listado |
+| D67 Mensajes en castellano | Información del docente → Estudios realizados → Nuevo → Guardar sin elegir docente | «Este campo es obligatorio.» / «Seleccione un docente.», nada en inglés |
 
 ---
 

@@ -6,15 +6,27 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace front_razor.Pages.EstudiosRealizados;
 
+/// <summary>
+/// Formulario para editar un registro de <c>estudios_realizados</c>. La clave y el padre no se cambian:
+/// viajan en campos ocultos y en pantalla se muestra el nombre, no el código.
+/// Si el registro no existe se vuelve al listado con el aviso, en vez de un error 500.
+/// </summary>
 public class EditarModel : PageModel
 {
     private readonly ClienteEstudio _cliente;
     public EditarModel(ClienteEstudio cliente) => _cliente = cliente;
 
     [BindProperty(SupportsGet = true)] public int Id { get; set; }
+    // Nombre del docente: la clave foránea se muestra con el nombre, no solo con la cédula (criterio 5).
+    [BindProperty] public string? DocenteNombre { get; set; }
     [BindProperty] public EstudioFormulario Formulario { get; set; } = new();
 
-    public async Task<IActionResult> OnGetAsync() { Formulario = EstudioFormulario.Desde(await _cliente.ObtenerAsync(Id)); return Page(); }
+    public async Task<IActionResult> OnGetAsync()
+    {
+        // Si el registro no existe (404) se vuelve al listado con el mensaje, en vez de un error 500.
+        try { var vista = await _cliente.ObtenerAsync(Id); Formulario = EstudioFormulario.Desde(vista); DocenteNombre = vista.DocenteNombre; return Page(); }
+        catch (ErrorApiException ex) { TempData["Error"] = ex.Message; return RedirectToPage("Index"); }
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {
